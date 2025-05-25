@@ -15,7 +15,14 @@ from .data import (
     ShardedGenomicDataModule
 )
 from .config import ConfigFactory, ConfigLoader
-from .utils import import_uavarprior_model, import_fugep_model, import_model_from_path
+from .utils import (
+    import_uavarprior_model, 
+    import_fugep_model, 
+    import_model_from_path,
+    GenericLightningWrapper,
+    LegacySamplerWrapper,
+    H5Dataset
+)
 
 __all__ = [
     "__version__",
@@ -35,7 +42,10 @@ __all__ = [
     "ConfigFactory",
     "ConfigLoader",
     # Utils
-    "LegacyModelImporter",
-    "LightningWrapper",
-    "SamplerUtils"
+    "import_uavarprior_model",
+    "import_fugep_model",
+    "import_model_from_path",
+    "GenericLightningWrapper",
+    "LegacySamplerWrapper",
+    "H5Dataset"
 ]
