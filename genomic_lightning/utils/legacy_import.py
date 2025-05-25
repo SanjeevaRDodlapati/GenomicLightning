@@ -43,7 +43,7 @@ def import_uavarprior_model(
     
     # Determine model architecture
     if model_type.lower() == "deepsea":
-        from genomic_lightning.models.deepsea import DeepSEAModel
+        from genomic_lightning.models.deepsea import DeepSEA
         
         # Extract architecture details from config if available
         if config_path and os.path.exists(config_path):
@@ -57,7 +57,7 @@ def import_uavarprior_model(
             dropout_rates = config.get("dropout_rates", [0.2, 0.2, 0.5])
             num_targets = config.get("num_targets", 919)
             
-            model = DeepSEAModel(
+            model = DeepSEA(
                 num_filters=num_filters,
                 filter_sizes=filter_sizes,
                 pool_sizes=pool_sizes,
@@ -66,10 +66,10 @@ def import_uavarprior_model(
             )
         else:
             # Use default DeepSEA architecture (919 targets)
-            model = DeepSEAModel()
+            model = DeepSEA()
             
     elif model_type.lower() == "danq":
-        from genomic_lightning.models.danq import DanQModel
+        from genomic_lightning.models.danq import DanQ
         
         # Extract architecture details from config if available
         if config_path and os.path.exists(config_path):
@@ -84,7 +84,7 @@ def import_uavarprior_model(
             lstm_hidden = config.get("lstm_hidden", 320)
             lstm_layers = config.get("lstm_layers", 1)
             
-            model = DanQModel(
+            model = DanQ(
                 num_targets=num_targets,
                 num_filters=num_filters,
                 filter_size=filter_size,
@@ -94,7 +94,7 @@ def import_uavarprior_model(
             )
         else:
             # Use default DanQ architecture
-            model = DanQModel()
+            model = DanQ()
             
     elif model_type.lower() == "chromdragonn":
         from genomic_lightning.models.chromdragonn import ChromDragoNNModel
@@ -225,7 +225,7 @@ def import_fugep_model(
     
     # Map FuGEP model types to GenomicLightning models
     if model_type.lower() == "deepsea":
-        from genomic_lightning.models.deepsea import DeepSEAModel
+        from genomic_lightning.models.deepsea import DeepSEA
         
         num_targets = model_params.get("num_targets", 919)
         num_filters = model_params.get("num_filters", [320, 480, 960])
@@ -233,7 +233,7 @@ def import_fugep_model(
         pool_sizes = model_params.get("pool_sizes", [4, 4, 4])
         dropout_rates = model_params.get("dropout_rates", [0.2, 0.2, 0.5])
         
-        model = DeepSEAModel(
+        model = DeepSEA(
             num_filters=num_filters,
             filter_sizes=filter_sizes,
             pool_sizes=pool_sizes,
@@ -242,7 +242,7 @@ def import_fugep_model(
         )
     
     elif model_type.lower() == "danq":
-        from genomic_lightning.models.danq import DanQModel
+        from genomic_lightning.models.danq import DanQ
         
         num_targets = model_params.get("num_targets", 919)
         num_filters = model_params.get("num_filters", 320)
@@ -251,7 +251,7 @@ def import_fugep_model(
         lstm_hidden = model_params.get("lstm_hidden", 320)
         lstm_layers = model_params.get("lstm_layers", 1)
         
-        model = DanQModel(
+        model = DanQ(
             num_targets=num_targets,
             num_filters=num_filters,
             filter_size=filter_size,

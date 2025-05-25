@@ -5,7 +5,7 @@ Tests for DanQ and ChromDragoNN models.
 import pytest
 import torch
 import numpy as np
-from genomic_lightning.models.danq import DanQModel
+from genomic_lightning.models.danq import DanQ
 from genomic_lightning.models.chromdragonn import ChromDragoNNModel
 
 
@@ -31,7 +31,7 @@ def test_danq_forward(sample_input):
     n_outputs = 919
     
     # Create model
-    model = DanQModel(
+    model = DanQ(
         sequence_length=1000,
         n_genomic_features=4,
         n_outputs=n_outputs,
@@ -75,7 +75,7 @@ def test_danq_gradient_flow(sample_input):
     n_outputs = 919
     
     # Create model
-    model = DanQModel(
+    model = DanQ(
         sequence_length=1000,
         n_genomic_features=4,
         n_outputs=n_outputs,

@@ -7,8 +7,8 @@ from pathlib import Path
 from .loader import ConfigLoader
 from ..models.deepsea import DeepSEA
 from ..models.danq import DanQ
-from ..lightning_modules.deepsea import DeepSEALightning
-from ..lightning_modules.danq import DanQLightning
+from ..lightning_modules.deepsea import DeepSEALightningModule
+from ..lightning_modules.danq import DanQLightningModule
 
 
 class ConfigFactory:
@@ -20,8 +20,8 @@ class ConfigFactory:
     }
     
     LIGHTNING_REGISTRY = {
-        "deepsea": DeepSEALightning,
-        "danq": DanQLightning
+        "deepsea": DeepSEALightningModule,
+        "danq": DanQLightningModule
     }
     
     @classmethod

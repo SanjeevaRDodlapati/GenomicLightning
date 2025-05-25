@@ -11,7 +11,7 @@ import torch.nn.functional as F
 from typing import List, Optional, Tuple
 
 
-class DeepSEAModel(nn.Module):
+class DeepSEA(nn.Module):
     """
     DeepSEA model for predicting chromatin features from DNA sequences.
     
@@ -185,7 +185,7 @@ class DeepSEAModel(nn.Module):
             return torch.argmax(proba, dim=-1)
 
 
-class DeepSEAVariant(DeepSEAModel):
+class DeepSEAVariant(DeepSEA):
     """
     DeepSEA model variant with different architecture choices.
     """

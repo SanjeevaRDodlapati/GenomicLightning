@@ -185,12 +185,12 @@ If you encounter issues during migration, please:
 For new projects, consider using GenomicLightning's native models and data modules instead of migrating legacy code:
 
 ```python
-from genomic_lightning.models.danq import DanQModel
+from genomic_lightning.models.danq import DanQ
 from genomic_lightning.lightning_modules.danq import DanQLightningModule
 from genomic_lightning.data.data_modules import GenomicDataModule
 
 # Create model directly
-model = DanQModel(...)
+model = DanQ(...)
 lightning_module = DanQLightningModule(model=model, ...)
 
 # Use native data modules

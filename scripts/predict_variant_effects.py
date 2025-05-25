@@ -87,8 +87,8 @@ def load_model(model_path, config_path=None, model_type="lightning", device="cpu
         else:
             # Try to load directly from checkpoint
             try:
-                from genomic_lightning.lightning_modules import DeepSEALightning
-                model = DeepSEALightning.load_from_checkpoint(
+                from genomic_lightning.lightning_modules import DeepSEALightningModule
+                model = DeepSEALightningModule.load_from_checkpoint(
                     model_path, map_location=device
                 )
             except Exception as e:

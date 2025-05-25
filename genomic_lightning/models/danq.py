@@ -12,7 +12,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 
-class DanQModel(nn.Module):
+class DanQ(nn.Module):
     """
     DanQ hybrid CNN-RNN model for genomic sequence analysis.
     
@@ -48,7 +48,7 @@ class DanQModel(nn.Module):
             lstm_hidden: Number of LSTM hidden units
             dropout_rate: Dropout rate
         """
-        super(DanQModel, self).__init__()
+        super(DanQ, self).__init__()
         
         # Calculate the size after convolution and pooling
         self.pool_output_size = (sequence_length - conv_kernel_size + 1) // pool_stride

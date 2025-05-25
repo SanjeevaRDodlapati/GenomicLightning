@@ -1,7 +1,7 @@
 """Lightning modules for genomic models."""
 
-from .deepsea import DeepSEALightning
-from .danq import DanQLightning
+from .deepsea import DeepSEALightningModule
+from .danq import DanQLightningModule
 from .base import BaseGenomicLightning
 
-__all__ = ["DeepSEALightning", "DanQLightning", "BaseGenomicLightning"]
+__all__ = ["DeepSEALightningModule", "DanQLightningModule", "BaseGenomicLightning"]

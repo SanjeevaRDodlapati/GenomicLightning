@@ -13,8 +13,8 @@ from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 from pytorch_lightning.loggers import TensorBoardLogger
 import argparse
 
-from genomic_lightning.models.deepsea import DeepSEAModel
-from genomic_lightning.models.danq import DanQModel
+from genomic_lightning.models.deepsea import DeepSEA
+from genomic_lightning.models.danq import DanQ
 from genomic_lightning.lightning_modules.base import BaseLightningModule
 from genomic_lightning.data.sharded_data_module import ShardedGenomicDataModule
 
@@ -33,7 +33,7 @@ def train_model(args):
     
     # Initialize model
     if args.model_type.lower() == "deepsea":
-        model = DeepSEAModel(
+        model = DeepSEA(
             num_targets=args.num_targets,
             num_filters=[320, 480, 960],
             filter_sizes=[8, 8, 8],
@@ -42,7 +42,7 @@ def train_model(args):
         )
         print(f"Created DeepSEA model with {args.num_targets} targets")
     elif args.model_type.lower() == "danq":
-        model = DanQModel(
+        model = DanQ(
             num_targets=args.num_targets,
             num_filters=320,
             filter_size=26,

@@ -6,7 +6,7 @@ __email__ = "your.email@example.com"
 
 # Core imports
 from .models import DeepSEA, DanQ
-from .lightning_modules import DeepSEALightning, DanQLightning
+from .lightning_modules import DeepSEALightningModule, DanQLightningModule
 from .data import (
     BaseGenomicDataset,
     DeepSEADataset, 
@@ -23,8 +23,8 @@ __all__ = [
     "DeepSEA",
     "DanQ", 
     # Lightning modules
-    "DeepSEALightning",
-    "DanQLightning",
+    "DeepSEALightningModule",
+    "DanQLightningModule",
     # Data
     "BaseGenomicDataset",
     "DeepSEADataset",

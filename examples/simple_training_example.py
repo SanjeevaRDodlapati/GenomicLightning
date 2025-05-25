@@ -21,7 +21,7 @@ from torch.utils.data import DataLoader, TensorDataset, random_split
 # Add parent directory to path for import
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from genomic_lightning.models.danq import DanQModel
+from genomic_lightning.models.danq import DanQ
 from genomic_lightning.lightning_modules.danq import DanQLightningModule
 
 
@@ -78,7 +78,7 @@ def main():
     
     # Create model
     print("Creating model...")
-    model = DanQModel(
+    model = DanQ(
         num_targets=num_targets,
         num_filters=32,      # Reduced for demo
         filter_size=26,

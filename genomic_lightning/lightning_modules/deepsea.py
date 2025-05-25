@@ -8,7 +8,7 @@ import pytorch_lightning as pl
 from typing import Dict, Any, Optional, List, Tuple
 import torchmetrics
 
-from genomic_lightning.models.deepsea import DeepSEAModel
+from genomic_lightning.models.deepsea import DeepSEA
 
 
 class DeepSEALightningModule(pl.LightningModule):
@@ -53,7 +53,7 @@ class DeepSEALightningModule(pl.LightningModule):
         self.save_hyperparameters()
         
         # Initialize the model
-        self.model = DeepSEAModel(
+        self.model = DeepSEA(
             sequence_length=sequence_length,
             num_targets=num_targets,
             num_filters=num_filters,

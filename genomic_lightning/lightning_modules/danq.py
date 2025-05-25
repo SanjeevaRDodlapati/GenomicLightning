@@ -6,7 +6,7 @@ import torch
 import pytorch_lightning as pl
 from typing import Dict, Any, Optional, List, Union, Tuple
 
-from genomic_lightning.models.danq import DanQModel
+from genomic_lightning.models.danq import DanQ
 from genomic_lightning.lightning_modules.base import BaseLightningModule
 
 
@@ -54,7 +54,7 @@ class DanQLightningModule(BaseLightningModule):
             prediction_output_dir: Directory to save predictions
             output_format: Format to save predictions
         """
-        model = DanQModel(
+        model = DanQ(
             sequence_length=sequence_length,
             n_genomic_features=n_genomic_features,
             n_outputs=n_outputs,
