@@ -1,6 +1,6 @@
 """Lightning data modules for genomic data."""
 
-import lightning as L
+import pytorch_lightning as pl
 from torch.utils.data import DataLoader, random_split
 from typing import Optional, Dict, Any, Union
 from pathlib import Path
@@ -12,7 +12,7 @@ from .base import BaseGenomicDataset
 logger = logging.getLogger(__name__)
 
 
-class GenomicDataModule(L.LightningDataModule):
+class GenomicDataModule(pl.LightningDataModule):
     """Lightning data module for genomic datasets."""
     
     def __init__(self,

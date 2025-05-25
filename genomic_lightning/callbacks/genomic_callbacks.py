@@ -2,9 +2,9 @@
 
 import os
 import torch
-import lightning as L
-from lightning.pytorch.callbacks import ModelCheckpoint, EarlyStopping, ProgressBar
-from lightning.pytorch.callbacks.base import Callback
+import pytorch_lightning as pl
+from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping, ProgressBar
+from pytorch_lightning.callbacks.base import Callback
 import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np

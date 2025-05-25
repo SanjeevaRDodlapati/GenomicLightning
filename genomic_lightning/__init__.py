@@ -15,7 +15,7 @@ from .data import (
     ShardedGenomicDataModule
 )
 from .config import ConfigFactory, ConfigLoader
-from .utils import LegacyModelImporter, LightningWrapper, SamplerUtils
+from .utils import import_uavarprior_model, import_fugep_model, import_model_from_path
 
 __all__ = [
     "__version__",

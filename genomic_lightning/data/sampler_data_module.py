@@ -1,6 +1,6 @@
 """Data module using legacy samplers for backward compatibility."""
 
-import lightning as L
+import pytorch_lightning as pl
 from torch.utils.data import DataLoader
 from typing import Optional, Dict, Any, Union
 import logging
@@ -11,7 +11,7 @@ from ..utils.sampler_utils import SamplerUtils
 logger = logging.getLogger(__name__)
 
 
-class SamplerDataModule(L.LightningDataModule):
+class SamplerDataModule(pl.LightningDataModule):
     """Lightning data module that wraps legacy samplers."""
     
     def __init__(self,
