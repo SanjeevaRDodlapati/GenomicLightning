@@ -15,7 +15,7 @@ import argparse
 
 from genomic_lightning.models.deepsea import DeepSEA
 from genomic_lightning.models.danq import DanQ
-from genomic_lightning.lightning_modules.base import BaseLightningModule
+from genomic_lightning.lightning_modules.base import BaseGenomicLightning
 from genomic_lightning.data.sharded_data_module import ShardedGenomicDataModule
 
 def train_model(args):
@@ -55,7 +55,7 @@ def train_model(args):
         raise ValueError(f"Unknown model type: {args.model_type}")
     
     # Wrap model with Lightning module
-    lightning_module = BaseLightningModule(
+    lightning_module = BaseGenomicLightning(
         model=model,
         learning_rate=args.learning_rate,
         optimizer="adam",

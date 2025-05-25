@@ -7,13 +7,13 @@ import pytorch_lightning as pl
 from typing import Dict, Any, Optional, List, Union, Tuple
 
 from genomic_lightning.models.chromdragonn import ChromDragoNNModel
-from genomic_lightning.lightning_modules.base import BaseLightningModule
+from genomic_lightning.lightning_modules.base import BaseGenomicLightning
 
 
-class ChromDragoNNLightningModule(BaseLightningModule):
+class ChromDragoNNLightningModule(BaseGenomicLightning):
     """
     PyTorch Lightning module for the ChromDragoNN model.
-    Extends the BaseLightningModule with ChromDragoNN-specific functionality.
+    Extends the BaseGenomicLightning with ChromDragoNN-specific functionality.
     """
     
     def __init__(

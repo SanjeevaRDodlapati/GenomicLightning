@@ -383,8 +383,8 @@ def import_model_from_path(model_path: str, model_type: str = None, config_path:
                     model = model_class.load_from_checkpoint(model_path)
                 else:
                     # Default to a base lightning module
-                    from genomic_lightning.lightning_modules.base import BaseLightningModule
-                    model = BaseLightningModule.load_from_checkpoint(model_path)
+                    from genomic_lightning.lightning_modules.base import BaseGenomicLightning
+                    model = BaseGenomicLightning.load_from_checkpoint(model_path)
         except Exception as e:
             logger.error(f"Error loading Lightning checkpoint: {str(e)}")
             raise

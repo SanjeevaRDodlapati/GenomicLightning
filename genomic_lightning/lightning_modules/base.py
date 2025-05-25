@@ -11,7 +11,7 @@ from typing import Dict, Any, Optional, List, Union, Tuple
 from torchmetrics import AUROC, Accuracy, Precision, Recall, F1Score
 
 
-class BaseLightningModule(pl.LightningModule):
+class BaseGenomicLightning(pl.LightningModule):
     """
     Base PyTorch Lightning module for genomic models.
     
@@ -300,8 +300,8 @@ class BaseLightningModule(pl.LightningModule):
         }
 
 
-class GenomicBaseModule(BaseLightningModule):
+class GenomicBaseModule(BaseGenomicLightning):
     """
-    Alias for BaseLightningModule for backward compatibility.
+    Alias for BaseGenomicLightning for backward compatibility.
     """
     pass

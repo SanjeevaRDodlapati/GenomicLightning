@@ -7,13 +7,13 @@ import pytorch_lightning as pl
 from typing import Dict, Any, Optional, List, Union, Tuple
 
 from genomic_lightning.models.danq import DanQ
-from genomic_lightning.lightning_modules.base import BaseLightningModule
+from genomic_lightning.lightning_modules.base import BaseGenomicLightning
 
 
-class DanQLightningModule(BaseLightningModule):
+class DanQLightningModule(BaseGenomicLightning):
     """
     PyTorch Lightning module for the DanQ model.
-    Extends the BaseLightningModule with DanQ-specific functionality.
+    Extends the BaseGenomicLightning with DanQ-specific functionality.
     """
     
     def __init__(
