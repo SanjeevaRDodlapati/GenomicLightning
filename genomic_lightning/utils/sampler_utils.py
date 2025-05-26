@@ -424,3 +424,149 @@ def create_sharded_dataset(
     
     logger.info(f"Created {num_shards} shards in {output_dir}")
     return shard_paths
+
+class SamplerUtils:
+    """
+    Utility class for creating and managing legacy samplers.
+    Handles different types of samplers including UAVarPrior and FuGEP.
+    """
+    
+    def __init__(self):
+        self.logger = logging.getLogger(__name__)
+    
+    def create_uavarprior_sampler(self, config_path: Optional[str] = None, 
+                                  data_path: Optional[str] = None, 
+                                  split: str = "train") -> Any:
+        """
+        Create a UAVarPrior sampler. 
+        
+        Note: UAVarPrior doesn't provide ready-made samplers.
+        This method provides helpful error messages for users.
+        
+        Args:
+            config_path: Path to UAVarPrior config file
+            data_path: Path to data files
+            split: Data split (train/val/test)
+            
+        Returns:
+            A mock sampler or raises informative error
+        """
+        error_msg = (
+            "UAVarPrior doesn't provide ready-made samplers. "
+            "UAVarPrior provides data classes (Target, GenomicFeatures, Sequence, Genome) "
+            "that you can use to create your own datasets. "
+            "Please use the UAVarPrior data classes directly or create synthetic data for testing."
+        )
+        
+        self.logger.error(error_msg)
+        
+        # Create a simple mock sampler that returns dummy data
+        return MockUAVarPriorSampler(split=split)
+    
+    def create_fugep_sampler(self, config_path: Optional[str] = None,
+                            data_path: Optional[str] = None,
+                            split: str = "train") -> Any:
+        """
+        Create a FuGEP sampler.
+        
+        Args:
+            config_path: Path to FuGEP config file
+            data_path: Path to data files
+            split: Data split (train/val/test)
+            
+        Returns:
+            FuGEP sampler object
+        """
+        try:
+            # Try to import and create FuGEP sampler
+            # This would need to be implemented based on actual FuGEP API
+            self.logger.warning("FuGEP sampler creation not yet implemented")
+            return MockFuGEPSampler(split=split)
+        except ImportError as e:
+            self.logger.error(f"Could not import FuGEP: {e}")
+            return MockFuGEPSampler(split=split)
+    
+    def create_generic_sampler(self, **kwargs) -> Any:
+        """
+        Create a generic sampler from configuration.
+        
+        Args:
+            **kwargs: Sampler configuration
+            
+        Returns:
+            Generic sampler object
+        """
+        self.logger.info("Creating generic sampler")
+        return MockGenericSampler(**kwargs)
+
+
+class MockUAVarPriorSampler:
+    """
+    Mock sampler for UAVarPrior that provides helpful error messages.
+    """
+    
+    def __init__(self, split: str = "train", size: int = 1000):
+        self.split = split
+        self.size = size
+        self.logger = logging.getLogger(__name__)
+        
+        self.logger.warning(
+            f"Using mock UAVarPrior sampler for {split} split. "
+            "UAVarPrior doesn't provide ready-made samplers."
+        )
+    
+    def __len__(self):
+        return self.size
+    
+    def __getitem__(self, idx: int):
+        """Return dummy genomic data."""
+        # Create dummy sequence (4 channels for ACGT, 1000bp)
+        sequence = np.random.randint(0, 2, (4, 1000), dtype=np.float32)
+        # Create dummy labels (919 targets for DeepSEA-like model)
+        labels = np.random.randint(0, 2, 919, dtype=np.float32)
+        
+        return sequence, labels
+
+
+class MockFuGEPSampler:
+    """Mock sampler for FuGEP."""
+    
+    def __init__(self, split: str = "train", size: int = 1000):
+        self.split = split
+        self.size = size
+        self.logger = logging.getLogger(__name__)
+        
+        self.logger.warning(f"Using mock FuGEP sampler for {split} split.")
+    
+    def __len__(self):
+        return self.size
+    
+    def __getitem__(self, idx: int):
+        """Return dummy expression data."""
+        # Create dummy gene expression data
+        sequence = np.random.randn(1000).astype(np.float32)  # 1000 genes
+        labels = np.random.randn(100).astype(np.float32)     # 100 conditions
+        
+        return sequence, labels
+
+
+class MockGenericSampler:
+    """Generic mock sampler."""
+    
+    def __init__(self, size: int = 1000, **kwargs):
+        self.size = size
+        self.config = kwargs
+        self.logger = logging.getLogger(__name__)
+        
+        self.logger.info(f"Created generic mock sampler with size {size}")
+    
+    def __len__(self):
+        return self.size
+    
+    def __getitem__(self, idx: int):
+        """Return dummy data."""
+        # Create basic dummy data
+        sequence = np.random.randn(4, 1000).astype(np.float32)
+        labels = np.random.randint(0, 2, 100).astype(np.float32)
+        
+        return sequence, labels

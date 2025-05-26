@@ -26,38 +26,41 @@ if os.path.exists(uavarprior_path) and uavarprior_path not in sys.path:
 
 from genomic_lightning.utils.legacy_import import import_uavarprior_model
 from genomic_lightning.utils.wrapper_conversion import wrap_model_with_lightning
-from genomic_lightning.utils.sampler_utils import create_dataloader_from_legacy_sampler
 
 
-def import_uavarprior_sampler(config_file):
+def import_uavarprior_data(data_path=None):
     """
-    Import a sampler from UAVarPrior.
+    Import data classes from UAVarPrior.
     
     Args:
-        config_file: Path to UAVarPrior configuration file
+        data_path: Optional path to UAVarPrior data directory
         
     Returns:
-        UAVarPrior sampler object
+        UAVarPrior data classes for creating datasets
     """
     try:
-        # Import UAVarPrior modules
-        from uavarprior.config import load_config
-        from uavarprior.data.samplers import get_sampler
+        # Import UAVarPrior data modules that actually exist
+        from uavarprior.data import Target, GenomicFeatures, Sequence, Genome
         
-        # Load configuration
-        config = load_config(config_file)
+        print("Successfully imported UAVarPrior data classes:")
+        print(f"  - Target: {Target}")
+        print(f"  - GenomicFeatures: {GenomicFeatures}")
+        print(f"  - Sequence: {Sequence}")
+        print(f"  - Genome: {Genome}")
         
-        # Create samplers
-        train_sampler = get_sampler(config, 'train')
-        val_sampler = get_sampler(config, 'validation')
-        test_sampler = get_sampler(config, 'test')
-        
-        return train_sampler, val_sampler, test_sampler
+        # Return the classes so they can be used to create datasets
+        return {
+            'Target': Target,
+            'GenomicFeatures': GenomicFeatures,
+            'Sequence': Sequence,
+            'Genome': Genome
+        }
         
     except ImportError as e:
         print(f"Error importing UAVarPrior modules: {str(e)}")
         print("Make sure UAVarPrior is installed and accessible.")
-        sys.exit(1)
+        print("Note: UAVarPrior provides data classes, not ready-made samplers.")
+        return None
 
 
 def main(args):
@@ -86,34 +89,17 @@ def main(args):
         metrics=["auroc", "auprc", "accuracy"]
     )
     
-    # Import UAVarPrior samplers if config provided
+    # Test UAVarPrior data import instead of non-existent samplers
     if args.sampler_config:
-        print(f"Importing UAVarPrior samplers from {args.sampler_config}...")
-        train_sampler, val_sampler, test_sampler = import_uavarprior_sampler(args.sampler_config)
+        print(f"Testing UAVarPrior data import...")
+        uav_data_classes = import_uavarprior_data()
         
-        # Create data loaders from UAVarPrior samplers
-        train_loader = create_dataloader_from_legacy_sampler(
-            sampler=train_sampler,
-            batch_size=args.batch_size,
-            shuffle=True,
-            num_workers=args.num_workers
-        )
-        
-        val_loader = create_dataloader_from_legacy_sampler(
-            sampler=val_sampler,
-            batch_size=args.batch_size,
-            shuffle=False,
-            num_workers=args.num_workers
-        )
-        
-        test_loader = create_dataloader_from_legacy_sampler(
-            sampler=test_sampler,
-            batch_size=args.batch_size,
-            shuffle=False,
-            num_workers=args.num_workers
-        )
-        
-        print(f"Created data loaders from UAVarPrior samplers")
+        if uav_data_classes:
+            print("UAVarPrior data classes imported successfully.")
+            print("Note: UAVarPrior provides data handling classes, not ready-made data loaders.")
+            print("You would need to create your own datasets using these classes.")
+        else:
+            print("Failed to import UAVarPrior data classes.")
     else:
         print("No sampler config provided. Using synthetic data for demonstration...")
         
@@ -251,7 +237,7 @@ if __name__ == "__main__":
     parser.add_argument("--config-path", type=str, default=None,
                         help="Path to model configuration file (optional)")
     parser.add_argument("--sampler-config", type=str, default=None,
-                        help="Path to UAVarPrior sampler configuration file (optional)")
+                        help="Path to test UAVarPrior data import (note: UAVarPrior doesn't provide ready-made samplers)")
     parser.add_argument("--train", action="store_true",
                         help="Train the model after importing")
     
