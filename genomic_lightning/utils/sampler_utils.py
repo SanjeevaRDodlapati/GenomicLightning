@@ -521,9 +521,9 @@ class MockUAVarPriorSampler:
     def __getitem__(self, idx: int):
         """Return dummy genomic data."""
         # Create dummy sequence (4 channels for ACGT, 1000bp)
-        sequence = np.random.randint(0, 2, (4, 1000), dtype=np.float32)
+        sequence = np.random.randint(0, 2, (4, 1000)).astype(np.float32)
         # Create dummy labels (919 targets for DeepSEA-like model)
-        labels = np.random.randint(0, 2, 919, dtype=np.float32)
+        labels = np.random.randint(0, 2, 919).astype(np.float32)
         
         return sequence, labels
 
