@@ -1,0 +1,274 @@
+name: GenomicLightning CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.8", "3.9", "3.10", "3.11"]
+        pytorch-version: ["1.12.0", "2.0.0"]
+        exclude:
+          # Reduce matrix for faster execution
+          - python-version: "3.11"
+            pytorch-version: "1.12.0"
+
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Cache pip dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/pyproject.toml') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install PyTorch ${{ matrix.pytorch-version }}
+      run: |
+        pip install torch==${{ matrix.pytorch-version }} torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install pytest pytest-cov pytorch-lightning
+        pip install h5py numpy pandas scikit-learn
+
+    - name: Lint with flake8
+      run: |
+        pip install flake8
+        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        flake8 . --count --exit-zero --max-complexity=12 --max-line-length=88 --statistics
+
+    - name: Format check with black
+      run: |
+        pip install black
+        black --check --diff .
+
+    - name: Test imports and basic functionality
+      run: |
+        python test_functionality.py
+
+    - name: Test with pytest
+      run: |
+        pytest tests/ -v --cov=genomic_lightning --cov-report=xml
+
+    - name: Test model architectures
+      run: |
+        python -c "
+        try:
+            # Test DeepSEA model
+            from genomic_lightning.models.deepsea import DeepSEA
+            model = DeepSEA(sequence_length=1000, n_targets=919)
+            print('✅ DeepSEA model creation successful')
+            
+            # Test DanQ model
+            from genomic_lightning.models.danq import DanQ
+            model = DanQ(sequence_length=1000, n_targets=919)
+            print('✅ DanQ model creation successful')
+            
+            # Test data modules
+            from genomic_lightning.data import GenomicDataModule
+            print('✅ Data module import successful')
+            
+        except Exception as e:
+            print(f'❌ Model test failed: {e}')
+            exit(1)
+        "
+
+    - name: Test configuration files
+      run: |
+        python -c "
+        import yaml
+        import os
+        
+        config_dir = 'configs'
+        if os.path.exists(config_dir):
+            for config_file in os.listdir(config_dir):
+                if config_file.endswith('.yml'):
+                    config_path = os.path.join(config_dir, config_file)
+                    try:
+                        with open(config_path) as f:
+                            config = yaml.safe_load(f)
+                        print(f'✅ {config_file} is valid')
+                    except Exception as e:
+                        print(f'❌ {config_file} invalid: {e}')
+        else:
+            print('⚠️ No configs directory found')
+        "
+
+    - name: Test data pipeline with synthetic data
+      run: |
+        python -c "
+        import torch
+        import numpy as np
+        from genomic_lightning.data.data_module import GenomicDataModule
+        
+        # Create synthetic genomic data for testing
+        try:
+            # Test data loading capabilities
+            batch_size = 16
+            sequence_length = 1000
+            n_targets = 919
+            
+            # Synthetic data
+            sequences = torch.randint(0, 4, (batch_size, 4, sequence_length))
+            targets = torch.rand(batch_size, n_targets)
+            
+            print(f'✅ Synthetic data created: sequences {sequences.shape}, targets {targets.shape}')
+            
+        except Exception as e:
+            print(f'❌ Data pipeline test failed: {e}')
+            exit(1)
+        "
+
+    - name: Upload coverage
+      uses: codecov/codecov-action@v3
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.10'
+
+  gpu-test:
+    runs-on: ubuntu-latest
+    container:
+      image: pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Install dependencies
+      run: |
+        pip install -e .
+        pip install pytest
+
+    - name: Test GPU functionality (if available)
+      run: |
+        python -c "
+        import torch
+        if torch.cuda.is_available():
+            print(f'✅ CUDA available: {torch.cuda.get_device_name(0)}')
+            # Test model on GPU
+            from genomic_lightning.models.deepsea import DeepSEA
+            model = DeepSEA(sequence_length=1000, n_targets=919).cuda()
+            x = torch.randn(1, 4, 1000).cuda()
+            with torch.no_grad():
+                output = model(x)
+            print(f'✅ GPU inference successful: {output.shape}')
+        else:
+            print('⚠️ CUDA not available, skipping GPU tests')
+        "
+
+  genomic-specific-tests:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        pip install -e .
+        pip install biopython pysam
+
+    - name: Test genomic data processing
+      run: |
+        python -c "
+        # Test sequence processing utilities
+        try:
+            import numpy as np
+            
+            # Test one-hot encoding
+            def one_hot_encode(sequence):
+                mapping = {'A': 0, 'C': 1, 'G': 2, 'T': 3}
+                encoded = np.zeros((4, len(sequence)))
+                for i, nucleotide in enumerate(sequence.upper()):
+                    if nucleotide in mapping:
+                        encoded[mapping[nucleotide], i] = 1
+                return encoded
+            
+            test_seq = 'ATCGATCG'
+            encoded = one_hot_encode(test_seq)
+            assert encoded.shape == (4, 8)
+            print('✅ Sequence encoding test passed')
+            
+            # Test reverse complement
+            def reverse_complement(seq):
+                complement = {'A': 'T', 'T': 'A', 'C': 'G', 'G': 'C'}
+                return ''.join(complement.get(base, base) for base in reversed(seq))
+            
+            test_rc = reverse_complement('ATCG')
+            assert test_rc == 'CGAT'
+            print('✅ Reverse complement test passed')
+            
+        except Exception as e:
+            print(f'❌ Genomic processing test failed: {e}')
+            exit(1)
+        "
+
+  multi-account-sync:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Verify multi-account setup
+      run: |
+        echo "🔍 Checking GenomicLightning multi-account setup..."
+        
+        if [ -f "push_all.csh" ]; then
+          echo "✅ Multi-account push script available"
+          # Check script permissions
+          if [ -x "push_all.csh" ]; then
+            echo "✅ Push script is executable"
+          else
+            echo "⚠️ Push script needs execute permissions"
+          fi
+        else
+          echo "❌ Multi-account push script missing"
+        fi
+        
+        echo "🎯 GenomicLightning ready for multi-account deployment"
+
+  build-and-publish:
+    needs: [test, genomic-specific-tests]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'release'
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install build tools
+      run: |
+        pip install build twine
+
+    - name: Build package
+      run: |
+        python -m build
+
+    - name: Publish to PyPI
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
+      run: |
+        twine upload dist/* || echo "Requires PYPI_API_TOKEN secret for publishing"

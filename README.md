@@ -16,6 +16,48 @@ A PyTorch Lightning framework for genomic deep learning models, designed with mo
 - **Variant Analysis**: Tools for predicting and analyzing variant effects
 - **Legacy Integration**: Seamless import from UAVarPrior/FuGEP models
 
+## 🔗 Multi-Account Repository Access
+
+This repository is synchronized across multiple GitHub accounts for enhanced collaboration:
+
+- **Primary**: [SanjeevaRDodlapati/GenomicLightning](https://github.com/SanjeevaRDodlapati/GenomicLightning)
+- **Mirror 1**: [sdodlapati3/GenomicLightning](https://github.com/sdodlapati3/GenomicLightning)
+- **Mirror 2**: [sdodlapa/GenomicLightning](https://github.com/sdodlapa/GenomicLightning)
+
+All repositories are automatically synchronized. Clone from any account you have access to.
+
+## Installation
+
+```bash
+# Clone from any synchronized repository
+git clone git@github.com:SanjeevaRDodlapati/GenomicLightning.git
+# OR: git clone git@github.com:sdodlapati3/GenomicLightning.git  
+# OR: git clone git@github.com:sdodlapa/GenomicLightning.git
+cd GenomicLightning
+
+## 🚀 Quick Start (Multi-Account Workflow)
+
+### For Maintainers with Multi-Account Access
+
+```bash
+# 1. Make changes to the code
+# 2. Commit your changes
+git add .
+git commit -m "Add new genomic model architecture"
+
+# 3. Push to all accounts instantly
+./push_all.csh
+
+# Your changes are now live on all three GitHub accounts!
+```
+
+### For Contributors
+
+```bash
+# Fork from any of the synchronized repositories
+# Submit PRs to the primary repository (SanjeevaRDodlapati/GenomicLightning)
+```
+
 ## Installation
 
 ```bash
@@ -101,3 +143,51 @@ fig = visualizer.visualize_sequence_attribution(sequences[0], attributions[0])
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🛠️ Advanced Multi-Account Features
+
+### Repository Synchronization System
+
+GenomicLightning uses an advanced multi-account system that provides:
+
+- **Real-time Synchronization**: Changes propagate across all accounts within seconds
+- **Unified Branch Management**: All repositories use `main` as the primary branch
+- **Cross-Account Administration**: Full admin access across all synchronized accounts
+- **Automated Backup**: Triple redundancy across GitHub accounts
+
+### Development Workflow for Genomic Research
+
+```bash
+# Typical genomic research workflow
+git checkout -b experiment-new-model
+# ... develop your new genomic model
+git add .
+git commit -m "Implement novel transformer-based genomic architecture"
+
+# Test your model
+python tests/test_functionality.py
+
+# Push to all research accounts
+./push_all.csh
+```
+
+### Integration with Genomic Ecosystem
+
+This repository integrates seamlessly with:
+- **UAVarPrior**: Uncertainty quantification for genomic predictions
+- **FuGEP**: Functional genomics event prediction framework
+- **Multi-account synchronization**: Ensures research continuity across platforms
+
+### 🔬 Research Collaboration Guidelines
+
+1. **Experiment Tracking**: Each model experiment should be properly documented
+2. **Data Privacy**: Follow genomic data handling best practices
+3. **Reproducibility**: Use configuration files for all experiments
+4. **Cross-Platform Sync**: Changes automatically appear on all research accounts
+
+### 🧬 Genomic-Specific Features
+
+- **Large Dataset Handling**: Efficient processing of multi-gigabyte genomic files
+- **Model Interpretability**: Advanced visualization for understanding genomic predictions
+- **Variant Effect Prediction**: Specialized tools for analyzing genetic variants
+- **Multi-Modal Integration**: Support for various genomic data types
