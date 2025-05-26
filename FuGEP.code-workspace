@@ -1,0 +1,20 @@
+{
+	"folders": [
+		{
+			"path": "../FuGEP"
+		},
+		{
+			"path": "."
+		},
+		{
+			"path": "../TransMet"
+		},
+		{
+			"path": "../UAVarPrior"
+		},
+		{
+			"path": "../genomics-workspace"
+		}
+	],
+	"settings": {}
+}
