@@ -6,12 +6,19 @@ from pathlib import Path
 # Read the version from the package
 def get_version():
     """Get version from pyproject.toml."""
-    import toml
-    
-    with open("pyproject.toml", "r") as f:
-        pyproject = toml.load(f)
-    
-    return pyproject["tool"]["poetry"]["version"]
+    try:
+        import toml
+        with open("pyproject.toml", "r") as f:
+            pyproject = toml.load(f)
+        return pyproject["tool"]["poetry"]["version"]
+    except ImportError:
+        # Fallback to reading VERSION file if toml is not available
+        try:
+            with open("VERSION", "r") as f:
+                return f.read().strip()
+        except FileNotFoundError:
+            # Final fallback version
+            return "0.1.0"
 
 # Read the README file
 this_directory = Path(__file__).parent
