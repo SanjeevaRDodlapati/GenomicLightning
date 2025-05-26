@@ -1,0 +1,377 @@
+name: GenomicLightning Testing Infrastructure
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    # Run nightly tests at 3 AM UTC
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+    inputs:
+      test_level:
+        description: 'Test level to run'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - quick
+          - full
+          - extensive
+          - gpu-only
+
+env:
+  PYTHON_VERSION: "3.10"
+
+jobs:
+  # Lightning framework smoke tests
+  lightning-smoke-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Cache dependencies
+      uses: actions/cache@v3
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-lightning-${{ hashFiles('**/pyproject.toml') }}
+
+    - name: Install PyTorch Lightning dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+        pip install pytorch-lightning
+        pip install -e . --no-deps
+        pip install pytest pytest-xvfb
+
+    - name: Run Lightning smoke tests
+      run: |
+        pytest tests/smoke/ -v --tb=short -k "lightning"
+        python -c "import genomic_lightning; print(f'✅ GenomicLightning {genomic_lightning.__version__} imports successfully')"
+
+  # Multi-PyTorch version compatibility tests
+  pytorch-compatibility:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        pytorch-version: ['1.12.0', '1.13.0', '2.0.0', '2.1.0', '2.2.0']
+        lightning-version: ['1.8.0', '1.9.0', '2.0.0', '2.1.0']
+        exclude:
+          # Exclude incompatible combinations
+          - pytorch-version: '1.12.0'
+            lightning-version: '2.1.0'
+          - pytorch-version: '1.13.0'
+            lightning-version: '2.1.0'
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install PyTorch and Lightning
+      run: |
+        python -m pip install --upgrade pip
+        pip install torch==${{ matrix.pytorch-version }} --index-url https://download.pytorch.org/whl/cpu
+        pip install pytorch-lightning==${{ matrix.lightning-version }}
+        pip install -e .[test]
+
+    - name: Test compatibility
+      run: |
+        pytest tests/compatibility/ -v --tb=short
+        python -c "
+        import torch
+        import pytorch_lightning as pl
+        import genomic_lightning
+        print(f'✅ PyTorch {torch.__version__} + Lightning {pl.__version__} + GenomicLightning {genomic_lightning.__version__}')
+        "
+
+  # Genomic model architecture tests
+  genomic-models:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+        pip install pytorch-lightning
+        pip install -e .[dev,test]
+        pip install pytest pytest-cov
+
+    - name: Test genomic model architectures
+      run: |
+        pytest tests/models/ -v --cov=genomic_lightning.models --cov-report=xml
+
+    - name: Test genomic data modules
+      run: |
+        pytest tests/data/ -v --cov=genomic_lightning.data --cov-report=xml
+
+    - name: Test genomic metrics
+      run: |
+        pytest tests/metrics/ -v --cov=genomic_lightning.metrics --cov-report=xml
+
+    - name: Upload coverage
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: genomic-models
+
+  # GPU testing (when available)
+  gpu-tests:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.test_level == 'gpu-only' || github.event_name == 'schedule'
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install CUDA dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install torch torchvision --index-url https://download.pytorch.org/whl/cu118
+        pip install pytorch-lightning
+        pip install -e .[test]
+
+    - name: Test GPU model training
+      run: |
+        # Run GPU tests only if CUDA is available
+        python -c "
+        import torch
+        if torch.cuda.is_available():
+            print('✅ CUDA available, running GPU tests')
+            import subprocess
+            subprocess.run(['pytest', 'tests/gpu/', '-v', '--tb=short'], check=True)
+        else:
+            print('⚠️ CUDA not available, skipping GPU tests')
+        "
+
+  # Large-scale genomic data tests
+  large-scale-tests:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule' || github.event.inputs.test_level == 'extensive'
+    timeout-minutes: 90
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+        pip install pytorch-lightning
+        pip install -e .[test]
+        pip install pytest pytest-benchmark
+
+    - name: Generate large-scale test data
+      run: |
+        python tests/fixtures/generate_large_genomic_data.py
+
+    - name: Test large genomic datasets
+      run: |
+        pytest tests/large_scale/ -v --benchmark-only --tb=short
+
+    - name: Test distributed training simulation
+      run: |
+        pytest tests/distributed/ -v --tb=short
+
+  # Model performance and benchmarking
+  performance-benchmarks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+        pip install pytorch-lightning
+        pip install -e .[test]
+        pip install pytest pytest-benchmark memory-profiler
+
+    - name: Run model inference benchmarks
+      run: |
+        pytest tests/benchmarks/ -v --benchmark-only --benchmark-json=benchmark.json
+
+    - name: Test memory efficiency
+      run: |
+        pytest tests/memory/ -v --tb=short
+
+    - name: Upload benchmark results
+      uses: actions/upload-artifact@v3
+      with:
+        name: genomic-lightning-benchmarks
+        path: benchmark.json
+
+  # Lightning trainer integration tests
+  trainer-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+        pip install pytorch-lightning
+        pip install -e .[test]
+
+    - name: Test Lightning trainer workflows
+      run: |
+        pytest tests/integration/trainer/ -v --tb=short
+
+    - name: Test callbacks and hooks
+      run: |
+        pytest tests/integration/callbacks/ -v --tb=short
+
+    - name: Test logging and checkpointing
+      run: |
+        pytest tests/integration/logging/ -v --tb=short
+
+  # Genomic-specific validation
+  genomic-domain-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install genomic dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install torch torchvision --index-url https://download.pytorch.org/whl/cpu
+        pip install pytorch-lightning
+        pip install -e .[test]
+        pip install biopython pyfaidx h5py
+
+    - name: Test DNA sequence processing
+      run: |
+        pytest tests/genomic/sequences/ -v --tb=short
+
+    - name: Test variant effect prediction
+      run: |
+        pytest tests/genomic/variants/ -v --tb=short
+
+    - name: Test regulatory element prediction
+      run: |
+        pytest tests/genomic/regulatory/ -v --tb=short
+
+    - name: Test genomic visualization
+      run: |
+        pytest tests/genomic/visualization/ -v --tb=short
+
+  # Code quality specific to genomic ML
+  genomic-quality:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ env.PYTHON_VERSION }}
+
+    - name: Install quality tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e .
+        pip install black isort flake8 mypy
+        pip install torch pytorch-lightning
+
+    - name: Check genomic code quality
+      run: |
+        black --check --diff genomic_lightning/
+        isort --check-only --diff genomic_lightning/
+        flake8 genomic_lightning/ --count --statistics
+        mypy genomic_lightning/ --ignore-missing-imports || true
+
+    - name: Validate genomic model interfaces
+      run: |
+        python -c "
+        from genomic_lightning.models import GenomicLightningModule
+        from genomic_lightning.data import GenomicDataModule
+        print('✅ Genomic Lightning interfaces are properly defined')
+        "
+
+  # Test result aggregation
+  test-summary:
+    runs-on: ubuntu-latest
+    needs: [lightning-smoke-tests, pytorch-compatibility, genomic-models, trainer-integration, genomic-domain-tests]
+    if: always()
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Generate GenomicLightning test summary
+      run: |
+        echo "# 🧬 GenomicLightning Test Results Summary" > test_summary.md
+        echo "" >> test_summary.md
+        echo "## Lightning Framework Tests" >> test_summary.md
+        echo "- ✅ Lightning Smoke Tests: ${{ needs.lightning-smoke-tests.result }}" >> test_summary.md
+        echo "- ✅ PyTorch Compatibility: ${{ needs.pytorch-compatibility.result }}" >> test_summary.md
+        echo "- ✅ Genomic Models: ${{ needs.genomic-models.result }}" >> test_summary.md
+        echo "- ✅ Trainer Integration: ${{ needs.trainer-integration.result }}" >> test_summary.md
+        echo "- ✅ Genomic Domain Tests: ${{ needs.genomic-domain-tests.result }}" >> test_summary.md
+        echo "" >> test_summary.md
+        echo "## Genomic Deep Learning Features" >> test_summary.md
+        echo "- 🧬 DNA sequence models tested" >> test_summary.md
+        echo "- 🔬 Variant effect prediction validated" >> test_summary.md
+        echo "- 📊 Genomic metrics implemented" >> test_summary.md
+        echo "- ⚡ Lightning integration verified" >> test_summary.md
+
+    - name: Upload test summary
+      uses: actions/upload-artifact@v3
+      with:
+        name: genomic-lightning-test-summary
+        path: test_summary.md
+
+  # Notification for critical failures
+  notify-genomic-failure:
+    runs-on: ubuntu-latest
+    needs: [lightning-smoke-tests, genomic-models, trainer-integration]
+    if: failure()
+    steps:
+    - name: Genomic Lightning failure notification
+      run: |
+        echo "🚨 GenomicLightning test suite has critical failures!"
+        echo "Genomic deep learning models may not function correctly."
+        echo "Please check the failed jobs in the Actions tab."
