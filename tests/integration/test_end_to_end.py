@@ -16,7 +16,7 @@ from genomic_lightning.metrics.genomic_metrics import (
     TopKAccuracy,
     PositionalAUROC,
 )
-from genomic_lightning.data.base import GenomicDataModule
+from genomic_lightning.data.data_modules import GenomicDataModule
 import pytorch_lightning as pl
 
 
@@ -52,7 +52,7 @@ class TestEndToEndIntegration:
         # Initialize model
         model = DanQ(
             sequence_length=sample_config["model"]["sequence_length"],
-            num_classes=sample_config["model"]["num_classes"],
+            n_outputs=sample_config["model"]["num_classes"],
         )
 
         # Test forward pass
@@ -82,7 +82,7 @@ class TestEndToEndIntegration:
         # Initialize model
         model = ChromDragoNNModel(
             sequence_length=sample_config["model"]["sequence_length"],
-            num_classes=sample_config["model"]["num_classes"],
+            n_outputs=sample_config["model"]["num_classes"],
         )
 
         # Test forward pass
@@ -128,10 +128,11 @@ class TestEndToEndIntegration:
 
         # Test PositionalAUROC
         pos_auroc_metric = PositionalAUROC(sequence_length=1000)
-        # Create position-specific targets
+        # Create position-specific targets and positions
         pos_targets = torch.randint(0, 2, (targets.shape[0], 1000)).float()
         pos_predictions = torch.randn(targets.shape[0], 1000)
-        pos_auroc_metric.update(pos_predictions, pos_targets.int())
+        positions = torch.randint(0, 1000, (targets.shape[0],))  # Add positions
+        pos_auroc_metric.update(pos_predictions, pos_targets.int(), positions)
         pos_auroc_score = pos_auroc_metric.compute()
         assert isinstance(pos_auroc_score, (torch.Tensor, dict))
 
@@ -166,7 +167,7 @@ class TestEndToEndIntegration:
         sequences, targets = sample_data
 
         # Initialize model
-        model = DanQ(sequence_length=1000, num_classes=919)
+        model = DanQ(sequence_length=1000, n_outputs=919)
 
         # Get initial memory
         if torch.cuda.is_available():
@@ -194,12 +195,12 @@ class TestEndToEndIntegration:
 
         # Set seed and run first time
         torch.manual_seed(42)
-        model1 = DanQ(sequence_length=1000, num_classes=919)
+        model1 = DanQ(sequence_length=1000, n_outputs=919)
         outputs1 = model1(sequences)
 
         # Set same seed and run second time
         torch.manual_seed(42)
-        model2 = DanQ(sequence_length=1000, num_classes=919)
+        model2 = DanQ(sequence_length=1000, n_outputs=919)
         outputs2 = model2(sequences)
 
         # Results should be identical
@@ -207,7 +208,7 @@ class TestEndToEndIntegration:
 
     def test_different_batch_sizes(self):
         """Test model works with different batch sizes."""
-        model = DanQ(sequence_length=1000, num_classes=919)
+        model = DanQ(sequence_length=1000, n_outputs=919)
 
         for batch_size in [1, 4, 8, 16]:
             sequences = torch.randint(0, 2, (batch_size, 4, 1000)).float()
@@ -219,14 +220,14 @@ class TestEndToEndIntegration:
         sequences, _ = sample_data
 
         # Create and run model
-        model1 = DanQ(sequence_length=1000, num_classes=919)
+        model1 = DanQ(sequence_length=1000, n_outputs=919)
         outputs1 = model1(sequences)
 
         # Save state dict
         state_dict = model1.state_dict()
 
         # Create new model and load state dict
-        model2 = DanQ(sequence_length=1000, num_classes=919)
+        model2 = DanQ(sequence_length=1000, n_outputs=919)
         model2.load_state_dict(state_dict)
         outputs2 = model2(sequences)
 
@@ -237,10 +238,13 @@ class TestEndToEndIntegration:
 class TestPerformanceIntegration:
     """Test performance-related integration scenarios."""
 
-    def test_training_speed_benchmark(self, sample_data):
+    def test_training_speed_benchmark(self):
         """Basic training speed benchmark."""
-        sequences, targets = sample_data
-        model = DanQ(sequence_length=1000, num_classes=919)
+        # Create sample data
+        sequences = torch.randint(0, 2, (8, 4, 1000)).float()
+        targets = torch.randint(0, 2, (8, 919)).float()
+        
+        model = DanQ(sequence_length=1000, n_outputs=919)
         optimizer = torch.optim.Adam(model.parameters())
         loss_fn = torch.nn.BCEWithLogitsLoss()
 
@@ -265,7 +269,7 @@ class TestPerformanceIntegration:
     def test_memory_leak_detection(self, sample_data):
         """Test for memory leaks during repeated training."""
         sequences, targets = sample_data
-        model = DanQ(sequence_length=1000, num_classes=919)
+        model = DanQ(sequence_length=1000, n_outputs=919)
         optimizer = torch.optim.Adam(model.parameters())
         loss_fn = torch.nn.BCEWithLogitsLoss()
 
@@ -299,7 +303,7 @@ class TestErrorHandling:
 
     def test_invalid_input_shapes(self):
         """Test model behavior with invalid input shapes."""
-        model = DanQ(sequence_length=1000, num_classes=919)
+        model = DanQ(sequence_length=1000, n_outputs=919)
 
         # Wrong number of channels
         with pytest.raises((RuntimeError, ValueError)):
@@ -334,7 +338,7 @@ class TestErrorHandling:
 
     def test_empty_batch_handling(self):
         """Test handling of empty batches."""
-        model = DanQ(sequence_length=1000, num_classes=919)
+        model = DanQ(sequence_length=1000, n_outputs=919)
 
         # Empty batch
         empty_batch = torch.empty(0, 4, 1000)
