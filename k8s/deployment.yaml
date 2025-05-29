@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: genomic-lightning
+  labels:
+    app: genomic-lightning
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: genomic-lightning
+  template:
+    metadata:
+      labels:
+        app: genomic-lightning
+    spec:
+      containers:
+      - name: genomic-lightning
+        image: genomic-lightning:latest
+        ports:
+        - containerPort: 8888
+          name: jupyter
+        - containerPort: 6006
+          name: tensorboard
+        env:
+        - name: CUDA_VISIBLE_DEVICES
+          value: "0"
+        - name: TORCH_HOME
+          value: "/app/.torch"
+        - name: PYTHONPATH
+          value: "/app"
+        volumeMounts:
+        - name: data-volume
+          mountPath: /app/data
+          readOnly: true
+        - name: logs-volume
+          mountPath: /app/logs
+        - name: checkpoints-volume
+          mountPath: /app/checkpoints
+        - name: torch-cache
+          mountPath: /app/.torch
+        resources:
+          requests:
+            memory: "4Gi"
+            cpu: "2"
+            nvidia.com/gpu: 1
+          limits:
+            memory: "8Gi"
+            cpu: "4"
+            nvidia.com/gpu: 1
+      volumes:
+      - name: data-volume
+        persistentVolumeClaim:
+          claimName: genomic-data-pvc
+      - name: logs-volume
+        persistentVolumeClaim:
+          claimName: genomic-logs-pvc
+      - name: checkpoints-volume
+        persistentVolumeClaim:
+          claimName: genomic-checkpoints-pvc
+      - name: torch-cache
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: genomic-lightning-service
+spec:
+  selector:
+    app: genomic-lightning
+  ports:
+  - name: jupyter
+    port: 8888
+    targetPort: 8888
+  - name: tensorboard
+    port: 6006
+    targetPort: 6006
+  type: LoadBalancer

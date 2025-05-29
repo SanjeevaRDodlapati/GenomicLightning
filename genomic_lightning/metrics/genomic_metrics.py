@@ -5,7 +5,8 @@ Custom metrics for genomic model evaluation.
 import torch
 import numpy as np
 from typing import Optional, List, Dict, Union, Any
-from torchmetrics import Metric, AUROC, PrecisionRecallCurve
+from torchmetrics import Metric
+from .torchmetrics_compat import create_auroc, create_precision_recall_curve
 
 
 class GenomicAUPRC(Metric):
@@ -20,7 +21,6 @@ class GenomicAUPRC(Metric):
         self,
         num_classes: int,
         average: str = "macro",
-        compute_on_step: bool = True,
         dist_sync_on_step: bool = False,
         process_group: Optional[Any] = None,
     ):
@@ -30,12 +30,10 @@ class GenomicAUPRC(Metric):
         Args:
             num_classes: Number of classes
             average: Method for averaging ('micro', 'macro', 'weighted', None)
-            compute_on_step: Whether to compute metric on each step
             dist_sync_on_step: Sync distributed metrics on step
             process_group: DDP process group
         """
         super().__init__(
-            compute_on_step=compute_on_step,
             dist_sync_on_step=dist_sync_on_step,
             process_group=process_group,
         )
@@ -43,13 +41,8 @@ class GenomicAUPRC(Metric):
         self.num_classes = num_classes
         self.average = average
         
-        # Initialize precision-recall curve
-        self.pr_curve = PrecisionRecallCurve(
-            num_classes=num_classes,
-            compute_on_step=False,
-            dist_sync_on_step=dist_sync_on_step,
-            process_group=process_group,
-        )
+        # Initialize precision-recall curve - use compatibility layer
+        self.pr_curve = create_precision_recall_curve(num_classes=num_classes)
         
         # Register state
         self.add_state("preds", default=[], dist_reduce_fx=None)
@@ -64,6 +57,8 @@ class GenomicAUPRC(Metric):
             targets: Ground truth [batch_size, num_classes]
         """
         assert preds.shape == targets.shape, "Predictions and targets must have the same shape"
+        # Convert targets to int for torchmetrics compatibility
+        targets = targets.int()
         self.preds.append(preds)
         self.targets.append(targets)
         
@@ -84,10 +79,26 @@ class GenomicAUPRC(Metric):
         # Calculate AUPRC for each class
         auprcs = []
         for i in range(self.num_classes):
+            # For multilabel tasks, precision and recall are lists of tensors
+            if isinstance(precision, list):
+                prec_i = precision[i]
+                rec_i = recall[i]
+            else:
+                # For binary tasks, they are 2D tensors
+                prec_i = precision[i]
+                rec_i = recall[i]
+                
             # Calculate area using trapezoidal rule
-            auprc_value = -torch.sum(
-                (recall[i, 1:] - recall[i, :-1]) * precision[i, 1:]
-            ).item()
+            # Sort by recall (ascending) to ensure proper integration
+            if len(rec_i) > 1:
+                sorted_indices = torch.argsort(rec_i)
+                sorted_recall = rec_i[sorted_indices]
+                sorted_precision = prec_i[sorted_indices]
+                auprc_value = torch.trapz(sorted_precision, sorted_recall).item()
+                # Ensure the result is non-negative
+                auprc_value = max(0.0, auprc_value)
+            else:
+                auprc_value = 0.0
             auprcs.append(auprc_value)
             
         # Average based on specified method
@@ -95,13 +106,25 @@ class GenomicAUPRC(Metric):
             # Combine predictions across all classes
             all_preds = preds.view(-1)
             all_targets = targets.view(-1)
-            pr_curve = PrecisionRecallCurve(num_classes=1)
+            pr_curve = create_precision_recall_curve(num_classes=1)
             precision, recall, _ = pr_curve(all_preds.unsqueeze(1), all_targets.unsqueeze(1))
             
             # Calculate micro-average AUPRC
-            return -torch.sum(
-                (recall[0, 1:] - recall[0, :-1]) * precision[0, 1:]
-            )
+            if isinstance(precision, list):
+                prec = precision[0]
+                rec = recall[0]
+            else:
+                prec = precision[0]
+                rec = recall[0]
+                
+            if len(rec) > 1:
+                sorted_indices = torch.argsort(rec)
+                sorted_recall = rec[sorted_indices]
+                sorted_precision = prec[sorted_indices]
+                micro_auprc = torch.trapz(sorted_precision, sorted_recall)
+                return torch.clamp(micro_auprc, min=0.0)
+            else:
+                return torch.tensor(0.0)
             
         elif self.average == "macro":
             # Simple average across classes
@@ -130,7 +153,6 @@ class TopKAccuracy(Metric):
     def __init__(
         self,
         k: int = 5,
-        compute_on_step: bool = True,
         dist_sync_on_step: bool = False,
         process_group: Optional[Any] = None,
     ):
@@ -139,12 +161,10 @@ class TopKAccuracy(Metric):
         
         Args:
             k: Number of top predictions to consider
-            compute_on_step: Whether to compute metric on each step
             dist_sync_on_step: Sync distributed metrics on step
             process_group: DDP process group
         """
         super().__init__(
-            compute_on_step=compute_on_step,
             dist_sync_on_step=dist_sync_on_step,
             process_group=process_group,
         )
@@ -217,7 +237,6 @@ class PositionalAUROC(Metric):
         self,
         sequence_length: int,
         num_bins: int = 10,
-        compute_on_step: bool = True,
         dist_sync_on_step: bool = False,
         process_group: Optional[Any] = None,
     ):
@@ -227,12 +246,10 @@ class PositionalAUROC(Metric):
         Args:
             sequence_length: Length of input sequence
             num_bins: Number of position bins to evaluate
-            compute_on_step: Whether to compute metric on each step
             dist_sync_on_step: Sync distributed metrics on step
             process_group: DDP process group
         """
         super().__init__(
-            compute_on_step=compute_on_step,
             dist_sync_on_step=dist_sync_on_step,
             process_group=process_group,
         )
@@ -241,14 +258,15 @@ class PositionalAUROC(Metric):
         self.num_bins = num_bins
         self.bin_size = sequence_length // num_bins
         
-        # Create AUROC metrics for each position bin
+        # Create AUROC metrics for each position bin - use compatibility layer
         self.auroc_metrics = torch.nn.ModuleList([
-            AUROC(compute_on_step=False) for _ in range(num_bins)
+            create_auroc() for _ in range(num_bins)
         ])
         
-        # Register states for predictions and targets by position
-        self.add_state("bin_preds", default=[[] for _ in range(num_bins)], dist_reduce_fx=None)
-        self.add_state("bin_targets", default=[[] for _ in range(num_bins)], dist_reduce_fx=None)
+        # Use regular Python lists instead of metric states for nested data
+        # These will be managed manually since torchmetrics doesn't support nested states
+        self.bin_preds = [[] for _ in range(num_bins)]
+        self.bin_targets = [[] for _ in range(num_bins)]
         
     def update(self, preds: torch.Tensor, targets: torch.Tensor, 
                positions: torch.Tensor) -> None:

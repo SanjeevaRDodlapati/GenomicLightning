@@ -237,7 +237,7 @@ if __name__ == "__main__":
     parser.add_argument("--config-path", type=str, default=None,
                         help="Path to model configuration file (optional)")
     parser.add_argument("--sampler-config", type=str, default=None,
-                        help="Path to UAVarPrior sampler configuration file (optional)")
+                        help="Path to test UAVarPrior data import (note: UAVarPrior doesn't provide ready-made samplers)")
     parser.add_argument("--train", action="store_true",
                         help="Train the model after importing")
     

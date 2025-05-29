@@ -1,0 +1,158 @@
+version: '3.8'
+
+services:
+  # Main GenomicLightning service
+  genomic-lightning:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: genomic_lightning_main
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - TORCH_HOME=/app/.torch
+      - WANDB_API_KEY=${WANDB_API_KEY:-}
+      - PYTHONPATH=/app
+    volumes:
+      - ./data:/app/data:ro
+      - ./logs:/app/logs
+      - ./checkpoints:/app/checkpoints
+      - ./configs:/app/configs:ro
+    ports:
+      - "8888:8888"  # Jupyter
+      - "6006:6006"  # TensorBoard
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    networks:
+      - genomic-net
+
+  # Development service with additional tools
+  genomic-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: genomic_lightning_dev
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - TORCH_HOME=/app/.torch
+      - WANDB_API_KEY=${WANDB_API_KEY:-}
+      - PYTHONPATH=/app
+    volumes:
+      - .:/app
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./checkpoints:/app/checkpoints
+    ports:
+      - "8889:8888"  # Jupyter (dev)
+      - "6007:6006"  # TensorBoard (dev)
+    command: >
+      bash -c "
+        echo '🔬 Starting GenomicLightning Development Environment...' &&
+        jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token='' --NotebookApp.password=''
+      "
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    networks:
+      - genomic-net
+    profiles:
+      - dev
+
+  # TensorBoard service
+  tensorboard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: genomic_tensorboard
+    command: tensorboard --logdir=/app/logs --host=0.0.0.0 --port=6006
+    volumes:
+      - ./logs:/app/logs:ro
+    ports:
+      - "6008:6006"
+    restart: unless-stopped
+    networks:
+      - genomic-net
+    profiles:
+      - monitoring
+
+  # Training job runner
+  training:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    container_name: genomic_training
+    environment:
+      - CUDA_VISIBLE_DEVICES=0
+      - TORCH_HOME=/app/.torch
+      - WANDB_API_KEY=${WANDB_API_KEY:-}
+      - PYTHONPATH=/app
+    volumes:
+      - ./data:/app/data:ro
+      - ./logs:/app/logs
+      - ./checkpoints:/app/checkpoints
+      - ./configs:/app/configs:ro
+    command: >
+      bash -c "
+        echo '🚀 GenomicLightning Training Service Ready' &&
+        echo 'Run: docker-compose exec training python scripts/train_genomic_model.py --config configs/example_danq.yml' &&
+        tail -f /dev/null
+      "
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: "no"
+    networks:
+      - genomic-net
+    profiles:
+      - training
+
+  # Testing service
+  test-runner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: builder
+    container_name: genomic_tests
+    environment:
+      - PYTHONPATH=/app
+    volumes:
+      - .:/app
+    command: >
+      bash -c "
+        echo '🧪 Running GenomicLightning Test Suite...' &&
+        python -m pytest tests/ -v --tb=short &&
+        echo '✅ All tests completed!'
+      "
+    restart: "no"
+    networks:
+      - genomic-net
+    profiles:
+      - test
+
+networks:
+  genomic-net:
+    driver: bridge
+
+volumes:
+  torch_cache:
+    driver: local
+  model_checkpoints:
+    driver: local

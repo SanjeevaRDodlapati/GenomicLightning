@@ -5,20 +5,39 @@ from pathlib import Path
 
 # Read the version from the package
 def get_version():
-    """Get version from pyproject.toml."""
+    """Get version from VERSION file or pyproject.toml."""
     try:
-        import toml
+        # Try VERSION file first
+        with open("VERSION", "r") as f:
+            return f.read().strip()
+    except FileNotFoundError:
+        pass
+    
+    # Fall back to pyproject.toml using regex (no external deps needed)
+    try:
+        import re
         with open("pyproject.toml", "r") as f:
-            pyproject = toml.load(f)
-        return pyproject["tool"]["poetry"]["version"]
+            content = f.read()
+            # Try modern [project] section first
+            match = re.search(r'version\s*=\s*"([^"]+)"', content)
+            if match:
+                return match.group(1)
+            # Try legacy [tool.poetry] section
+            match = re.search(r'\[tool\.poetry\].*?version\s*=\s*"([^"]+)"', content, re.DOTALL)
+            if match:
+                return match.group(1)
+    except (FileNotFoundError, ImportError):
+        pass
+    
+    # Try importing from package if already installed
+    try:
+        import genomic_lightning
+        return getattr(genomic_lightning, '__version__', "0.1.0")
     except ImportError:
-        # Fallback to reading VERSION file if toml is not available
-        try:
-            with open("VERSION", "r") as f:
-                return f.read().strip()
-        except FileNotFoundError:
-            # Final fallback version
-            return "0.1.0"
+        pass
+    
+    # Final fallback
+    return "0.1.0"
 
 # Read the README file
 this_directory = Path(__file__).parent

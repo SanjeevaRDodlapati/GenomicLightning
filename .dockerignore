@@ -1,0 +1,74 @@
+# Docker ignore file for GenomicLightning
+
+# Version control
+.git
+.gitignore
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.pytest_cache/
+
+# Virtual environments
+venv/
+env/
+ENV/
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temporary files
+*.log
+logs/
+*.tmp
+*.temp
+
+# Large data files (mount as volumes instead)
+data/
+datasets/
+*.h5
+*.hdf5
+*.npz
+
+# Model checkpoints (mount as volumes)
+checkpoints/
+models/
+*.ckpt
+*.pth
+*.pt
+
+# Documentation build
+docs/_build/
+site/
+
+# Test coverage
+htmlcov/
+.coverage
+.coverage.*
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Environment files
+.env
+.env.local
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+
+# Backup files
+*.backup
+*.bak
