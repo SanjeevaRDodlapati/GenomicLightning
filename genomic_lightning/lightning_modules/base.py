@@ -14,11 +14,11 @@ from torchmetrics import AUROC, Accuracy, Precision, Recall, F1Score
 class BaseGenomicLightning(pl.LightningModule):
     """
     Base PyTorch Lightning module for genomic models.
-    
+
     This class provides common functionality for genomic deep learning models,
     including training, validation, testing, and prediction steps.
     """
-    
+
     def __init__(
         self,
         model: torch.nn.Module,
@@ -31,7 +31,7 @@ class BaseGenomicLightning(pl.LightningModule):
     ):
         """
         Initialize the base Lightning module.
-        
+
         Args:
             model: PyTorch model
             learning_rate: Learning rate for optimizer
@@ -48,30 +48,30 @@ class BaseGenomicLightning(pl.LightningModule):
         self.loss_function = loss_function
         self.prediction_output_dir = prediction_output_dir
         self.output_format = output_format
-        
+
         # Set up metrics
         metrics = metrics or ["auroc"]
         self.setup_metrics(metrics)
-        
+
         # Save predictions for later use
         self.test_predictions = []
         self.test_targets = []
         self.test_metadata = []
-        
+
         # Save hyperparameters for loading
         self.save_hyperparameters(ignore=["model"])
-        
+
     def setup_metrics(self, metrics: List[str]):
         """
         Set up tracking metrics for the module.
-        
+
         Args:
             metrics: List of metric names to track
         """
         self.train_metrics = torch.nn.ModuleDict()
         self.val_metrics = torch.nn.ModuleDict()
         self.test_metrics = torch.nn.ModuleDict()
-        
+
         for metric in metrics:
             if metric == "auroc":
                 self.train_metrics["auroc"] = AUROC(task="binary")
@@ -94,27 +94,27 @@ class BaseGenomicLightning(pl.LightningModule):
                 self.val_metrics["f1"] = F1Score(task="binary")
                 self.test_metrics["f1"] = F1Score(task="binary")
             # Custom metrics are handled in subclasses
-    
+
     def forward(self, x):
         """
         Forward pass through the model.
-        
+
         Args:
             x: Input tensor
-            
+
         Returns:
             Model output
         """
         return self.model(x)
-    
+
     def compute_loss(self, y_hat, y):
         """
         Compute loss between predictions and targets.
-        
+
         Args:
             y_hat: Predictions
             y: Targets
-            
+
         Returns:
             Loss value
         """
@@ -126,59 +126,59 @@ class BaseGenomicLightning(pl.LightningModule):
             return torch.nn.functional.cross_entropy(y_hat, y)
         else:
             raise ValueError(f"Unknown loss function: {self.loss_function}")
-    
+
     def training_step(self, batch, batch_idx):
         """
         Training step.
-        
+
         Args:
             batch: Batch data
             batch_idx: Batch index
-            
+
         Returns:
             Loss dictionary
         """
         x, y = batch
         y_hat = self.model(x)
         loss = self.compute_loss(y_hat, y)
-        
+
         # Log metrics
         self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True)
         for name, metric in self.train_metrics.items():
             self.log(f"train_{name}", metric(y_hat, y), on_step=False, on_epoch=True)
-        
+
         return {"loss": loss}
-    
+
     def validation_step(self, batch, batch_idx):
         """
         Validation step.
-        
+
         Args:
             batch: Batch data
             batch_idx: Batch index
-            
+
         Returns:
             Dictionary with predictions, targets, and loss
         """
         x, y = batch
         y_hat = self.model(x)
         loss = self.compute_loss(y_hat, y)
-        
+
         # Log metrics
         self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
         for name, metric in self.val_metrics.items():
             self.log(f"val_{name}", metric(y_hat, y), on_step=False, on_epoch=True)
-        
+
         return {"loss": loss, "preds": y_hat, "targets": y}
-    
+
     def test_step(self, batch, batch_idx):
         """
         Test step.
-        
+
         Args:
             batch: Batch data
             batch_idx: Batch index
-            
+
         Returns:
             Dictionary with predictions, targets, and metadata
         """
@@ -187,34 +187,34 @@ class BaseGenomicLightning(pl.LightningModule):
             metadata = None
         else:
             x, y, metadata = batch
-        
+
         y_hat = self.model(x)
         loss = self.compute_loss(y_hat, y)
-        
+
         # Log metrics
         self.log("test_loss", loss, on_step=False, on_epoch=True)
         for name, metric in self.test_metrics.items():
             self.log(f"test_{name}", metric(y_hat, y), on_step=False, on_epoch=True)
-        
+
         # Save predictions for later analysis
         self.test_predictions.append(y_hat.detach().cpu())
         self.test_targets.append(y.detach().cpu())
         if metadata is not None:
             self.test_metadata.append(metadata)
-        
+
         return {"loss": loss, "preds": y_hat, "targets": y, "metadata": metadata}
-    
+
     def on_test_end(self):
         """
         Called at the end of testing to process all predictions.
         """
         if not self.test_predictions:
             return
-        
+
         # Concatenate all predictions and targets
         all_preds = torch.cat(self.test_predictions, dim=0).numpy()
         all_targets = torch.cat(self.test_targets, dim=0).numpy()
-        
+
         # Process metadata if available
         all_metadata = None
         if self.test_metadata:
@@ -223,12 +223,12 @@ class BaseGenomicLightning(pl.LightningModule):
             except:
                 # If metadata cannot be concatenated, keep as list
                 all_metadata = self.test_metadata
-        
+
         # Save predictions if output directory is specified
         if self.prediction_output_dir:
             os.makedirs(self.prediction_output_dir, exist_ok=True)
             pred_path = os.path.join(self.prediction_output_dir, "predictions")
-            
+
             if self.output_format == "npy":
                 np.save(f"{pred_path}.npy", all_preds)
                 np.save(f"{pred_path}_targets.npy", all_targets)
@@ -244,21 +244,21 @@ class BaseGenomicLightning(pl.LightningModule):
                     f.create_dataset("targets", data=all_targets)
                     if all_metadata is not None:
                         f.create_dataset("metadata", data=all_metadata)
-        
+
         # Reset predictions for next test run
         self.test_predictions = []
         self.test_targets = []
         self.test_metadata = []
-    
+
     def predict_step(self, batch, batch_idx, dataloader_idx=0):
         """
         Prediction step.
-        
+
         Args:
             batch: Batch data
             batch_idx: Batch index
             dataloader_idx: Dataloader index
-            
+
         Returns:
             Predictions
         """
@@ -266,13 +266,13 @@ class BaseGenomicLightning(pl.LightningModule):
             x = batch[0]
         else:
             x = batch
-        
+
         return self.model(x)
-    
+
     def configure_optimizers(self):
         """
         Configure optimizers and schedulers.
-        
+
         Returns:
             Optimizer configuration
         """
@@ -281,7 +281,7 @@ class BaseGenomicLightning(pl.LightningModule):
             lr=self.learning_rate,
             weight_decay=self.weight_decay
         )
-        
+
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
             optimizer,
             mode="min",
@@ -289,7 +289,7 @@ class BaseGenomicLightning(pl.LightningModule):
             patience=5,
             verbose=True
         )
-        
+
         return {
             "optimizer": optimizer,
             "lr_scheduler": {

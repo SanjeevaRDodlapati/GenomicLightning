@@ -8,6 +8,6 @@ from .genomic_metrics import (
 
 __all__ = [
     "GenomicAUPRC",
-    "TopKAccuracy", 
+    "TopKAccuracy",
     "PositionalAUROC"
 ]

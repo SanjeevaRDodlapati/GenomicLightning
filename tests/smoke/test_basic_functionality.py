@@ -41,21 +41,21 @@ def test_lightning_module_creation():
     try:
         import pytorch_lightning as pl
         import torch
-        
+
         class SimpleModule(pl.LightningModule):
             def __init__(self):
                 super().__init__()
                 self.layer = torch.nn.Linear(10, 1)
-            
+
             def forward(self, x):
                 return self.layer(x)
-            
+
             def training_step(self, batch, batch_idx):
                 return torch.tensor(0.0)
-            
+
             def configure_optimizers(self):
                 return torch.optim.Adam(self.parameters())
-        
+
         module = SimpleModule()
         print("✅ Lightning module creation works")
         assert module is not None

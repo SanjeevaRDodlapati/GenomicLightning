@@ -34,10 +34,10 @@ def cli():
               help='Path to checkpoint to resume from')
 def train(config, output_dir, gpus, max_epochs, resume):
     """Train a genomic deep learning model."""
-    
+
     # Load configuration
     config_data = load_config(config)
-    
+
     # Override config with command line arguments
     if gpus is not None:
         config_data['trainer']['devices'] = gpus
@@ -45,13 +45,13 @@ def train(config, output_dir, gpus, max_epochs, resume):
         config_data['trainer']['max_epochs'] = max_epochs
     if resume is not None:
         config_data['trainer']['resume_from_checkpoint'] = resume
-    
+
     # Set output directory
     config_data['trainer']['default_root_dir'] = output_dir
-    
+
     # Train the model
     trainer, model = train_model(config_data)
-    
+
     click.echo(f"Training completed! Results saved in {output_dir}")
 
 
@@ -68,18 +68,18 @@ def train(config, output_dir, gpus, max_epochs, resume):
               help='Number of GPUs to use')
 def predict(model_path, data_path, output_path, batch_size, gpus):
     """Make predictions with a trained model."""
-    
+
     predictions = predict_with_model(
         model_path=model_path,
         data_path=data_path,
         batch_size=batch_size,
         devices=gpus
     )
-    
+
     # Save predictions
     import torch
     torch.save(predictions, output_path)
-    
+
     click.echo(f"Predictions saved to {output_path}")
 
 
@@ -95,18 +95,18 @@ def predict(model_path, data_path, output_path, batch_size, gpus):
               help='Path to save converted model')
 def convert(legacy_model, model_type, config_path, output_path):
     """Convert a legacy model to GenomicLightning format."""
-    
+
     # Import the legacy model
     model = import_model_from_path(
         model_path=legacy_model,
         model_type=model_type,
         config_path=config_path
     )
-    
+
     # Save as PyTorch model
     import torch
     torch.save(model.state_dict(), output_path)
-    
+
     click.echo(f"Converted model saved to {output_path}")
 
 
@@ -123,11 +123,11 @@ def convert(legacy_model, model_type, config_path, output_path):
               help='Compression to use for output files')
 def shard(input_files, output_dir, shard_size, shuffle, compression):
     """Create sharded datasets from large HDF5 files."""
-    
+
     from genomic_lightning.utils.sampler_utils import create_sharded_dataset
-    
+
     input_files = list(input_files)
-    
+
     shard_paths = create_sharded_dataset(
         input_files=input_files,
         output_dir=output_dir,
@@ -135,12 +135,12 @@ def shard(input_files, output_dir, shard_size, shuffle, compression):
         shuffle=shuffle,
         compression=compression
     )
-    
+
     click.echo(f"Created {len(shard_paths)} shards in {output_dir}")
 
 
 @cli.command()
-@click.option('--config-template', '-t', 
+@click.option('--config-template', '-t',
               type=click.Choice(['deepsea', 'danq', 'chromdragonn']),
               default='deepsea',
               help='Type of configuration template to create')
@@ -148,7 +148,7 @@ def shard(input_files, output_dir, shard_size, shuffle, compression):
               help='Path to save configuration file')
 def init_config(config_template, output_path):
     """Initialize a configuration file from a template."""
-    
+
     templates = {
         'deepsea': {
             'model': {
@@ -245,12 +245,12 @@ def init_config(config_template, output_path):
             }
         }
     }
-    
+
     config = templates[config_template]
-    
+
     with open(output_path, 'w') as f:
         yaml.dump(config, f, default_flow_style=False, indent=2)
-    
+
     click.echo(f"Configuration template saved to {output_path}")
     click.echo(f"Please edit the file to specify your data paths and other settings.")
 

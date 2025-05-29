@@ -20,14 +20,14 @@ def test_version_consistency():
     """Test that version is consistent across files."""
     try:
         import genomic_lightning
-        
+
         # Check VERSION file
         version_file = os.path.join(os.path.dirname(__file__), '..', 'VERSION')
         if os.path.exists(version_file):
             with open(version_file, 'r') as f:
                 file_version = f.read().strip()
             assert genomic_lightning.__version__ == file_version
-        
+
         print(f"✅ Version consistency check passed")
     except ImportError:
         pytest.skip("GenomicLightning not properly installed")

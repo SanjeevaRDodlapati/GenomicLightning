@@ -9,15 +9,15 @@ from .models import DeepSEA, DanQ
 from .lightning_modules import DeepSEALightningModule, DanQLightningModule
 from .data import (
     BaseGenomicDataset,
-    DeepSEADataset, 
+    DeepSEADataset,
     GenomicSequenceDataset,
     GenomicDataModule,
     ShardedGenomicDataModule
 )
 from .config import ConfigFactory, ConfigLoader
 from .utils import (
-    import_uavarprior_model, 
-    import_fugep_model, 
+    import_uavarprior_model,
+    import_fugep_model,
     import_model_from_path,
     GenericLightningWrapper,
     LegacySamplerWrapper,
@@ -28,14 +28,14 @@ __all__ = [
     "__version__",
     # Models
     "DeepSEA",
-    "DanQ", 
+    "DanQ",
     # Lightning modules
     "DeepSEALightningModule",
     "DanQLightningModule",
     # Data
     "BaseGenomicDataset",
     "DeepSEADataset",
-    "GenomicSequenceDataset", 
+    "GenomicSequenceDataset",
     "GenomicDataModule",
     "ShardedGenomicDataModule",
     # Config

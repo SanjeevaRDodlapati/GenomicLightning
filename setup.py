@@ -12,7 +12,7 @@ def get_version():
             return f.read().strip()
     except FileNotFoundError:
         pass
-    
+
     # Fall back to pyproject.toml using regex (no external deps needed)
     try:
         import re
@@ -28,14 +28,14 @@ def get_version():
                 return match.group(1)
     except (FileNotFoundError, ImportError):
         pass
-    
+
     # Try importing from package if already installed
     try:
         import genomic_lightning
         return getattr(genomic_lightning, '__version__', "0.1.0")
     except ImportError:
         pass
-    
+
     # Final fallback
     return "0.1.0"
 

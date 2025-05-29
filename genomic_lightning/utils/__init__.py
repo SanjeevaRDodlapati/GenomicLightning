@@ -12,8 +12,8 @@ except ImportError:
     H5Dataset = None
 
 __all__ = [
-    "import_uavarprior_model", 
-    "import_fugep_model", 
+    "import_uavarprior_model",
+    "import_fugep_model",
     "import_model_from_path",
     "GenericLightningWrapper",
     "LegacySamplerWrapper",

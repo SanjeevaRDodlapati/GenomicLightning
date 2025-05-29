@@ -64,7 +64,7 @@ jobs:
 
     - name: Test imports and basic functionality
       run: |
-        python test_functionality.py
+        python tests/test_functionality.py
 
     - name: Test with pytest
       run: |
@@ -147,8 +147,11 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: pytorch/pytorch:2.0.0-cuda11.7-cudnn8-runtime
+      options: --user root
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 1
 
     - name: Install dependencies
       run: |

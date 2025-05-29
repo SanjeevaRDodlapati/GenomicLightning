@@ -15,13 +15,13 @@ import torch.nn.functional as F
 class DanQ(nn.Module):
     """
     DanQ hybrid CNN-RNN model for genomic sequence analysis.
-    
+
     The model consists of:
     1. Convolutional layer with max pooling
     2. Bidirectional LSTM
     3. Dense layers
     """
-    
+
     def __init__(
         self,
         sequence_length=1000,
@@ -36,7 +36,7 @@ class DanQ(nn.Module):
     ):
         """
         Initialize the DanQ model.
-        
+
         Args:
             sequence_length: Length of input DNA sequence
             n_genomic_features: Number of features per position (4 for DNA)
@@ -49,17 +49,17 @@ class DanQ(nn.Module):
             dropout_rate: Dropout rate
         """
         super(DanQ, self).__init__()
-        
+
         # Calculate the size after convolution and pooling
         self.pool_output_size = (sequence_length - conv_kernel_size + 1) // pool_stride
-        
+
         # Convolutional layer
         self.conv = nn.Conv1d(
             n_genomic_features,
             conv_filters,
             kernel_size=conv_kernel_size
         )
-        
+
         # Bidirectional LSTM layer
         self.bilstm = nn.LSTM(
             input_size=conv_filters,
@@ -67,42 +67,42 @@ class DanQ(nn.Module):
             bidirectional=True,
             batch_first=True
         )
-        
+
         # Dense layers
         self.dropout1 = nn.Dropout(dropout_rate)
         self.dense1 = nn.Linear(2 * lstm_hidden * self.pool_output_size, 925)
         self.dropout2 = nn.Dropout(dropout_rate)
         self.dense2 = nn.Linear(925, n_outputs)
-        
+
     def forward(self, x):
         """
         Forward pass for DanQ.
-        
+
         Args:
             x: Input tensor of shape [batch_size, n_genomic_features, sequence_length]
-            
+
         Returns:
             Model output of shape [batch_size, n_outputs]
         """
         # Convolution layer (batch_size, conv_filters, reduced_length)
         x = F.relu(self.conv(x))
-        
+
         # Max pooling
         x = F.max_pool1d(x, kernel_size=self.pool_size, stride=self.pool_stride)
-        
+
         # Transpose to feed into LSTM
         x = x.transpose(1, 2)  # (batch_size, reduced_length, conv_filters)
-        
+
         # LSTM layer
         x, _ = self.bilstm(x)  # (batch_size, reduced_length, 2*lstm_hidden)
-        
+
         # Flatten
         x = x.reshape(x.size(0), -1)
-        
+
         # Dense layers
         x = self.dropout1(x)
         x = F.relu(self.dense1(x))
         x = self.dropout2(x)
         x = self.dense2(x)
-        
+
         return torch.sigmoid(x)

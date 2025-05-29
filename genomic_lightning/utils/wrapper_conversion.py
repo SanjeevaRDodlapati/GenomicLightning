@@ -18,7 +18,7 @@ class GenericLightningWrapper(pl.LightningModule):
     """
     Generic PyTorch Lightning wrapper for genomic deep learning models.
     """
-    
+
     def __init__(
         self,
         model: nn.Module,
@@ -33,7 +33,7 @@ class GenericLightningWrapper(pl.LightningModule):
     ):
         """
         Initialize the lightning wrapper.
-        
+
         Args:
             model: PyTorch model to wrap
             learning_rate: Learning rate for optimization
@@ -54,35 +54,35 @@ class GenericLightningWrapper(pl.LightningModule):
         self.scheduler_name = scheduler
         self.scheduler_kwargs = scheduler_kwargs or {}
         self.class_weights = class_weights
-        
+
         # Save hyperparameters for checkpointing
         self.save_hyperparameters(ignore=['model'])
-        
+
         # Set up metrics
         self.setup_metrics(metrics or ['auroc'])
-        
+
         # Set up loss function
         self.loss_function = self._get_loss_function(loss_function)
-    
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """
         Forward pass through the model.
-        
+
         Args:
             x: Input tensor
-            
+
         Returns:
             Model output
         """
         return self.model(x)
-    
+
     def _get_loss_function(self, loss_name: str) -> Callable:
         """
         Get the loss function by name.
-        
+
         Args:
             loss_name: Name of the loss function
-            
+
         Returns:
             Loss function
         """
@@ -93,7 +93,7 @@ class GenericLightningWrapper(pl.LightningModule):
                 )
             else:
                 return torch.nn.functional.binary_cross_entropy
-                
+
         elif loss_name.lower() == "bce_with_logits":
             if self.class_weights is not None:
                 return lambda y_pred, y_true: torch.nn.functional.binary_cross_entropy_with_logits(
@@ -101,34 +101,34 @@ class GenericLightningWrapper(pl.LightningModule):
                 )
             else:
                 return torch.nn.functional.binary_cross_entropy_with_logits
-                
+
         elif loss_name.lower() == "mse":
             return torch.nn.functional.mse_loss
-            
+
         elif loss_name.lower() == "l1":
             return torch.nn.functional.l1_loss
-            
+
         else:
             raise ValueError(f"Unsupported loss function: {loss_name}")
-    
+
     def setup_metrics(self, metric_names: List[str]):
         """
         Set up metrics for training and evaluation.
-        
+
         Args:
             metric_names: Names of the metrics to track
         """
         self.train_metrics = nn.ModuleDict()
         self.val_metrics = nn.ModuleDict()
         self.test_metrics = nn.ModuleDict()
-        
+
         # Try to determine output size of the model
         try:
             # Use small input for genomic data (4 channels, short sequence)
             dummy_input = torch.randn(1, 4, 100)
             with torch.no_grad():
                 dummy_output = self.model(dummy_input)
-            
+
             if isinstance(dummy_output, tuple):
                 num_classes = dummy_output[0].shape[1]
             else:
@@ -136,172 +136,172 @@ class GenericLightningWrapper(pl.LightningModule):
         except Exception as e:
             logger.warning(f"Could not determine output size: {str(e)}")
             num_classes = 1
-        
+
         # Create metrics
         for name in metric_names:
             if name.lower() == "auroc":
                 self.train_metrics[name] = torchmetrics.AUROC(task="binary", num_classes=num_classes)
                 self.val_metrics[name] = torchmetrics.AUROC(task="binary", num_classes=num_classes)
                 self.test_metrics[name] = torchmetrics.AUROC(task="binary", num_classes=num_classes)
-                
+
             elif name.lower() == "auprc" or name.lower() == "auc":
                 self.train_metrics[name] = torchmetrics.AveragePrecision(task="binary", num_classes=num_classes)
                 self.val_metrics[name] = torchmetrics.AveragePrecision(task="binary", num_classes=num_classes)
                 self.test_metrics[name] = torchmetrics.AveragePrecision(task="binary", num_classes=num_classes)
-                
+
             elif name.lower() == "accuracy":
                 self.train_metrics[name] = torchmetrics.Accuracy(task="binary", num_classes=num_classes)
                 self.val_metrics[name] = torchmetrics.Accuracy(task="binary", num_classes=num_classes)
                 self.test_metrics[name] = torchmetrics.Accuracy(task="binary", num_classes=num_classes)
-                
+
             elif name.lower() == "f1":
                 self.train_metrics[name] = torchmetrics.F1Score(task="binary", num_classes=num_classes)
                 self.val_metrics[name] = torchmetrics.F1Score(task="binary", num_classes=num_classes)
                 self.test_metrics[name] = torchmetrics.F1Score(task="binary", num_classes=num_classes)
-                
+
             elif name.lower() == "precision":
                 self.train_metrics[name] = torchmetrics.Precision(task="binary", num_classes=num_classes)
                 self.val_metrics[name] = torchmetrics.Precision(task="binary", num_classes=num_classes)
                 self.test_metrics[name] = torchmetrics.Precision(task="binary", num_classes=num_classes)
-                
+
             elif name.lower() == "recall":
                 self.train_metrics[name] = torchmetrics.Recall(task="binary", num_classes=num_classes)
                 self.val_metrics[name] = torchmetrics.Recall(task="binary", num_classes=num_classes)
                 self.test_metrics[name] = torchmetrics.Recall(task="binary", num_classes=num_classes)
-                
+
             elif name.lower() == "mse":
                 self.train_metrics[name] = torchmetrics.MeanSquaredError()
                 self.val_metrics[name] = torchmetrics.MeanSquaredError()
                 self.test_metrics[name] = torchmetrics.MeanSquaredError()
-                
+
             elif name.lower() == "mae":
                 self.train_metrics[name] = torchmetrics.MeanAbsoluteError()
                 self.val_metrics[name] = torchmetrics.MeanAbsoluteError()
                 self.test_metrics[name] = torchmetrics.MeanAbsoluteError()
-                
+
             else:
                 logger.warning(f"Unknown metric: {name}")
-    
+
     def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> torch.Tensor:
         """
         Training step.
-        
+
         Args:
             batch: Tuple of (sequence, target)
             batch_idx: Batch index
-            
+
         Returns:
             Loss value
         """
         sequences, targets = batch
         predictions = self.model(sequences)
-        
+
         # Calculate loss
         loss = self.loss_function(predictions, targets)
-        
+
         # Log loss
         self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
-        
+
         # Calculate and log metrics
         for name, metric in self.train_metrics.items():
             value = metric(predictions, targets)
             self.log(f'train_{name}', value, on_step=False, on_epoch=True, prog_bar=True)
-        
+
         return loss
-    
+
     def validation_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> Dict[str, torch.Tensor]:
         """
         Validation step.
-        
+
         Args:
             batch: Tuple of (sequence, target)
             batch_idx: Batch index
-            
+
         Returns:
             Dictionary of validation values
         """
         sequences, targets = batch
         predictions = self.model(sequences)
-        
+
         # Calculate loss
         loss = self.loss_function(predictions, targets)
-        
+
         # Log loss
         self.log('val_loss', loss, on_step=False, on_epoch=True, prog_bar=True)
-        
+
         # Calculate and log metrics
         for name, metric in self.val_metrics.items():
             value = metric(predictions, targets)
             self.log(f'val_{name}', value, on_step=False, on_epoch=True, prog_bar=True)
-        
+
         return {'val_loss': loss}
-    
+
     def test_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> Dict[str, torch.Tensor]:
         """
         Test step.
-        
+
         Args:
             batch: Tuple of (sequence, target)
             batch_idx: Batch index
-            
+
         Returns:
             Dictionary of test values
         """
         sequences, targets = batch
         predictions = self.model(sequences)
-        
+
         # Calculate loss
         loss = self.loss_function(predictions, targets)
-        
+
         # Log loss
         self.log('test_loss', loss, on_step=False, on_epoch=True)
-        
+
         # Calculate and log metrics
         for name, metric in self.test_metrics.items():
             value = metric(predictions, targets)
             self.log(f'test_{name}', value, on_step=False, on_epoch=True)
-        
+
         return {'test_loss': loss}
-    
+
     def configure_optimizers(self) -> Dict:
         """
         Configure optimizers and schedulers.
-        
+
         Returns:
             Dictionary with optimizer and scheduler configuration
         """
         # Create optimizer
         if self.optimizer_name.lower() == "adam":
             optimizer = torch.optim.Adam(
-                self.parameters(), 
+                self.parameters(),
                 lr=self.learning_rate,
                 **self.optimizer_kwargs
             )
         elif self.optimizer_name.lower() == "sgd":
             optimizer = torch.optim.SGD(
-                self.parameters(), 
+                self.parameters(),
                 lr=self.learning_rate,
                 **self.optimizer_kwargs
             )
         elif self.optimizer_name.lower() == "rmsprop":
             optimizer = torch.optim.RMSprop(
-                self.parameters(), 
+                self.parameters(),
                 lr=self.learning_rate,
                 **self.optimizer_kwargs
             )
         elif self.optimizer_name.lower() == "adamw":
             optimizer = torch.optim.AdamW(
-                self.parameters(), 
+                self.parameters(),
                 lr=self.learning_rate,
                 **self.optimizer_kwargs
             )
         else:
             raise ValueError(f"Unsupported optimizer: {self.optimizer_name}")
-        
+
         # Create scheduler if specified
         if self.scheduler_name is None:
             return optimizer
-        
+
         if self.scheduler_name.lower() == "cosine":
             scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
                 optimizer,
@@ -324,7 +324,7 @@ class GenericLightningWrapper(pl.LightningModule):
             )
         else:
             raise ValueError(f"Unsupported scheduler: {self.scheduler_name}")
-        
+
         # Return optimizer and scheduler configuration
         if self.scheduler_name.lower() == "plateau":
             return {
@@ -360,7 +360,7 @@ def wrap_model_with_lightning(
 ) -> pl.LightningModule:
     """
     Wrap a PyTorch model with a PyTorch Lightning module for easy training.
-    
+
     Args:
         model: PyTorch model to wrap
         learning_rate: Learning rate for optimization
@@ -371,7 +371,7 @@ def wrap_model_with_lightning(
         scheduler: Learning rate scheduler ('cosine', 'step', etc.)
         scheduler_kwargs: Additional arguments for scheduler
         class_weights: Optional weights for handling class imbalance
-        
+
     Returns:
         Lightning module wrapping the model
     """

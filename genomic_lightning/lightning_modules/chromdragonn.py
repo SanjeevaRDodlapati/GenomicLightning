@@ -15,7 +15,7 @@ class ChromDragoNNLightningModule(BaseGenomicLightning):
     PyTorch Lightning module for the ChromDragoNN model.
     Extends the BaseGenomicLightning with ChromDragoNN-specific functionality.
     """
-    
+
     def __init__(
         self,
         n_outputs: int = 919,
@@ -34,7 +34,7 @@ class ChromDragoNNLightningModule(BaseGenomicLightning):
     ):
         """
         Initialize the ChromDragoNN Lightning module.
-        
+
         Args:
             n_outputs: Number of output predictions
             sequence_length: Length of input DNA sequence
@@ -59,7 +59,7 @@ class ChromDragoNNLightningModule(BaseGenomicLightning):
             first_kernel_size=first_kernel_size,
             dropout_rate=dropout_rate
         )
-        
+
         super().__init__(
             model=model,
             learning_rate=learning_rate,
@@ -69,13 +69,13 @@ class ChromDragoNNLightningModule(BaseGenomicLightning):
             prediction_output_dir=prediction_output_dir,
             output_format=output_format
         )
-        
+
         self.save_hyperparameters()
-    
+
     def configure_optimizers(self):
         """
         Configure optimizers with cosine annealing scheduler.
-        
+
         Returns:
             Optimizer configuration
         """
@@ -84,14 +84,14 @@ class ChromDragoNNLightningModule(BaseGenomicLightning):
             lr=self.hparams.learning_rate,
             weight_decay=self.hparams.weight_decay
         )
-        
+
         scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
             optimizer,
             T_0=10,  # Restart every 10 epochs
             T_mult=2,  # Double the restart interval after each restart
             eta_min=1e-6  # Minimum learning rate
         )
-        
+
         return {
             "optimizer": optimizer,
             "lr_scheduler": {
@@ -99,7 +99,7 @@ class ChromDragoNNLightningModule(BaseGenomicLightning):
                 "interval": "epoch"
             }
         }
-        
+
     def on_epoch_start(self):
         """
         Custom logic to run at the start of each epoch.
@@ -110,7 +110,7 @@ class ChromDragoNNLightningModule(BaseGenomicLightning):
                 for name, param in block.named_parameters():
                     if param.requires_grad:
                         self.logger.experiment.add_histogram(
-                            f"gradients/block_{i}_{name}", 
-                            param.grad, 
+                            f"gradients/block_{i}_{name}",
+                            param.grad,
                             self.current_epoch
                         )

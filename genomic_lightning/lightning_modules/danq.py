@@ -15,7 +15,7 @@ class DanQLightningModule(BaseGenomicLightning):
     PyTorch Lightning module for the DanQ model.
     Extends the BaseGenomicLightning with DanQ-specific functionality.
     """
-    
+
     def __init__(
         self,
         n_outputs: int = 919,
@@ -36,7 +36,7 @@ class DanQLightningModule(BaseGenomicLightning):
     ):
         """
         Initialize the DanQ Lightning module.
-        
+
         Args:
             n_outputs: Number of output predictions
             sequence_length: Length of input DNA sequence
@@ -65,7 +65,7 @@ class DanQLightningModule(BaseGenomicLightning):
             lstm_hidden=lstm_hidden,
             dropout_rate=dropout_rate
         )
-        
+
         super().__init__(
             model=model,
             learning_rate=learning_rate,
@@ -75,13 +75,13 @@ class DanQLightningModule(BaseGenomicLightning):
             prediction_output_dir=prediction_output_dir,
             output_format=output_format
         )
-        
+
         self.save_hyperparameters()
-    
+
     def configure_optimizers(self):
         """
         Configure optimizers with layer-specific learning rates.
-        
+
         Returns:
             Optimizer configuration
         """
@@ -89,7 +89,7 @@ class DanQLightningModule(BaseGenomicLightning):
         conv_params = []
         lstm_params = []
         dense_params = []
-        
+
         for name, param in self.model.named_parameters():
             if 'conv' in name:
                 conv_params.append(param)
@@ -97,27 +97,27 @@ class DanQLightningModule(BaseGenomicLightning):
                 lstm_params.append(param)
             else:
                 dense_params.append(param)
-        
+
         # Create parameter groups with different learning rates
         param_groups = [
             {'params': conv_params, 'lr': self.hparams.learning_rate},
             {'params': lstm_params, 'lr': self.hparams.learning_rate * 0.5},  # Lower LR for LSTM
             {'params': dense_params, 'lr': self.hparams.learning_rate * 1.5}   # Higher LR for dense
         ]
-        
+
         optimizer = torch.optim.Adam(
             param_groups,
             weight_decay=self.hparams.weight_decay
         )
-        
+
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer, 
-            mode='min', 
-            factor=0.5, 
-            patience=5, 
+            optimizer,
+            mode='min',
+            factor=0.5,
+            patience=5,
             verbose=True
         )
-        
+
         return {
             "optimizer": optimizer,
             "lr_scheduler": {

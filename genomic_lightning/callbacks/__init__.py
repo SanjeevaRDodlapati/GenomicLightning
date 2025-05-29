@@ -10,7 +10,7 @@ from .genomic_callbacks import (
 
 __all__ = [
     "GenomicModelCheckpoint",
-    "GenomicEarlyStopping", 
+    "GenomicEarlyStopping",
     "GenomicProgressBar",
     "VariantEffectLogger",
     "SequenceVisualizationCallback"

@@ -13,9 +13,9 @@ def main():
     parser.add_argument("type", choices=["major", "minor", "patch"],
                        default="patch", nargs='?',
                        help="Type of version bump (default: patch)")
-    
+
     args = parser.parse_args()
-    
+
     try:
         manager = GenomicLightningVersionManager()
         new_version = manager.bump_version(args.type)

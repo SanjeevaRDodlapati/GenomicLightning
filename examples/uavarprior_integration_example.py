@@ -31,23 +31,23 @@ from genomic_lightning.utils.wrapper_conversion import wrap_model_with_lightning
 def import_uavarprior_data(data_path=None):
     """
     Import data classes from UAVarPrior.
-    
+
     Args:
         data_path: Optional path to UAVarPrior data directory
-        
+
     Returns:
         UAVarPrior data classes for creating datasets
     """
     try:
         # Import UAVarPrior data modules that actually exist
         from uavarprior.data import Target, GenomicFeatures, Sequence, Genome
-        
+
         print("Successfully imported UAVarPrior data classes:")
         print(f"  - Target: {Target}")
         print(f"  - GenomicFeatures: {GenomicFeatures}")
         print(f"  - Sequence: {Sequence}")
         print(f"  - Genome: {Genome}")
-        
+
         # Return the classes so they can be used to create datasets
         return {
             'Target': Target,
@@ -55,7 +55,7 @@ def import_uavarprior_data(data_path=None):
             'Sequence': Sequence,
             'Genome': Genome
         }
-        
+
     except ImportError as e:
         print(f"Error importing UAVarPrior modules: {str(e)}")
         print("Make sure UAVarPrior is installed and accessible.")
@@ -66,10 +66,10 @@ def import_uavarprior_data(data_path=None):
 def main(args):
     # Set random seed for reproducibility
     pl.seed_everything(args.seed)
-    
+
     # Create output directory
     os.makedirs(args.output_dir, exist_ok=True)
-    
+
     # Import model from UAVarPrior
     print(f"Importing model from {args.model_path}...")
     model = import_uavarprior_model(
@@ -77,9 +77,9 @@ def main(args):
         model_type=args.model_type,
         config_path=args.config_path
     )
-    
+
     print(f"Model successfully imported: {model.__class__.__name__}")
-    
+
     # Wrap model with Lightning module
     lightning_module = wrap_model_with_lightning(
         model=model,
@@ -88,12 +88,12 @@ def main(args):
         loss_function=args.loss_function,
         metrics=["auroc", "auprc", "accuracy"]
     )
-    
+
     # Test UAVarPrior data import instead of non-existent samplers
     if args.sampler_config:
         print(f"Testing UAVarPrior data import...")
         uav_data_classes = import_uavarprior_data()
-        
+
         if uav_data_classes:
             print("UAVarPrior data classes imported successfully.")
             print("Note: UAVarPrior provides data handling classes, not ready-made data loaders.")
@@ -102,10 +102,10 @@ def main(args):
             print("Failed to import UAVarPrior data classes.")
     else:
         print("No sampler config provided. Using synthetic data for demonstration...")
-        
+
         # Create synthetic data
         from genomic_lightning.models.danq import DanQ  # For getting default shapes
-        
+
         # Try to infer input shape from the model
         if hasattr(model, 'conv_layer'):
             in_channels = model.conv_layer.in_channels
@@ -113,57 +113,57 @@ def main(args):
         else:
             in_channels = 4  # Default for genomic data
             seq_length = 1000
-            
+
         # Try to infer output shape from the model
         if hasattr(model, 'classifier') and hasattr(model.classifier, 'out_features'):
             num_targets = model.classifier.out_features
         else:
             num_targets = 919  # Default for DeepSEA
-        
+
         # Generate synthetic data
         from torch.utils.data import TensorDataset, DataLoader, random_split
         import numpy as np
-        
+
         # Create random sequences
         sequences = np.zeros((1000, in_channels, seq_length), dtype=np.float32)
         for i in range(1000):
             seq = np.random.randint(0, 4, seq_length)
             for j in range(seq_length):
                 sequences[i, seq[j], j] = 1.0
-                
+
         # Create random targets
         targets = np.random.randint(0, 2, (1000, num_targets)).astype(np.float32)
-        
+
         # Convert to tensors
         sequences_tensor = torch.tensor(sequences, dtype=torch.float32)
         targets_tensor = torch.tensor(targets, dtype=torch.float32)
-        
+
         # Create dataset and split
         dataset = TensorDataset(sequences_tensor, targets_tensor)
         train_size = int(0.7 * len(dataset))
         val_size = int(0.15 * len(dataset))
         test_size = len(dataset) - train_size - val_size
-        
+
         train_dataset, val_dataset, test_dataset = random_split(
             dataset, [train_size, val_size, test_size]
         )
-        
+
         # Create data loaders
         train_loader = DataLoader(
             train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers
         )
-        
+
         val_loader = DataLoader(
             val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers
         )
-        
+
         test_loader = DataLoader(
             test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers
         )
-    
+
     # Set up callbacks
     callbacks = []
-    
+
     # Model checkpoint
     checkpoint_callback = ModelCheckpoint(
         dirpath=os.path.join(args.output_dir, 'checkpoints'),
@@ -173,7 +173,7 @@ def main(args):
         save_top_k=3
     )
     callbacks.append(checkpoint_callback)
-    
+
     # Early stopping
     early_stopping = EarlyStopping(
         monitor='val_loss',
@@ -181,7 +181,7 @@ def main(args):
         mode='min'
     )
     callbacks.append(early_stopping)
-    
+
     # Create trainer
     trainer = pl.Trainer(
         max_epochs=args.max_epochs,
@@ -192,44 +192,44 @@ def main(args):
         default_root_dir=args.output_dir,
         log_every_n_steps=10
     )
-    
+
     if args.train:
         # Train model
         print("Training model...")
         trainer.fit(lightning_module, train_loader, val_loader)
-        
+
         # Test model
         print("Testing model...")
         test_results = trainer.test(lightning_module, test_loader)
         print(f"Test results: {test_results}")
-        
+
         # Save model
         model_dir = os.path.join(args.output_dir, 'models')
         os.makedirs(model_dir, exist_ok=True)
-        
+
         # Save in PyTorch Lightning format
         trainer.save_checkpoint(os.path.join(model_dir, f'{args.model_type}_model.ckpt'))
-        
+
         # Save in PyTorch format
         torch.save(model.state_dict(), os.path.join(model_dir, f'{args.model_type}_model.pt'))
-        
+
         print(f"Model saved in {model_dir}")
     else:
         # Just evaluate the model
         print("Evaluating model...")
         test_results = trainer.test(lightning_module, test_loader)
         print(f"Test results: {test_results}")
-    
+
     print("Done!")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Import and use UAVarPrior models with GenomicLightning")
-    
+
     # Required arguments
     parser.add_argument("--model-path", type=str, required=True,
                         help="Path to UAVarPrior model weights (.pth file)")
-    
+
     # Optional arguments
     parser.add_argument("--model-type", type=str, default="deepsea",
                         choices=["deepsea", "danq", "chromdragonn", "custom"],
@@ -240,7 +240,7 @@ if __name__ == "__main__":
                         help="Path to test UAVarPrior data import (note: UAVarPrior doesn't provide ready-made samplers)")
     parser.add_argument("--train", action="store_true",
                         help="Train the model after importing")
-    
+
     # Training parameters
     parser.add_argument("--batch-size", type=int, default=32,
                         help="Batch size for training")
@@ -254,7 +254,7 @@ if __name__ == "__main__":
     parser.add_argument("--loss-function", type=str, default="binary_cross_entropy",
                         choices=["binary_cross_entropy", "bce_with_logits", "mse"],
                         help="Loss function for training")
-    
+
     # Hardware/performance parameters
     parser.add_argument("--num-workers", type=int, default=4,
                         help="Number of worker processes for data loading")
@@ -263,13 +263,13 @@ if __name__ == "__main__":
     parser.add_argument("--precision", type=int, default=32,
                         choices=[16, 32],
                         help="Precision for training (16 or 32)")
-    
+
     # Other parameters
     parser.add_argument("--seed", type=int, default=42,
                         help="Random seed for reproducibility")
     parser.add_argument("--output-dir", type=str, default="uavarprior_integration",
                         help="Output directory for models and logs")
-    
+
     args = parser.parse_args()
-    
+
     main(args)

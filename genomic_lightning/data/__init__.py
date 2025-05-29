@@ -7,7 +7,7 @@ from .sharded_data_module import ShardedGenomicDataModule
 
 __all__ = [
     "BaseGenomicDataset",
-    "DeepSEADataset", 
+    "DeepSEADataset",
     "GenomicSequenceDataset",
     "GenomicDataModule",
     "ShardedGenomicDataModule"

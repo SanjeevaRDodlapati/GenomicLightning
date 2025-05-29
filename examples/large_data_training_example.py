@@ -36,58 +36,58 @@ def generate_synthetic_sharded_data(
 ):
     """Generate synthetic sharded genomic data for demonstration."""
     os.makedirs(output_dir, exist_ok=True)
-    
+
     # Create sharded datasets
     for shard_idx in range(num_shards):
         output_file = os.path.join(output_dir, f"shard_{shard_idx:05d}.h5")
-        
+
         # Create random one-hot encoded sequences
         sequences = np.zeros((samples_per_shard, 4, seq_length), dtype=np.float32)
-        
+
         for i in range(samples_per_shard):
             # Generate a random sequence of ACGT
             seq = np.random.randint(0, 4, seq_length)
             # Convert to one-hot encoding
             for j in range(seq_length):
                 sequences[i, seq[j], j] = 1.0
-        
+
         # Create random binary targets
         targets = np.random.randint(0, 2, (samples_per_shard, num_targets)).astype(np.float32)
-        
+
         # Save to HDF5 file
         with h5py.File(output_file, 'w') as f:
             f.create_dataset('sequences', data=sequences)
             f.create_dataset('targets', data=targets)
-            
+
             # Add metadata
             f.attrs['shard_idx'] = shard_idx
             f.attrs['num_samples'] = samples_per_shard
             f.attrs['seq_length'] = seq_length
             f.attrs['num_targets'] = num_targets
-    
+
     # Create a split file
     splits = {
         'train': list(range(0, int(num_shards * 0.7))),
         'val': list(range(int(num_shards * 0.7), int(num_shards * 0.85))),
         'test': list(range(int(num_shards * 0.85), num_shards))
     }
-    
+
     split_file = os.path.join(output_dir, 'splits.txt')
     with open(split_file, 'w') as f:
         for split, indices in splits.items():
             shard_files = [f"shard_{idx:05d}.h5" for idx in indices]
             f.write(f"{split}:{','.join(shard_files)}\n")
-    
+
     return output_dir, split_file
 
 
 def main(args):
     # Set random seed for reproducibility
     pl.seed_everything(args.seed)
-    
+
     # Create output directory
     os.makedirs(args.output_dir, exist_ok=True)
-    
+
     # Generate synthetic data if needed
     if args.generate_data:
         print("Generating synthetic sharded data...")
@@ -101,7 +101,7 @@ def main(args):
     else:
         data_dir = args.data_dir
         split_file = args.split_file
-    
+
     # Create data module
     data_module = ShardedGenomicDataModule(
         data_dir=data_dir,
@@ -112,7 +112,7 @@ def main(args):
         target_dataset='targets',
         shuffle=True
     )
-    
+
     # Create model
     print("Creating model...")
     model = ChromDragoNNModel(
@@ -121,7 +121,7 @@ def main(args):
         filter_sizes=args.filter_sizes,
         residual_blocks=args.residual_blocks
     )
-    
+
     # Create Lightning module
     lightning_module = ChromDragoNNLightningModule(
         model=model,
@@ -131,10 +131,10 @@ def main(args):
         loss_function=args.loss_function,
         metrics=["auroc", "auprc"]
     )
-    
+
     # Set up callbacks
     callbacks = []
-    
+
     # Checkpoint callback
     checkpoint_callback = ModelCheckpoint(
         dirpath=os.path.join(args.output_dir, 'checkpoints'),
@@ -145,17 +145,17 @@ def main(args):
         save_last=True
     )
     callbacks.append(checkpoint_callback)
-    
+
     # Learning rate monitor
     lr_monitor = LearningRateMonitor(logging_interval='step')
     callbacks.append(lr_monitor)
-    
+
     # Set up logger
     logger = TensorBoardLogger(
         save_dir=args.output_dir,
         name='chromdragonn'
     )
-    
+
     # Create trainer with distributed training options
     trainer = pl.Trainer(
         max_epochs=args.max_epochs,
@@ -171,33 +171,33 @@ def main(args):
         log_every_n_steps=10,
         deterministic=args.deterministic
     )
-    
+
     # Train model
     print("Training model...")
     trainer.fit(lightning_module, data_module)
-    
+
     # Test model
     print("Testing model...")
     test_results = trainer.test(lightning_module, datamodule=data_module)
     print(f"Test results: {test_results}")
-    
+
     # Save model
     model_dir = os.path.join(args.output_dir, 'models')
     os.makedirs(model_dir, exist_ok=True)
-    
+
     # Save in PyTorch Lightning format
     trainer.save_checkpoint(os.path.join(model_dir, 'chromdragonn_model.ckpt'))
-    
+
     # Optionally, save in PyTorch format
     torch.save(model.state_dict(), os.path.join(model_dir, 'chromdragonn_model.pt'))
-    
+
     print(f"Model saved in {model_dir}")
     print("Done!")
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train ChromDragoNN model on large genomic datasets")
-    
+
     # Data parameters
     parser.add_argument("--data-dir", type=str, default=None,
                         help="Directory with sharded data files")
@@ -213,7 +213,7 @@ if __name__ == "__main__":
                         help="Length of input sequences")
     parser.add_argument("--num-targets", type=int, default=919,
                         help="Number of prediction targets")
-    
+
     # Model parameters
     parser.add_argument("--num-filters", type=int, default=300,
                         help="Number of convolutional filters")
@@ -221,7 +221,7 @@ if __name__ == "__main__":
                         help="Comma-separated list of filter sizes")
     parser.add_argument("--residual-blocks", type=int, default=3,
                         help="Number of residual blocks")
-    
+
     # Training parameters
     parser.add_argument("--batch-size", type=int, default=64,
                         help="Batch size for training")
@@ -237,7 +237,7 @@ if __name__ == "__main__":
     parser.add_argument("--loss-function", type=str, default="binary_cross_entropy",
                         choices=["binary_cross_entropy", "bce_with_logits", "mse"],
                         help="Loss function for training")
-    
+
     # Hardware/performance parameters
     parser.add_argument("--num-workers", type=int, default=4,
                         help="Number of worker processes for data loading")
@@ -255,23 +255,23 @@ if __name__ == "__main__":
                         help="Number of batches to accumulate gradients")
     parser.add_argument("--deterministic", action="store_true",
                         help="Use deterministic algorithms for reproducibility")
-    
+
     # Other parameters
     parser.add_argument("--seed", type=int, default=42,
                         help="Random seed for reproducibility")
     parser.add_argument("--output-dir", type=str, default="outputs",
                         help="Output directory for models and logs")
-    
+
     args = parser.parse_args()
-    
+
     # Parse filter sizes from string to list
     try:
         args.filter_sizes = [int(x) for x in args.filter_sizes.split(",")]
     except ValueError:
         parser.error("Filter sizes must be comma-separated integers")
-    
+
     # Validate arguments
     if not args.generate_data and (args.data_dir is None or args.split_file is None):
         parser.error("Either --generate-data or both --data-dir and --split-file must be provided")
-    
+
     main(args)

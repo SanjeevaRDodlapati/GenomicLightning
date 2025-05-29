@@ -27,20 +27,20 @@ def test_uavarprior_sampler_creation():
     try:
         from genomic_lightning.utils.sampler_utils import SamplerUtils
         sampler_utils = SamplerUtils()
-        
+
         # This should create a mock sampler with helpful error message
         mock_sampler = sampler_utils.create_uavarprior_sampler(
             config_path=None,
             data_path=None,
             split="train"
         )
-        
+
         # Test that the mock sampler works
         assert len(mock_sampler) > 0, "Mock sampler should have non-zero length"
         sample = mock_sampler[0]
         assert isinstance(sample, tuple), "Mock sampler should return tuple"
         assert len(sample) == 2, "Mock sampler should return (sequence, labels)"
-        
+
         print("✅ UAVarPrior mock sampler created and works correctly")
         return True
     except Exception as e:
@@ -64,13 +64,13 @@ def test_integration_example_imports():
     try:
         # Add the examples directory to path
         sys.path.insert(0, '/home/sdodl001/GenomicLightning/examples')
-        
+
         # Import the fixed integration example
         import uavarprior_integration_example
-        
+
         # Test the function that replaced the problematic sampler import
         result = uavarprior_integration_example.import_uavarprior_data()
-        
+
         # Result should be None (since UAVarPrior not installed) but no import error
         print("✅ Integration example imports work correctly")
         return True
@@ -89,23 +89,23 @@ def main():
     """Run all integration tests."""
     print("🚀 Testing UAVarPrior Integration Fixes")
     print("=" * 50)
-    
+
     tests = [
         test_sampler_utils_import,
         test_uavarprior_sampler_creation,
         test_sampler_adapter_import,
         test_integration_example_imports,
     ]
-    
+
     results = []
     for test in tests:
         results.append(test())
         print()
-    
+
     print("=" * 50)
     passed = sum(results)
     total = len(results)
-    
+
     if passed == total:
         print(f"🎉 All {total} tests passed! UAVarPrior integration fixes are working.")
         return 0

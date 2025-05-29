@@ -21,16 +21,16 @@ from genomic_lightning.data.sharded_data_module import ShardedGenomicDataModule
 def train_model(args):
     """
     Train a genomic deep learning model.
-    
+
     Args:
         args: Command-line arguments
     """
     # Set random seed for reproducibility
     pl.seed_everything(args.seed)
-    
+
     # Create output directory
     os.makedirs(args.output_dir, exist_ok=True)
-    
+
     # Initialize model
     if args.model_type.lower() == "deepsea":
         model = DeepSEA(
@@ -53,7 +53,7 @@ def train_model(args):
         print(f"Created DanQ model with {args.num_targets} targets")
     else:
         raise ValueError(f"Unknown model type: {args.model_type}")
-    
+
     # Wrap model with Lightning module
     lightning_module = BaseGenomicLightning(
         model=model,
@@ -62,7 +62,7 @@ def train_model(args):
         loss_function="bce_with_logits",
         metrics=["auroc", "auprc", "accuracy"]
     )
-    
+
     # Get data file paths
     train_shards = [
         os.path.join(args.data_dir, "train_shard1.h5"),
@@ -70,7 +70,7 @@ def train_model(args):
     ]
     val_shard = [os.path.join(args.data_dir, "val.h5")]
     test_shard = [os.path.join(args.data_dir, "test.h5")]
-    
+
     # Create data module
     data_module = ShardedGenomicDataModule(
         train_shards=train_shards,
@@ -80,10 +80,10 @@ def train_model(args):
         num_workers=args.num_workers,
         cache_size=args.cache_size
     )
-    
+
     # Set up callbacks
     callbacks = []
-    
+
     # Model checkpoint
     checkpoint_callback = ModelCheckpoint(
         dirpath=os.path.join(args.output_dir, "checkpoints"),
@@ -93,7 +93,7 @@ def train_model(args):
         save_top_k=3
     )
     callbacks.append(checkpoint_callback)
-    
+
     # Early stopping
     early_stopping = EarlyStopping(
         monitor="val_loss",
@@ -101,13 +101,13 @@ def train_model(args):
         mode="min"
     )
     callbacks.append(early_stopping)
-    
+
     # Logger
     logger = TensorBoardLogger(
         save_dir=args.output_dir,
         name="logs"
     )
-    
+
     # Create trainer
     trainer = pl.Trainer(
         max_epochs=args.max_epochs,
@@ -119,21 +119,21 @@ def train_model(args):
         default_root_dir=args.output_dir,
         log_every_n_steps=10
     )
-    
+
     # Train model
     print(f"Starting {args.model_type} model training...")
     trainer.fit(lightning_module, data_module)
-    
+
     # Test model
     print("Evaluating model on test data...")
     test_results = trainer.test(lightning_module, datamodule=data_module)
     print(f"Test results: {test_results}")
-    
+
     # Save model
     output_path = os.path.join(args.output_dir, f"{args.model_type}_model.pt")
     torch.save(model.state_dict(), output_path)
     print(f"Model saved to {output_path}")
-    
+
     # Save Lightning checkpoint
     lightning_path = os.path.join(args.output_dir, f"{args.model_type}_lightning.ckpt")
     trainer.save_checkpoint(lightning_path)
@@ -141,14 +141,14 @@ def train_model(args):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Train a genomic deep learning model")
-    
+
     # Model parameters
     parser.add_argument("--model-type", type=str, default="deepsea",
                         choices=["deepsea", "danq"],
                         help="Type of model to train")
     parser.add_argument("--num-targets", type=int, default=919,
                         help="Number of output targets")
-    
+
     # Data parameters
     parser.add_argument("--data-dir", type=str, default="/home/sdodl001/genomic_data",
                         help="Directory with training data")
@@ -158,7 +158,7 @@ if __name__ == "__main__":
                         help="Number of data loading workers")
     parser.add_argument("--cache-size", type=int, default=1000,
                         help="Number of samples to cache in memory")
-    
+
     # Training parameters
     parser.add_argument("--learning-rate", type=float, default=0.0001,
                         help="Learning rate for optimizer")
@@ -166,20 +166,20 @@ if __name__ == "__main__":
                         help="Maximum number of training epochs")
     parser.add_argument("--patience", type=int, default=5,
                         help="Patience for early stopping")
-    
+
     # Hardware parameters
     parser.add_argument("--devices", type=int, default=1,
                         help="Number of GPUs to use (0 for auto)")
     parser.add_argument("--precision", type=int, default=32,
                         choices=[16, 32],
                         help="Floating point precision")
-    
+
     # Other parameters
     parser.add_argument("--seed", type=int, default=42,
                         help="Random seed for reproducibility")
     parser.add_argument("--output-dir", type=str, default="/home/sdodl001/genomic_results",
                         help="Directory to save model and logs")
-    
+
     args = parser.parse_args()
-    
+
     train_model(args)
