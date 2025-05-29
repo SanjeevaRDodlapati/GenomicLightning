@@ -3,14 +3,20 @@
 import sys
 import torch
 
+
 def main():
-    with open('/home/sdodl001/GenomicLightning/test_results.txt', 'w') as f:
+    with open("/home/sdodl001/GenomicLightning/test_results.txt", "w") as f:
         f.write("Testing GenomicLightning Metrics\n")
-        f.write("="*40 + "\n")
+        f.write("=" * 40 + "\n")
 
         try:
             # Test imports
-            from genomic_lightning.metrics.genomic_metrics import GenomicAUPRC, TopKAccuracy, PositionalAUROC
+            from genomic_lightning.metrics.genomic_metrics import (
+                GenomicAUPRC,
+                TopKAccuracy,
+                PositionalAUROC,
+            )
+
             f.write("✅ Imports successful\n")
 
             # Test creation
@@ -45,7 +51,9 @@ def main():
         except Exception as e:
             f.write(f"❌ ERROR: {str(e)}\n")
             import traceback
+
             f.write(traceback.format_exc())
+
 
 if __name__ == "__main__":
     main()

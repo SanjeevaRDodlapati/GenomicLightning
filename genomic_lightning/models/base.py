@@ -57,7 +57,7 @@ class BaseGenomicModel(nn.Module, ABC):
             "n_genomic_features": self.n_genomic_features,
             "total_parameters": total_params,
             "trainable_parameters": trainable_params,
-            "model_size_mb": total_params * 4 / (1024 * 1024)  # Assuming float32
+            "model_size_mb": total_params * 4 / (1024 * 1024),  # Assuming float32
         }
 
     def load_pretrained_weights(self, checkpoint_path: str, strict: bool = True):
@@ -68,20 +68,20 @@ class BaseGenomicModel(nn.Module, ABC):
             checkpoint_path: Path to the checkpoint file
             strict: Whether to strictly enforce matching keys
         """
-        checkpoint = torch.load(checkpoint_path, map_location=torch.device('cpu'))
+        checkpoint = torch.load(checkpoint_path, map_location=torch.device("cpu"))
 
         # Handle different checkpoint formats
-        if 'state_dict' in checkpoint:
-            state_dict = checkpoint['state_dict']
-        elif 'model_state_dict' in checkpoint:
-            state_dict = checkpoint['model_state_dict']
+        if "state_dict" in checkpoint:
+            state_dict = checkpoint["state_dict"]
+        elif "model_state_dict" in checkpoint:
+            state_dict = checkpoint["model_state_dict"]
         else:
             state_dict = checkpoint
 
         # Remove 'model.' prefix if present (from Lightning checkpoints)
         cleaned_state_dict = {}
         for key, value in state_dict.items():
-            if key.startswith('model.'):
+            if key.startswith("model."):
                 cleaned_state_dict[key[6:]] = value
             else:
                 cleaned_state_dict[key] = value

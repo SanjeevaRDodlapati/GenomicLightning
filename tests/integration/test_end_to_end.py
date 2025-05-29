@@ -11,7 +11,11 @@ import yaml
 
 from genomic_lightning.models.danq import DanQ
 from genomic_lightning.models.chromdragonn import ChromDragoNNModel
-from genomic_lightning.metrics.genomic_metrics import GenomicAUPRC, TopKAccuracy, PositionalAUROC
+from genomic_lightning.metrics.genomic_metrics import (
+    GenomicAUPRC,
+    TopKAccuracy,
+    PositionalAUROC,
+)
 from genomic_lightning.data.base import GenomicDataModule
 import pytorch_lightning as pl
 
@@ -23,21 +27,9 @@ class TestEndToEndIntegration:
     def sample_config(self):
         """Create a sample configuration for testing."""
         return {
-            'model': {
-                'name': 'danq',
-                'sequence_length': 1000,
-                'num_classes': 919
-            },
-            'data': {
-                'batch_size': 16,
-                'num_workers': 0,
-                'sequence_length': 1000
-            },
-            'training': {
-                'max_epochs': 1,
-                'learning_rate': 0.001,
-                'optimizer': 'adam'
-            }
+            "model": {"name": "danq", "sequence_length": 1000, "num_classes": 919},
+            "data": {"batch_size": 16, "num_workers": 0, "sequence_length": 1000},
+            "training": {"max_epochs": 1, "learning_rate": 0.001, "optimizer": "adam"},
         }
 
     @pytest.fixture
@@ -59,13 +51,16 @@ class TestEndToEndIntegration:
 
         # Initialize model
         model = DanQ(
-            sequence_length=sample_config['model']['sequence_length'],
-            num_classes=sample_config['model']['num_classes']
+            sequence_length=sample_config["model"]["sequence_length"],
+            num_classes=sample_config["model"]["num_classes"],
         )
 
         # Test forward pass
         outputs = model(sequences)
-        assert outputs.shape == (sequences.shape[0], sample_config['model']['num_classes'])
+        assert outputs.shape == (
+            sequences.shape[0],
+            sample_config["model"]["num_classes"],
+        )
 
         # Test loss computation
         loss_fn = torch.nn.BCEWithLogitsLoss()
@@ -86,13 +81,16 @@ class TestEndToEndIntegration:
 
         # Initialize model
         model = ChromDragoNNModel(
-            sequence_length=sample_config['model']['sequence_length'],
-            num_classes=sample_config['model']['num_classes']
+            sequence_length=sample_config["model"]["sequence_length"],
+            num_classes=sample_config["model"]["num_classes"],
         )
 
         # Test forward pass
         outputs = model(sequences)
-        assert outputs.shape == (sequences.shape[0], sample_config['model']['num_classes'])
+        assert outputs.shape == (
+            sequences.shape[0],
+            sample_config["model"]["num_classes"],
+        )
 
         # Test loss computation
         loss_fn = torch.nn.BCEWithLogitsLoss()
@@ -140,25 +138,25 @@ class TestEndToEndIntegration:
     def test_config_loading_and_validation(self, sample_config):
         """Test configuration loading and validation."""
         # Create temporary config file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".yml", delete=False) as f:
             yaml.dump(sample_config, f)
             config_path = f.name
 
         try:
             # Load config
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 loaded_config = yaml.safe_load(f)
 
             # Validate required keys
-            assert 'model' in loaded_config
-            assert 'data' in loaded_config
-            assert 'training' in loaded_config
+            assert "model" in loaded_config
+            assert "data" in loaded_config
+            assert "training" in loaded_config
 
             # Validate model config
-            model_config = loaded_config['model']
-            assert 'name' in model_config
-            assert 'sequence_length' in model_config
-            assert 'num_classes' in model_config
+            model_config = loaded_config["model"]
+            assert "name" in model_config
+            assert "sequence_length" in model_config
+            assert "num_classes" in model_config
 
         finally:
             os.unlink(config_path)
@@ -247,6 +245,7 @@ class TestPerformanceIntegration:
         loss_fn = torch.nn.BCEWithLogitsLoss()
 
         import time
+
         start_time = time.time()
 
         # Run 10 training steps
@@ -290,7 +289,9 @@ class TestPerformanceIntegration:
             memory_increase = final_memory - initial_memory
 
             # Memory increase should be minimal (less than 100MB)
-            assert memory_increase < 1e8, f"Potential memory leak: {memory_increase} bytes"
+            assert (
+                memory_increase < 1e8
+            ), f"Potential memory leak: {memory_increase} bytes"
 
 
 class TestErrorHandling:

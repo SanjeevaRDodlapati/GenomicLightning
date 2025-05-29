@@ -57,7 +57,7 @@ class ChromDragoNNLightningModule(BaseGenomicLightning):
             n_filters=n_filters,
             n_residual_blocks=n_residual_blocks,
             first_kernel_size=first_kernel_size,
-            dropout_rate=dropout_rate
+            dropout_rate=dropout_rate,
         )
 
         super().__init__(
@@ -67,7 +67,7 @@ class ChromDragoNNLightningModule(BaseGenomicLightning):
             loss_function=loss_function,
             metrics=metrics,
             prediction_output_dir=prediction_output_dir,
-            output_format=output_format
+            output_format=output_format,
         )
 
         self.save_hyperparameters()
@@ -82,22 +82,19 @@ class ChromDragoNNLightningModule(BaseGenomicLightning):
         optimizer = torch.optim.Adam(
             self.parameters(),
             lr=self.hparams.learning_rate,
-            weight_decay=self.hparams.weight_decay
+            weight_decay=self.hparams.weight_decay,
         )
 
         scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(
             optimizer,
             T_0=10,  # Restart every 10 epochs
             T_mult=2,  # Double the restart interval after each restart
-            eta_min=1e-6  # Minimum learning rate
+            eta_min=1e-6,  # Minimum learning rate
         )
 
         return {
             "optimizer": optimizer,
-            "lr_scheduler": {
-                "scheduler": scheduler,
-                "interval": "epoch"
-            }
+            "lr_scheduler": {"scheduler": scheduler, "interval": "epoch"},
         }
 
     def on_epoch_start(self):
@@ -112,5 +109,5 @@ class ChromDragoNNLightningModule(BaseGenomicLightning):
                         self.logger.experiment.add_histogram(
                             f"gradients/block_{i}_{name}",
                             param.grad,
-                            self.current_epoch
+                            self.current_epoch,
                         )

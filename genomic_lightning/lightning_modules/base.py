@@ -239,6 +239,7 @@ class BaseGenomicLightning(pl.LightningModule):
                 np.savetxt(f"{pred_path}_targets.csv", all_targets, delimiter=",")
             elif self.output_format == "h5":
                 import h5py
+
                 with h5py.File(f"{pred_path}.h5", "w") as f:
                     f.create_dataset("predictions", data=all_preds)
                     f.create_dataset("targets", data=all_targets)
@@ -277,17 +278,11 @@ class BaseGenomicLightning(pl.LightningModule):
             Optimizer configuration
         """
         optimizer = torch.optim.Adam(
-            self.parameters(),
-            lr=self.learning_rate,
-            weight_decay=self.weight_decay
+            self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay
         )
 
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer,
-            mode="min",
-            factor=0.5,
-            patience=5,
-            verbose=True
+            optimizer, mode="min", factor=0.5, patience=5, verbose=True
         )
 
         return {
@@ -295,7 +290,7 @@ class BaseGenomicLightning(pl.LightningModule):
             "lr_scheduler": {
                 "scheduler": scheduler,
                 "monitor": "val_loss",
-                "frequency": 1
+                "frequency": 1,
             },
         }
 
@@ -304,4 +299,5 @@ class GenomicBaseModule(BaseGenomicLightning):
     """
     Alias for BaseGenomicLightning for backward compatibility.
     """
+
     pass

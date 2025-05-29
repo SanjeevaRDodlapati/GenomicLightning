@@ -5,7 +5,11 @@ Tests for genomic metrics.
 import pytest
 import torch
 import numpy as np
-from genomic_lightning.metrics.genomic_metrics import GenomicAUPRC, TopKAccuracy, PositionalAUROC
+from genomic_lightning.metrics.genomic_metrics import (
+    GenomicAUPRC,
+    TopKAccuracy,
+    PositionalAUROC,
+)
 
 
 @pytest.fixture

@@ -7,13 +7,15 @@ import sys
 import os
 
 # Add GenomicLightning to path
-sys.path.insert(0, '/home/sdodl001/GenomicLightning')
+sys.path.insert(0, "/home/sdodl001/GenomicLightning")
+
 
 def test_sampler_utils_import():
     """Test that SamplerUtils can be imported and used."""
     print("🔍 Testing SamplerUtils import...")
     try:
         from genomic_lightning.utils.sampler_utils import SamplerUtils
+
         sampler_utils = SamplerUtils()
         print("✅ SamplerUtils imported and instantiated successfully")
         return True
@@ -21,18 +23,18 @@ def test_sampler_utils_import():
         print(f"❌ SamplerUtils import failed: {e}")
         return False
 
+
 def test_uavarprior_sampler_creation():
     """Test that UAVarPrior sampler creation provides helpful error messages."""
     print("🔍 Testing UAVarPrior sampler creation...")
     try:
         from genomic_lightning.utils.sampler_utils import SamplerUtils
+
         sampler_utils = SamplerUtils()
 
         # This should create a mock sampler with helpful error message
         mock_sampler = sampler_utils.create_uavarprior_sampler(
-            config_path=None,
-            data_path=None,
-            split="train"
+            config_path=None, data_path=None, split="train"
         )
 
         # Test that the mock sampler works
@@ -47,23 +49,26 @@ def test_uavarprior_sampler_creation():
         print(f"❌ UAVarPrior sampler creation failed: {e}")
         return False
 
+
 def test_sampler_adapter_import():
     """Test that SamplerAdapter can be imported."""
     print("🔍 Testing SamplerAdapter import...")
     try:
         from genomic_lightning.data.sampler_adapter import SamplerAdapter
+
         print("✅ SamplerAdapter imported successfully")
         return True
     except Exception as e:
         print(f"❌ SamplerAdapter import failed: {e}")
         return False
 
+
 def test_integration_example_imports():
     """Test that the integration example imports work."""
     print("🔍 Testing integration example imports...")
     try:
         # Add the examples directory to path
-        sys.path.insert(0, '/home/sdodl001/GenomicLightning/examples')
+        sys.path.insert(0, "/home/sdodl001/GenomicLightning/examples")
 
         # Import the fixed integration example
         import uavarprior_integration_example
@@ -84,6 +89,7 @@ def test_integration_example_imports():
     except Exception as e:
         print(f"❌ Integration example test failed: {e}")
         return False
+
 
 def main():
     """Run all integration tests."""
@@ -112,6 +118,7 @@ def main():
     else:
         print(f"❌ {total - passed} out of {total} tests failed.")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

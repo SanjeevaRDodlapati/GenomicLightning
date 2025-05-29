@@ -26,7 +26,7 @@ class DeepSEA(nn.Module):
         filter_sizes: List[int] = [8, 8, 8],
         pool_sizes: List[int] = [4, 4, 4],
         dropout_rates: List[float] = [0.2, 0.2, 0.5],
-        num_classes_per_target: int = 1
+        num_classes_per_target: int = 1,
     ):
         """
         Initialize the DeepSEA model.
@@ -66,7 +66,7 @@ class DeepSEA(nn.Module):
                 out_channels=num_filter,
                 kernel_size=filter_size,
                 padding=filter_size // 2,
-                bias=True
+                bias=True,
             )
             self.conv_layers.append(conv)
 
@@ -122,7 +122,9 @@ class DeepSEA(nn.Module):
             or (batch_size, num_targets * num_classes_per_target) for multi-class
         """
         # Convolutional layers
-        for conv, pool, dropout in zip(self.conv_layers, self.pool_layers, self.dropout_layers):
+        for conv, pool, dropout in zip(
+            self.conv_layers, self.pool_layers, self.dropout_layers
+        ):
             x = conv(x)
             x = F.relu(x)
             x = pool(x)
@@ -196,7 +198,7 @@ class DeepSEAVariant(DeepSEA):
         num_targets: int = 919,
         use_batch_norm: bool = True,
         use_residual: bool = False,
-        **kwargs
+        **kwargs,
     ):
         """
         Initialize the DeepSEA variant model.
@@ -208,15 +210,17 @@ class DeepSEAVariant(DeepSEA):
             use_residual: Whether to use residual connections
             **kwargs: Additional arguments passed to parent class
         """
-        super().__init__(sequence_length=sequence_length, num_targets=num_targets, **kwargs)
+        super().__init__(
+            sequence_length=sequence_length, num_targets=num_targets, **kwargs
+        )
 
         self.use_batch_norm = use_batch_norm
         self.use_residual = use_residual
 
         if use_batch_norm:
-            self.batch_norm_layers = nn.ModuleList([
-                nn.BatchNorm1d(num_filter) for num_filter in self.num_filters
-            ])
+            self.batch_norm_layers = nn.ModuleList(
+                [nn.BatchNorm1d(num_filter) for num_filter in self.num_filters]
+            )
         else:
             self.batch_norm_layers = None
 
@@ -235,7 +239,9 @@ class DeepSEAVariant(DeepSEA):
             residual_inputs = []
 
         # Convolutional layers
-        for i, (conv, pool, dropout) in enumerate(zip(self.conv_layers, self.pool_layers, self.dropout_layers)):
+        for i, (conv, pool, dropout) in enumerate(
+            zip(self.conv_layers, self.pool_layers, self.dropout_layers)
+        ):
             if self.use_residual:
                 residual_inputs.append(x)
 

@@ -50,10 +50,10 @@ def import_uavarprior_data(data_path=None):
 
         # Return the classes so they can be used to create datasets
         return {
-            'Target': Target,
-            'GenomicFeatures': GenomicFeatures,
-            'Sequence': Sequence,
-            'Genome': Genome
+            "Target": Target,
+            "GenomicFeatures": GenomicFeatures,
+            "Sequence": Sequence,
+            "Genome": Genome,
         }
 
     except ImportError as e:
@@ -75,7 +75,7 @@ def main(args):
     model = import_uavarprior_model(
         model_path=args.model_path,
         model_type=args.model_type,
-        config_path=args.config_path
+        config_path=args.config_path,
     )
 
     print(f"Model successfully imported: {model.__class__.__name__}")
@@ -86,7 +86,7 @@ def main(args):
         learning_rate=args.learning_rate,
         optimizer=args.optimizer,
         loss_function=args.loss_function,
-        metrics=["auroc", "auprc", "accuracy"]
+        metrics=["auroc", "auprc", "accuracy"],
     )
 
     # Test UAVarPrior data import instead of non-existent samplers
@@ -96,7 +96,9 @@ def main(args):
 
         if uav_data_classes:
             print("UAVarPrior data classes imported successfully.")
-            print("Note: UAVarPrior provides data handling classes, not ready-made data loaders.")
+            print(
+                "Note: UAVarPrior provides data handling classes, not ready-made data loaders."
+            )
             print("You would need to create your own datasets using these classes.")
         else:
             print("Failed to import UAVarPrior data classes.")
@@ -107,7 +109,7 @@ def main(args):
         from genomic_lightning.models.danq import DanQ  # For getting default shapes
 
         # Try to infer input shape from the model
-        if hasattr(model, 'conv_layer'):
+        if hasattr(model, "conv_layer"):
             in_channels = model.conv_layer.in_channels
             seq_length = 1000  # Default
         else:
@@ -115,7 +117,7 @@ def main(args):
             seq_length = 1000
 
         # Try to infer output shape from the model
-        if hasattr(model, 'classifier') and hasattr(model.classifier, 'out_features'):
+        if hasattr(model, "classifier") and hasattr(model.classifier, "out_features"):
             num_targets = model.classifier.out_features
         else:
             num_targets = 919  # Default for DeepSEA
@@ -150,15 +152,24 @@ def main(args):
 
         # Create data loaders
         train_loader = DataLoader(
-            train_dataset, batch_size=args.batch_size, shuffle=True, num_workers=args.num_workers
+            train_dataset,
+            batch_size=args.batch_size,
+            shuffle=True,
+            num_workers=args.num_workers,
         )
 
         val_loader = DataLoader(
-            val_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers
+            val_dataset,
+            batch_size=args.batch_size,
+            shuffle=False,
+            num_workers=args.num_workers,
         )
 
         test_loader = DataLoader(
-            test_dataset, batch_size=args.batch_size, shuffle=False, num_workers=args.num_workers
+            test_dataset,
+            batch_size=args.batch_size,
+            shuffle=False,
+            num_workers=args.num_workers,
         )
 
     # Set up callbacks
@@ -166,31 +177,27 @@ def main(args):
 
     # Model checkpoint
     checkpoint_callback = ModelCheckpoint(
-        dirpath=os.path.join(args.output_dir, 'checkpoints'),
-        filename=f'{args.model_type}-{{epoch:02d}}-{{val_loss:.4f}}',
-        monitor='val_loss',
-        mode='min',
-        save_top_k=3
+        dirpath=os.path.join(args.output_dir, "checkpoints"),
+        filename=f"{args.model_type}-{{epoch:02d}}-{{val_loss:.4f}}",
+        monitor="val_loss",
+        mode="min",
+        save_top_k=3,
     )
     callbacks.append(checkpoint_callback)
 
     # Early stopping
-    early_stopping = EarlyStopping(
-        monitor='val_loss',
-        patience=5,
-        mode='min'
-    )
+    early_stopping = EarlyStopping(monitor="val_loss", patience=5, mode="min")
     callbacks.append(early_stopping)
 
     # Create trainer
     trainer = pl.Trainer(
         max_epochs=args.max_epochs,
         callbacks=callbacks,
-        accelerator='auto',  # Use GPU if available
+        accelerator="auto",  # Use GPU if available
         devices=args.devices,
         precision=args.precision,
         default_root_dir=args.output_dir,
-        log_every_n_steps=10
+        log_every_n_steps=10,
     )
 
     if args.train:
@@ -204,14 +211,18 @@ def main(args):
         print(f"Test results: {test_results}")
 
         # Save model
-        model_dir = os.path.join(args.output_dir, 'models')
+        model_dir = os.path.join(args.output_dir, "models")
         os.makedirs(model_dir, exist_ok=True)
 
         # Save in PyTorch Lightning format
-        trainer.save_checkpoint(os.path.join(model_dir, f'{args.model_type}_model.ckpt'))
+        trainer.save_checkpoint(
+            os.path.join(model_dir, f"{args.model_type}_model.ckpt")
+        )
 
         # Save in PyTorch format
-        torch.save(model.state_dict(), os.path.join(model_dir, f'{args.model_type}_model.pt'))
+        torch.save(
+            model.state_dict(), os.path.join(model_dir, f"{args.model_type}_model.pt")
+        )
 
         print(f"Model saved in {model_dir}")
     else:
@@ -224,51 +235,98 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Import and use UAVarPrior models with GenomicLightning")
+    parser = argparse.ArgumentParser(
+        description="Import and use UAVarPrior models with GenomicLightning"
+    )
 
     # Required arguments
-    parser.add_argument("--model-path", type=str, required=True,
-                        help="Path to UAVarPrior model weights (.pth file)")
+    parser.add_argument(
+        "--model-path",
+        type=str,
+        required=True,
+        help="Path to UAVarPrior model weights (.pth file)",
+    )
 
     # Optional arguments
-    parser.add_argument("--model-type", type=str, default="deepsea",
-                        choices=["deepsea", "danq", "chromdragonn", "custom"],
-                        help="Type of model architecture")
-    parser.add_argument("--config-path", type=str, default=None,
-                        help="Path to model configuration file (optional)")
-    parser.add_argument("--sampler-config", type=str, default=None,
-                        help="Path to test UAVarPrior data import (note: UAVarPrior doesn't provide ready-made samplers)")
-    parser.add_argument("--train", action="store_true",
-                        help="Train the model after importing")
+    parser.add_argument(
+        "--model-type",
+        type=str,
+        default="deepsea",
+        choices=["deepsea", "danq", "chromdragonn", "custom"],
+        help="Type of model architecture",
+    )
+    parser.add_argument(
+        "--config-path",
+        type=str,
+        default=None,
+        help="Path to model configuration file (optional)",
+    )
+    parser.add_argument(
+        "--sampler-config",
+        type=str,
+        default=None,
+        help="Path to test UAVarPrior data import (note: UAVarPrior doesn't provide ready-made samplers)",
+    )
+    parser.add_argument(
+        "--train", action="store_true", help="Train the model after importing"
+    )
 
     # Training parameters
-    parser.add_argument("--batch-size", type=int, default=32,
-                        help="Batch size for training")
-    parser.add_argument("--max-epochs", type=int, default=10,
-                        help="Maximum number of training epochs")
-    parser.add_argument("--learning-rate", type=float, default=1e-4,
-                        help="Learning rate for optimization")
-    parser.add_argument("--optimizer", type=str, default="adam",
-                        choices=["adam", "adamw", "sgd"],
-                        help="Optimizer for training")
-    parser.add_argument("--loss-function", type=str, default="binary_cross_entropy",
-                        choices=["binary_cross_entropy", "bce_with_logits", "mse"],
-                        help="Loss function for training")
+    parser.add_argument(
+        "--batch-size", type=int, default=32, help="Batch size for training"
+    )
+    parser.add_argument(
+        "--max-epochs", type=int, default=10, help="Maximum number of training epochs"
+    )
+    parser.add_argument(
+        "--learning-rate",
+        type=float,
+        default=1e-4,
+        help="Learning rate for optimization",
+    )
+    parser.add_argument(
+        "--optimizer",
+        type=str,
+        default="adam",
+        choices=["adam", "adamw", "sgd"],
+        help="Optimizer for training",
+    )
+    parser.add_argument(
+        "--loss-function",
+        type=str,
+        default="binary_cross_entropy",
+        choices=["binary_cross_entropy", "bce_with_logits", "mse"],
+        help="Loss function for training",
+    )
 
     # Hardware/performance parameters
-    parser.add_argument("--num-workers", type=int, default=4,
-                        help="Number of worker processes for data loading")
-    parser.add_argument("--devices", type=int, default=1,
-                        help="Number of devices (GPUs) to use")
-    parser.add_argument("--precision", type=int, default=32,
-                        choices=[16, 32],
-                        help="Precision for training (16 or 32)")
+    parser.add_argument(
+        "--num-workers",
+        type=int,
+        default=4,
+        help="Number of worker processes for data loading",
+    )
+    parser.add_argument(
+        "--devices", type=int, default=1, help="Number of devices (GPUs) to use"
+    )
+    parser.add_argument(
+        "--precision",
+        type=int,
+        default=32,
+        choices=[16, 32],
+        help="Precision for training (16 or 32)",
+    )
 
     # Other parameters
-    parser.add_argument("--seed", type=int, default=42,
-                        help="Random seed for reproducibility")
-    parser.add_argument("--output-dir", type=str, default="uavarprior_integration",
-                        help="Output directory for models and logs")
+    parser.add_argument(
+        "--seed", type=int, default=42, help="Random seed for reproducibility"
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="uavarprior_integration",
+        help="Output directory for models and logs",
+    )
 
     args = parser.parse_args()
 

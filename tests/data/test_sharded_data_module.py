@@ -8,7 +8,10 @@ import h5py
 import torch
 import os
 import tempfile
-from genomic_lightning.data.sharded_data_module import ShardedGenomicDataset, ShardedGenomicDataModule
+from genomic_lightning.data.sharded_data_module import (
+    ShardedGenomicDataset,
+    ShardedGenomicDataModule,
+)
 
 
 @pytest.fixture
@@ -21,7 +24,7 @@ def sample_shard_files():
         temp_file = tempfile.NamedTemporaryFile(suffix=".h5", delete=False)
         temp_files.append(temp_file.name)
 
-        with h5py.File(temp_file.name, 'w') as f:
+        with h5py.File(temp_file.name, "w") as f:
             # Create sequences dataset
             sequences = np.zeros((100, 4, 1000), dtype=np.float32)
             for j in range(100):
@@ -41,7 +44,7 @@ def sample_shard_files():
     temp_file = tempfile.NamedTemporaryFile(suffix=".h5", delete=False)
     temp_files.append(temp_file.name)
 
-    with h5py.File(temp_file.name, 'w') as f:
+    with h5py.File(temp_file.name, "w") as f:
         # Create sequences dataset
         sequences = np.zeros((50, 4, 1000), dtype=np.float32)
         for j in range(50):

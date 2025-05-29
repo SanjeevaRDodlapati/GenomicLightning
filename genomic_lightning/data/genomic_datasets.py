@@ -15,12 +15,14 @@ logger = logging.getLogger(__name__)
 class DeepSEADataset(BaseGenomicDataset):
     """Dataset for DeepSEA format data (sequences + chromatin features)."""
 
-    def __init__(self,
-                 data_path: str,
-                 sequence_length: int = 1000,
-                 num_classes: int = 919,
-                 split: str = 'train',
-                 **kwargs):
+    def __init__(
+        self,
+        data_path: str,
+        sequence_length: int = 1000,
+        num_classes: int = 919,
+        split: str = "train",
+        **kwargs,
+    ):
         """Initialize DeepSEA dataset.
 
         Args:
@@ -44,20 +46,21 @@ class DeepSEADataset(BaseGenomicDataset):
 
     def _load_data_info(self):
         """Load dataset information without loading full data."""
-        with h5py.File(self.data_path, 'r') as f:
+        with h5py.File(self.data_path, "r") as f:
             # Check available splits
             if self.split not in f.keys():
                 available_splits = list(f.keys())
-                raise ValueError(f"Split '{self.split}' not found. "
-                               f"Available: {available_splits}")
+                raise ValueError(
+                    f"Split '{self.split}' not found. " f"Available: {available_splits}"
+                )
 
             split_group = f[self.split]
 
             # Get dataset size
-            if 'sequences' in split_group:
-                self.dataset_size = split_group['sequences'].shape[0]
-            elif 'X' in split_group:
-                self.dataset_size = split_group['X'].shape[0]
+            if "sequences" in split_group:
+                self.dataset_size = split_group["sequences"].shape[0]
+            elif "X" in split_group:
+                self.dataset_size = split_group["X"].shape[0]
             else:
                 raise KeyError(f"No sequence data found in split '{self.split}'")
 
@@ -67,21 +70,21 @@ class DeepSEADataset(BaseGenomicDataset):
         return self.dataset_size
 
     def __getitem__(self, idx: int) -> Tuple[torch.Tensor, torch.Tensor]:
-        with h5py.File(self.data_path, 'r') as f:
+        with h5py.File(self.data_path, "r") as f:
             split_group = f[self.split]
 
             # Load sequence
-            if 'sequences' in split_group:
-                sequence_data = split_group['sequences'][idx]
-            elif 'X' in split_group:
-                sequence_data = split_group['X'][idx]
+            if "sequences" in split_group:
+                sequence_data = split_group["sequences"][idx]
+            elif "X" in split_group:
+                sequence_data = split_group["X"][idx]
             else:
                 raise KeyError("No sequence data found")
 
             # Handle different sequence formats
             if isinstance(sequence_data, bytes):
                 # String sequence
-                sequence = sequence_data.decode('utf-8')
+                sequence = sequence_data.decode("utf-8")
                 encoded_seq = self.encode_sequence(sequence)
             elif isinstance(sequence_data, np.ndarray):
                 if sequence_data.ndim == 1:
@@ -98,15 +101,17 @@ class DeepSEADataset(BaseGenomicDataset):
                     # Already one-hot encoded
                     encoded_seq = torch.tensor(sequence_data, dtype=torch.float32)
                 else:
-                    raise ValueError(f"Unexpected sequence shape: {sequence_data.shape}")
+                    raise ValueError(
+                        f"Unexpected sequence shape: {sequence_data.shape}"
+                    )
             else:
                 raise ValueError(f"Unexpected sequence type: {type(sequence_data)}")
 
             # Load labels
-            if 'labels' in split_group:
-                labels = split_group['labels'][idx]
-            elif 'y' in split_group:
-                labels = split_group['y'][idx]
+            if "labels" in split_group:
+                labels = split_group["labels"][idx]
+            elif "y" in split_group:
+                labels = split_group["y"][idx]
             else:
                 # Create dummy labels
                 labels = np.zeros(self.num_classes, dtype=np.float32)
@@ -122,11 +127,13 @@ class DeepSEADataset(BaseGenomicDataset):
 class GenomicSequenceDataset(BaseGenomicDataset):
     """Generic genomic sequence dataset for FASTA/text files."""
 
-    def __init__(self,
-                 sequences: List[str],
-                 labels: Optional[List] = None,
-                 metadata: Optional[Dict] = None,
-                 **kwargs):
+    def __init__(
+        self,
+        sequences: List[str],
+        labels: Optional[List] = None,
+        metadata: Optional[Dict] = None,
+        **kwargs,
+    ):
         """Initialize genomic sequence dataset.
 
         Args:
@@ -184,10 +191,10 @@ class GenomicSequenceDataset(BaseGenomicDataset):
         current_seq = ""
         current_id = None
 
-        with open(fasta_path, 'r') as f:
+        with open(fasta_path, "r") as f:
             for line in f:
                 line = line.strip()
-                if line.startswith('>'):
+                if line.startswith(">"):
                     # Save previous sequence
                     if current_seq and current_id:
                         sequences.append(current_seq)
@@ -212,11 +219,13 @@ class GenomicSequenceDataset(BaseGenomicDataset):
 class VariantEffectDataset(BaseGenomicDataset):
     """Dataset for variant effect prediction."""
 
-    def __init__(self,
-                 reference_sequences: List[str],
-                 variant_sequences: List[str],
-                 variant_info: List[Dict],
-                 **kwargs):
+    def __init__(
+        self,
+        reference_sequences: List[str],
+        variant_sequences: List[str],
+        variant_info: List[Dict],
+        **kwargs,
+    ):
         """Initialize variant effect dataset.
 
         Args:
@@ -231,7 +240,9 @@ class VariantEffectDataset(BaseGenomicDataset):
         self.variant_sequences = variant_sequences
         self.variant_info = variant_info
 
-        if not (len(reference_sequences) == len(variant_sequences) == len(variant_info)):
+        if not (
+            len(reference_sequences) == len(variant_sequences) == len(variant_info)
+        ):
             raise ValueError("All input lists must have same length")
 
     def __len__(self) -> int:

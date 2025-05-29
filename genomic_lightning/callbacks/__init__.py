@@ -5,7 +5,7 @@ from .genomic_callbacks import (
     GenomicEarlyStopping,
     GenomicProgressBar,
     VariantEffectLogger,
-    SequenceVisualizationCallback
+    SequenceVisualizationCallback,
 )
 
 __all__ = [
@@ -13,5 +13,5 @@ __all__ = [
     "GenomicEarlyStopping",
     "GenomicProgressBar",
     "VariantEffectLogger",
-    "SequenceVisualizationCallback"
+    "SequenceVisualizationCallback",
 ]

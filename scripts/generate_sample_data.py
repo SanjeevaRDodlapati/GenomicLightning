@@ -11,6 +11,7 @@ import numpy as np
 import h5py
 from typing import Tuple, List
 
+
 def generate_one_hot_seq(length: int, num_sequences: int) -> np.ndarray:
     """
     Generate random one-hot encoded DNA sequences.
@@ -34,7 +35,10 @@ def generate_one_hot_seq(length: int, num_sequences: int) -> np.ndarray:
 
     return one_hot
 
-def generate_binary_targets(num_sequences: int, num_targets: int, sparsity: float = 0.95) -> np.ndarray:
+
+def generate_binary_targets(
+    num_sequences: int, num_targets: int, sparsity: float = 0.95
+) -> np.ndarray:
     """
     Generate binary targets for sequences.
 
@@ -47,15 +51,18 @@ def generate_binary_targets(num_sequences: int, num_targets: int, sparsity: floa
         Binary target array of shape (num_sequences, num_targets)
     """
     # Generate targets with specified sparsity
-    targets = np.random.binomial(1, 1-sparsity, (num_sequences, num_targets)).astype(np.float32)
+    targets = np.random.binomial(1, 1 - sparsity, (num_sequences, num_targets)).astype(
+        np.float32
+    )
     return targets
+
 
 def create_data_shard(
     output_path: str,
     num_sequences: int,
     seq_length: int = 1000,
     num_targets: int = 919,
-    compression: str = "gzip"
+    compression: str = "gzip",
 ) -> None:
     """
     Create a data shard file with synthetic genomic data.
@@ -77,11 +84,12 @@ def create_data_shard(
 
     # Save to HDF5
     print(f"Saving data to {output_path}...")
-    with h5py.File(output_path, 'w') as f:
+    with h5py.File(output_path, "w") as f:
         f.create_dataset("sequences", data=sequences, compression=compression)
         f.create_dataset("targets", data=targets, compression=compression)
 
     print("Done!")
+
 
 def create_train_val_test_data(
     output_dir: str,
@@ -89,7 +97,7 @@ def create_train_val_test_data(
     num_val: int = 2000,
     num_test: int = 2000,
     seq_length: int = 1000,
-    num_targets: int = 919
+    num_targets: int = 919,
 ) -> None:
     """
     Create train, validation, and test datasets.
@@ -110,47 +118,56 @@ def create_train_val_test_data(
         os.path.join(output_dir, "train_shard1.h5"),
         train_size_per_shard,
         seq_length,
-        num_targets
+        num_targets,
     )
     create_data_shard(
         os.path.join(output_dir, "train_shard2.h5"),
         num_train - train_size_per_shard,
         seq_length,
-        num_targets
+        num_targets,
     )
 
     # Create validation data
     create_data_shard(
-        os.path.join(output_dir, "val.h5"),
-        num_val,
-        seq_length,
-        num_targets
+        os.path.join(output_dir, "val.h5"), num_val, seq_length, num_targets
     )
 
     # Create test data
     create_data_shard(
-        os.path.join(output_dir, "test.h5"),
-        num_test,
-        seq_length,
-        num_targets
+        os.path.join(output_dir, "test.h5"), num_test, seq_length, num_targets
     )
+
 
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Generate synthetic genomic data for training")
-    parser.add_argument("--output-dir", type=str, default="/home/sdodl001/genomic_data",
-                        help="Directory to save the generated data")
-    parser.add_argument("--num-train", type=int, default=10000,
-                        help="Number of training examples")
-    parser.add_argument("--num-val", type=int, default=2000,
-                        help="Number of validation examples")
-    parser.add_argument("--num-test", type=int, default=2000,
-                        help="Number of test examples")
-    parser.add_argument("--seq-length", type=int, default=1000,
-                        help="Length of each sequence")
-    parser.add_argument("--num-targets", type=int, default=919,
-                        help="Number of target features (919 for DeepSEA)")
+    parser = argparse.ArgumentParser(
+        description="Generate synthetic genomic data for training"
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default="/home/sdodl001/genomic_data",
+        help="Directory to save the generated data",
+    )
+    parser.add_argument(
+        "--num-train", type=int, default=10000, help="Number of training examples"
+    )
+    parser.add_argument(
+        "--num-val", type=int, default=2000, help="Number of validation examples"
+    )
+    parser.add_argument(
+        "--num-test", type=int, default=2000, help="Number of test examples"
+    )
+    parser.add_argument(
+        "--seq-length", type=int, default=1000, help="Length of each sequence"
+    )
+    parser.add_argument(
+        "--num-targets",
+        type=int,
+        default=919,
+        help="Number of target features (919 for DeepSEA)",
+    )
 
     args = parser.parse_args()
 
@@ -160,5 +177,5 @@ if __name__ == "__main__":
         args.num_val,
         args.num_test,
         args.seq_length,
-        args.num_targets
+        args.num_targets,
     )

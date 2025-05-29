@@ -17,11 +17,12 @@ import logging
 # Set up logger
 logger = logging.getLogger(__name__)
 
+
 def import_uavarprior_model(
     model_path: str,
     model_type: str = "deepsea",
     class_definition: Optional[Type] = None,
-    config_path: Optional[str] = None
+    config_path: Optional[str] = None,
 ) -> torch.nn.Module:
     """
     Import a model from the UAVarPrior framework.
@@ -39,7 +40,7 @@ def import_uavarprior_model(
         raise FileNotFoundError(f"Model file not found: {model_path}")
 
     # Load model weights
-    state_dict = torch.load(model_path, map_location=torch.device('cpu'))
+    state_dict = torch.load(model_path, map_location=torch.device("cpu"))
 
     # Determine model architecture
     if model_type.lower() == "deepsea":
@@ -47,7 +48,7 @@ def import_uavarprior_model(
 
         # Extract architecture details from config if available
         if config_path and os.path.exists(config_path):
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 config = yaml.safe_load(f)
 
             # Extract relevant parameters
@@ -62,7 +63,7 @@ def import_uavarprior_model(
                 filter_sizes=filter_sizes,
                 pool_sizes=pool_sizes,
                 dropout_rates=dropout_rates,
-                num_targets=num_targets
+                num_targets=num_targets,
             )
         else:
             # Use default DeepSEA architecture (919 targets)
@@ -73,7 +74,7 @@ def import_uavarprior_model(
 
         # Extract architecture details from config if available
         if config_path and os.path.exists(config_path):
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 config = yaml.safe_load(f)
 
             # Extract relevant parameters
@@ -90,7 +91,7 @@ def import_uavarprior_model(
                 filter_size=filter_size,
                 pool_size=pool_size,
                 lstm_hidden=lstm_hidden,
-                lstm_layers=lstm_layers
+                lstm_layers=lstm_layers,
             )
         else:
             # Use default DanQ architecture
@@ -101,7 +102,7 @@ def import_uavarprior_model(
 
         # Extract architecture details from config if available
         if config_path and os.path.exists(config_path):
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 config = yaml.safe_load(f)
 
             # Extract relevant parameters
@@ -114,7 +115,7 @@ def import_uavarprior_model(
                 num_targets=num_targets,
                 num_filters=num_filters,
                 filter_sizes=filter_sizes,
-                residual_blocks=residual_blocks
+                residual_blocks=residual_blocks,
             )
         else:
             # Use default ChromDragoNN architecture
@@ -122,7 +123,9 @@ def import_uavarprior_model(
 
     elif model_type.lower() == "custom":
         if class_definition is None:
-            raise ValueError("For 'custom' model_type, you must provide the class_definition")
+            raise ValueError(
+                "For 'custom' model_type, you must provide the class_definition"
+            )
 
         # Initialize the custom model
         model = class_definition()
@@ -135,7 +138,9 @@ def import_uavarprior_model(
         # Try direct loading
         model.load_state_dict(state_dict)
     except Exception as e:
-        logger.warning(f"Direct loading failed: {str(e)}. Attempting to adapt state dict...")
+        logger.warning(
+            f"Direct loading failed: {str(e)}. Attempting to adapt state dict..."
+        )
 
         # Attempt to adapt the state dict to match the model's structure
         adapted_state_dict = {}
@@ -148,11 +153,13 @@ def import_uavarprior_model(
             adapted_key = key
             for prefix in uavarprior_prefixes:
                 if key.startswith(prefix):
-                    adapted_key = key[len(prefix):]
+                    adapted_key = key[len(prefix) :]
                     break
 
             # Try adding a common prefix if needed
-            if adapted_key not in model.state_dict() and not any(adapted_key.startswith(p) for p in uavarprior_prefixes):
+            if adapted_key not in model.state_dict() and not any(
+                adapted_key.startswith(p) for p in uavarprior_prefixes
+            ):
                 for prefix in ["", "model.", "network."]:
                     if f"{prefix}{adapted_key}" in model.state_dict():
                         adapted_key = f"{prefix}{adapted_key}"
@@ -163,14 +170,22 @@ def import_uavarprior_model(
                 # Conv layers might be named differently
                 if "conv" in adapted_key:
                     for potential_key in model.state_dict().keys():
-                        if "conv" in potential_key and adapted_key.split(".")[-1] == potential_key.split(".")[-1]:
+                        if (
+                            "conv" in potential_key
+                            and adapted_key.split(".")[-1]
+                            == potential_key.split(".")[-1]
+                        ):
                             adapted_key = potential_key
                             break
 
                 # FC layers might be named differently
                 elif "fc" in adapted_key or "linear" in adapted_key:
                     for potential_key in model.state_dict().keys():
-                        if ("fc" in potential_key or "linear" in potential_key) and adapted_key.split(".")[-1] == potential_key.split(".")[-1]:
+                        if (
+                            "fc" in potential_key or "linear" in potential_key
+                        ) and adapted_key.split(".")[-1] == potential_key.split(".")[
+                            -1
+                        ]:
                             adapted_key = potential_key
                             break
 
@@ -180,7 +195,9 @@ def import_uavarprior_model(
                 if value.shape == model.state_dict()[adapted_key].shape:
                     adapted_state_dict[adapted_key] = value
                 else:
-                    logger.warning(f"Shape mismatch for {adapted_key}: {value.shape} vs {model.state_dict()[adapted_key].shape}")
+                    logger.warning(
+                        f"Shape mismatch for {adapted_key}: {value.shape} vs {model.state_dict()[adapted_key].shape}"
+                    )
             else:
                 logger.warning(f"Could not find matching key for {key}")
 
@@ -190,15 +207,14 @@ def import_uavarprior_model(
         # Check how much of the model was successfully loaded
         missing_keys = set(model.state_dict().keys()) - set(adapted_state_dict.keys())
         if missing_keys:
-            logger.warning(f"Warning: {len(missing_keys)}/{len(model.state_dict())} keys were not loaded: {list(missing_keys)[:5]}...")
+            logger.warning(
+                f"Warning: {len(missing_keys)}/{len(model.state_dict())} keys were not loaded: {list(missing_keys)[:5]}..."
+            )
 
     return model
 
 
-def import_fugep_model(
-    model_path: str,
-    model_config: str
-) -> torch.nn.Module:
+def import_fugep_model(model_path: str, model_config: str) -> torch.nn.Module:
     """
     Import a model from the FuGEP framework.
 
@@ -216,7 +232,7 @@ def import_fugep_model(
         raise FileNotFoundError(f"Config file not found: {model_config}")
 
     # Load the configuration
-    with open(model_config, 'r') as f:
+    with open(model_config, "r") as f:
         config = yaml.safe_load(f)
 
     # Extract model architecture details
@@ -238,7 +254,7 @@ def import_fugep_model(
             filter_sizes=filter_sizes,
             pool_sizes=pool_sizes,
             dropout_rates=dropout_rates,
-            num_targets=num_targets
+            num_targets=num_targets,
         )
 
     elif model_type.lower() == "danq":
@@ -257,7 +273,7 @@ def import_fugep_model(
             filter_size=filter_size,
             pool_size=pool_size,
             lstm_hidden=lstm_hidden,
-            lstm_layers=lstm_layers
+            lstm_layers=lstm_layers,
         )
 
     elif model_type.lower() == "chromdragonn":
@@ -272,28 +288,30 @@ def import_fugep_model(
             num_targets=num_targets,
             num_filters=num_filters,
             filter_sizes=filter_sizes,
-            residual_blocks=residual_blocks
+            residual_blocks=residual_blocks,
         )
 
     else:
         raise ValueError(f"Unsupported model type: {model_type}")
 
     # Load the state dict
-    state_dict = torch.load(model_path, map_location=torch.device('cpu'))
+    state_dict = torch.load(model_path, map_location=torch.device("cpu"))
 
     # FuGEP models often have a specific structure in the state dict
     # Try to load directly first
     try:
         model.load_state_dict(state_dict)
     except Exception as e:
-        logger.warning(f"Direct loading failed: {str(e)}. Attempting to adapt state dict...")
+        logger.warning(
+            f"Direct loading failed: {str(e)}. Attempting to adapt state dict..."
+        )
 
         # Check if the state dict is inside a 'model' or 'state_dict' key
         if isinstance(state_dict, dict):
-            if 'model' in state_dict:
-                state_dict = state_dict['model']
-            elif 'state_dict' in state_dict:
-                state_dict = state_dict['state_dict']
+            if "model" in state_dict:
+                state_dict = state_dict["model"]
+            elif "state_dict" in state_dict:
+                state_dict = state_dict["state_dict"]
 
         # Adapt the state dict keys
         adapted_state_dict = {}
@@ -306,11 +324,13 @@ def import_fugep_model(
             adapted_key = key
             for prefix in fugep_prefixes:
                 if key.startswith(prefix):
-                    adapted_key = key[len(prefix):]
+                    adapted_key = key[len(prefix) :]
                     break
 
             # Try adding a common prefix if needed
-            if adapted_key not in model.state_dict() and not any(adapted_key.startswith(p) for p in fugep_prefixes):
+            if adapted_key not in model.state_dict() and not any(
+                adapted_key.startswith(p) for p in fugep_prefixes
+            ):
                 for prefix in ["", "model.", "network."]:
                     if f"{prefix}{adapted_key}" in model.state_dict():
                         adapted_key = f"{prefix}{adapted_key}"
@@ -322,7 +342,9 @@ def import_fugep_model(
                 if value.shape == model.state_dict()[adapted_key].shape:
                     adapted_state_dict[adapted_key] = value
                 else:
-                    logger.warning(f"Shape mismatch for {adapted_key}: {value.shape} vs {model.state_dict()[adapted_key].shape}")
+                    logger.warning(
+                        f"Shape mismatch for {adapted_key}: {value.shape} vs {model.state_dict()[adapted_key].shape}"
+                    )
             else:
                 logger.warning(f"Could not find matching key for {key}")
 
@@ -332,12 +354,16 @@ def import_fugep_model(
         # Check how much of the model was successfully loaded
         missing_keys = set(model.state_dict().keys()) - set(adapted_state_dict.keys())
         if missing_keys:
-            logger.warning(f"Warning: {len(missing_keys)}/{len(model.state_dict())} keys were not loaded: {list(missing_keys)[:5]}...")
+            logger.warning(
+                f"Warning: {len(missing_keys)}/{len(model.state_dict())} keys were not loaded: {list(missing_keys)[:5]}..."
+            )
 
     return model
 
 
-def import_model_from_path(model_path: str, model_type: str = None, config_path: str = None) -> torch.nn.Module:
+def import_model_from_path(
+    model_path: str, model_type: str = None, config_path: str = None
+) -> torch.nn.Module:
     """
     Unified function to import models from various sources based on file extension.
 
@@ -353,29 +379,39 @@ def import_model_from_path(model_path: str, model_type: str = None, config_path:
         raise FileNotFoundError(f"Model file not found: {model_path}")
 
     # Determine the format based on file extension
-    if model_path.endswith('.ckpt'):
+    if model_path.endswith(".ckpt"):
         # This is likely a PyTorch Lightning checkpoint
         from pytorch_lightning import LightningModule
 
         # Try to load as Lightning module
         try:
             if model_type and model_type.lower() == "deepsea":
-                from genomic_lightning.lightning_modules.deepsea import DeepSEALightningModule
+                from genomic_lightning.lightning_modules.deepsea import (
+                    DeepSEALightningModule,
+                )
+
                 model = DeepSEALightningModule.load_from_checkpoint(model_path)
             elif model_type and model_type.lower() == "danq":
                 from genomic_lightning.lightning_modules.danq import DanQLightningModule
+
                 model = DanQLightningModule.load_from_checkpoint(model_path)
             elif model_type and model_type.lower() == "chromdragonn":
-                from genomic_lightning.lightning_modules.chromdragonn import ChromDragoNNLightningModule
+                from genomic_lightning.lightning_modules.chromdragonn import (
+                    ChromDragoNNLightningModule,
+                )
+
                 model = ChromDragoNNLightningModule.load_from_checkpoint(model_path)
             else:
                 # Try to infer the model type from the checkpoint
-                checkpoint = torch.load(model_path, map_location=torch.device('cpu'))
+                checkpoint = torch.load(model_path, map_location=torch.device("cpu"))
 
                 # Check if there's a clear class path
-                if 'hyper_parameters' in checkpoint and 'model_class' in checkpoint['hyper_parameters']:
-                    model_class_path = checkpoint['hyper_parameters']['model_class']
-                    module_path, class_name = model_class_path.rsplit('.', 1)
+                if (
+                    "hyper_parameters" in checkpoint
+                    and "model_class" in checkpoint["hyper_parameters"]
+                ):
+                    model_class_path = checkpoint["hyper_parameters"]["model_class"]
+                    module_path, class_name = model_class_path.rsplit(".", 1)
 
                     # Dynamically import the class
                     module = __import__(module_path, fromlist=[class_name])
@@ -383,23 +419,28 @@ def import_model_from_path(model_path: str, model_type: str = None, config_path:
                     model = model_class.load_from_checkpoint(model_path)
                 else:
                     # Default to a base lightning module
-                    from genomic_lightning.lightning_modules.base import BaseGenomicLightning
+                    from genomic_lightning.lightning_modules.base import (
+                        BaseGenomicLightning,
+                    )
+
                     model = BaseGenomicLightning.load_from_checkpoint(model_path)
         except Exception as e:
             logger.error(f"Error loading Lightning checkpoint: {str(e)}")
             raise
 
-    elif model_path.endswith('.pth') or model_path.endswith('.pt'):
+    elif model_path.endswith(".pth") or model_path.endswith(".pt"):
         # This could be a raw PyTorch model or a legacy model
 
         # Try to determine the source framework
-        if config_path and config_path.endswith('.yml'):
+        if config_path and config_path.endswith(".yml"):
             # This is likely a FuGEP model
             model = import_fugep_model(model_path, config_path)
         else:
             # Assume UAVarPrior model or raw PyTorch model
             model_type = model_type if model_type else "deepsea"
-            model = import_uavarprior_model(model_path, model_type, config_path=config_path)
+            model = import_uavarprior_model(
+                model_path, model_type, config_path=config_path
+            )
     else:
         raise ValueError(f"Unsupported model file format: {model_path}")
 

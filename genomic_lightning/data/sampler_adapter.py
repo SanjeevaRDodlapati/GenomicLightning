@@ -14,11 +14,13 @@ logger = logging.getLogger(__name__)
 class SamplerAdapter(Dataset):
     """Adapter that wraps legacy samplers to work with PyTorch DataLoader."""
 
-    def __init__(self,
-                 sampler_config: Dict[str, Any],
-                 sampler_utils: SamplerUtils,
-                 split: str = "train",
-                 transform: Optional[callable] = None):
+    def __init__(
+        self,
+        sampler_config: Dict[str, Any],
+        sampler_utils: SamplerUtils,
+        split: str = "train",
+        transform: Optional[callable] = None,
+    ):
         """Initialize sampler adapter.
 
         Args:
@@ -49,14 +51,14 @@ class SamplerAdapter(Dataset):
                 self.legacy_sampler = self.sampler_utils.create_uavarprior_sampler(
                     config_path=self.sampler_config.get("config_path"),
                     data_path=self.sampler_config.get("data_path"),
-                    split=self.split
+                    split=self.split,
                 )
 
             elif sampler_type == "fugep":
                 self.legacy_sampler = self.sampler_utils.create_fugep_sampler(
                     config_path=self.sampler_config.get("config_path"),
                     data_path=self.sampler_config.get("data_path"),
-                    split=self.split
+                    split=self.split,
                 )
 
             else:
@@ -66,9 +68,9 @@ class SamplerAdapter(Dataset):
                 )
 
             # Get dataset size
-            if hasattr(self.legacy_sampler, '__len__'):
+            if hasattr(self.legacy_sampler, "__len__"):
                 self.dataset_size = len(self.legacy_sampler)
-            elif hasattr(self.legacy_sampler, 'size'):
+            elif hasattr(self.legacy_sampler, "size"):
                 self.dataset_size = self.legacy_sampler.size
             else:
                 # Try to estimate size by calling the sampler
@@ -78,8 +80,10 @@ class SamplerAdapter(Dataset):
                     logger.warning("Could not determine dataset size, using default")
                     self.dataset_size = 10000  # Default fallback
 
-            logger.info(f"Initialized {sampler_type} sampler for {self.split} "
-                       f"with {self.dataset_size} samples")
+            logger.info(
+                f"Initialized {sampler_type} sampler for {self.split} "
+                f"with {self.dataset_size} samples"
+            )
 
         except Exception as e:
             logger.error(f"Failed to initialize sampler: {e}")
@@ -111,9 +115,9 @@ class SamplerAdapter(Dataset):
 
         try:
             # Call legacy sampler
-            if hasattr(self.legacy_sampler, '__getitem__'):
+            if hasattr(self.legacy_sampler, "__getitem__"):
                 data = self.legacy_sampler[idx]
-            elif hasattr(self.legacy_sampler, 'sample'):
+            elif hasattr(self.legacy_sampler, "sample"):
                 data = self.legacy_sampler.sample(idx)
             elif callable(self.legacy_sampler):
                 data = self.legacy_sampler(idx)
@@ -139,11 +143,11 @@ class SamplerAdapter(Dataset):
 
         if isinstance(data, (tuple, list)) and len(data) >= 2:
             sequence, label = data[0], data[1]
-        elif hasattr(data, 'sequence') and hasattr(data, 'label'):
+        elif hasattr(data, "sequence") and hasattr(data, "label"):
             sequence, label = data.sequence, data.label
         elif isinstance(data, dict):
-            sequence = data.get('sequence', data.get('X'))
-            label = data.get('label', data.get('y'))
+            sequence = data.get("sequence", data.get("X"))
+            label = data.get("label", data.get("y"))
         else:
             # Assume single item is sequence, create dummy label
             sequence = data
@@ -170,7 +174,7 @@ class SamplerAdapter(Dataset):
         """Encode DNA sequence string to one-hot tensor."""
 
         # DNA nucleotide mapping
-        mapping = {'A': 0, 'C': 1, 'G': 2, 'T': 3, 'N': 4}
+        mapping = {"A": 0, "C": 1, "G": 2, "T": 3, "N": 4}
 
         # Convert to uppercase
         sequence = sequence.upper()
@@ -178,7 +182,7 @@ class SamplerAdapter(Dataset):
         # One-hot encoding
         encoded = np.zeros((4, len(sequence)), dtype=np.float32)
         for i, nucleotide in enumerate(sequence):
-            if nucleotide in ['A', 'C', 'G', 'T']:
+            if nucleotide in ["A", "C", "G", "T"]:
                 idx = mapping[nucleotide]
                 encoded[idx, i] = 1.0
             # Unknown nucleotides (N) remain as zeros
@@ -246,7 +250,7 @@ class SamplerAdapter(Dataset):
         """Get metadata for a sample if available."""
 
         try:
-            if hasattr(self.legacy_sampler, 'get_metadata'):
+            if hasattr(self.legacy_sampler, "get_metadata"):
                 return self.legacy_sampler.get_metadata(idx)
             else:
                 return {"sample_idx": idx, "split": self.split}
@@ -258,11 +262,13 @@ class SamplerAdapter(Dataset):
 class BatchedSamplerAdapter(SamplerAdapter):
     """Adapter for legacy samplers that return batches instead of single samples."""
 
-    def __init__(self,
-                 sampler_config: Dict[str, Any],
-                 sampler_utils: SamplerUtils,
-                 batch_size: int = 64,
-                 **kwargs):
+    def __init__(
+        self,
+        sampler_config: Dict[str, Any],
+        sampler_utils: SamplerUtils,
+        batch_size: int = 64,
+        **kwargs,
+    ):
         """Initialize batched sampler adapter.
 
         Args:
@@ -309,9 +315,9 @@ class BatchedSamplerAdapter(SamplerAdapter):
 
         try:
             # Call legacy sampler to get batch
-            if hasattr(self.legacy_sampler, 'get_batch'):
+            if hasattr(self.legacy_sampler, "get_batch"):
                 batch_data = self.legacy_sampler.get_batch(batch_idx)
-            elif hasattr(self.legacy_sampler, '__call__'):
+            elif hasattr(self.legacy_sampler, "__call__"):
                 batch_data = self.legacy_sampler(batch_idx, self.legacy_batch_size)
             else:
                 raise ValueError("Batched sampler does not support batch operations")

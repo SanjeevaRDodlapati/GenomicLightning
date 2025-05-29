@@ -32,9 +32,9 @@ class ConfigLoader:
 
         suffix = config_path.suffix.lower()
 
-        if suffix == '.json':
+        if suffix == ".json":
             return ConfigLoader._load_json(config_path)
-        elif suffix in ['.yaml', '.yml']:
+        elif suffix in [".yaml", ".yml"]:
             return ConfigLoader._load_yaml(config_path)
         else:
             raise ValueError(f"Unsupported config format: {suffix}")
@@ -43,7 +43,7 @@ class ConfigLoader:
     def _load_json(config_path: Path) -> Dict[str, Any]:
         """Load JSON configuration."""
         try:
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 return json.load(f)
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON in {config_path}: {e}")
@@ -52,7 +52,7 @@ class ConfigLoader:
     def _load_yaml(config_path: Path) -> Dict[str, Any]:
         """Load YAML configuration."""
         try:
-            with open(config_path, 'r') as f:
+            with open(config_path, "r") as f:
                 return yaml.safe_load(f)
         except yaml.YAMLError as e:
             raise ValueError(f"Invalid YAML in {config_path}: {e}")
@@ -70,11 +70,11 @@ class ConfigLoader:
 
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
-        if suffix == '.json':
-            with open(output_path, 'w') as f:
+        if suffix == ".json":
+            with open(output_path, "w") as f:
                 json.dump(config, f, indent=2)
-        elif suffix in ['.yaml', '.yml']:
-            with open(output_path, 'w') as f:
+        elif suffix in [".yaml", ".yml"]:
+            with open(output_path, "w") as f:
                 yaml.dump(config, f, default_flow_style=False, indent=2)
         else:
             raise ValueError(f"Unsupported config format: {suffix}")
@@ -93,14 +93,14 @@ class ConfigLoader:
                 "conv_kernels": [8, 8, 8],
                 "pool_kernels": [4, 4, 4],
                 "fc_layers": [925],
-                "dropout": 0.2
+                "dropout": 0.2,
             },
             "data": {
                 "batch_size": 64,
                 "num_workers": 4,
                 "train_path": None,
                 "val_path": None,
-                "test_path": None
+                "test_path": None,
             },
             "training": {
                 "max_epochs": 100,
@@ -108,12 +108,12 @@ class ConfigLoader:
                 "weight_decay": 1e-4,
                 "optimizer": "adam",
                 "scheduler": "cosine",
-                "gradient_clip_val": 1.0
+                "gradient_clip_val": 1.0,
             },
             "logging": {
                 "log_every_n_steps": 50,
                 "save_top_k": 3,
                 "monitor": "val_auroc",
-                "mode": "max"
-            }
+                "mode": "max",
+            },
         }

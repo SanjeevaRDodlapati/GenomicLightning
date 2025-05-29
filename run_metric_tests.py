@@ -6,15 +6,21 @@ import sys
 import traceback
 import torch
 
+
 def run_tests():
-    print("="*60)
+    print("=" * 60)
     print("GENOMIC LIGHTNING METRICS TEST SUITE")
-    print("="*60)
+    print("=" * 60)
 
     try:
         # Test 1: Import test
         print("\n1. Testing imports...")
-        from genomic_lightning.metrics.genomic_metrics import GenomicAUPRC, TopKAccuracy, PositionalAUROC
+        from genomic_lightning.metrics.genomic_metrics import (
+            GenomicAUPRC,
+            TopKAccuracy,
+            PositionalAUROC,
+        )
+
         print("✅ All imports successful")
 
         # Test 2: Create instances
@@ -62,16 +68,17 @@ def run_tests():
         pos_result = pos_auroc.compute()
         print(f"   ✅ PositionalAUROC result keys: {list(pos_result.keys())}")
 
-        print("\n" + "="*60)
+        print("\n" + "=" * 60)
         print("🎉 ALL TESTS PASSED!")
         print("GenomicLightning metrics are working correctly.")
-        print("="*60)
+        print("=" * 60)
         return True
 
     except Exception as e:
         print(f"\n❌ ERROR: {e}")
         traceback.print_exc()
         return False
+
 
 if __name__ == "__main__":
     success = run_tests()

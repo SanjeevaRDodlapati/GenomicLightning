@@ -29,7 +29,7 @@ class DeepSEALightningModule(pl.LightningModule):
         scheduler: Optional[str] = None,
         weight_decay: float = 1e-6,
         pos_weight: Optional[torch.Tensor] = None,
-        class_weights: Optional[torch.Tensor] = None
+        class_weights: Optional[torch.Tensor] = None,
     ):
         """
         Initialize the DeepSEA Lightning module.
@@ -59,7 +59,7 @@ class DeepSEALightningModule(pl.LightningModule):
             num_filters=num_filters,
             filter_sizes=filter_sizes,
             pool_sizes=pool_sizes,
-            dropout_rates=dropout_rates
+            dropout_rates=dropout_rates,
         )
 
         # Store hyperparameters
@@ -71,23 +71,43 @@ class DeepSEALightningModule(pl.LightningModule):
         self.class_weights = class_weights
 
         # Initialize metrics
-        self.train_auroc = torchmetrics.AUROC(task="binary", num_classes=num_targets, average="macro")
-        self.val_auroc = torchmetrics.AUROC(task="binary", num_classes=num_targets, average="macro")
-        self.test_auroc = torchmetrics.AUROC(task="binary", num_classes=num_targets, average="macro")
+        self.train_auroc = torchmetrics.AUROC(
+            task="binary", num_classes=num_targets, average="macro"
+        )
+        self.val_auroc = torchmetrics.AUROC(
+            task="binary", num_classes=num_targets, average="macro"
+        )
+        self.test_auroc = torchmetrics.AUROC(
+            task="binary", num_classes=num_targets, average="macro"
+        )
 
-        self.train_auprc = torchmetrics.AveragePrecision(task="binary", num_classes=num_targets, average="macro")
-        self.val_auprc = torchmetrics.AveragePrecision(task="binary", num_classes=num_targets, average="macro")
-        self.test_auprc = torchmetrics.AveragePrecision(task="binary", num_classes=num_targets, average="macro")
+        self.train_auprc = torchmetrics.AveragePrecision(
+            task="binary", num_classes=num_targets, average="macro"
+        )
+        self.val_auprc = torchmetrics.AveragePrecision(
+            task="binary", num_classes=num_targets, average="macro"
+        )
+        self.test_auprc = torchmetrics.AveragePrecision(
+            task="binary", num_classes=num_targets, average="macro"
+        )
 
-        self.train_accuracy = torchmetrics.Accuracy(task="binary", num_classes=num_targets, average="macro")
-        self.val_accuracy = torchmetrics.Accuracy(task="binary", num_classes=num_targets, average="macro")
-        self.test_accuracy = torchmetrics.Accuracy(task="binary", num_classes=num_targets, average="macro")
+        self.train_accuracy = torchmetrics.Accuracy(
+            task="binary", num_classes=num_targets, average="macro"
+        )
+        self.val_accuracy = torchmetrics.Accuracy(
+            task="binary", num_classes=num_targets, average="macro"
+        )
+        self.test_accuracy = torchmetrics.Accuracy(
+            task="binary", num_classes=num_targets, average="macro"
+        )
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """Forward pass through the model."""
         return self.model(x)
 
-    def _calculate_loss(self, predictions: torch.Tensor, targets: torch.Tensor) -> torch.Tensor:
+    def _calculate_loss(
+        self, predictions: torch.Tensor, targets: torch.Tensor
+    ) -> torch.Tensor:
         """Calculate the loss function."""
         if self.pos_weight is not None:
             loss = F.binary_cross_entropy_with_logits(
@@ -98,87 +118,93 @@ class DeepSEALightningModule(pl.LightningModule):
 
         return loss
 
-    def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> torch.Tensor:
+    def training_step(
+        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
+    ) -> torch.Tensor:
         """Training step."""
         sequences, targets = batch
         predictions = self.forward(sequences)
         loss = self._calculate_loss(predictions, targets)
 
         # Log metrics
-        self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
+        self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True)
 
         # Calculate and log metrics
         self.train_auroc(predictions, targets.int())
         self.train_auprc(predictions, targets.int())
         self.train_accuracy(predictions, targets.int())
 
-        self.log('train_auroc', self.train_auroc, on_step=False, on_epoch=True, prog_bar=True)
-        self.log('train_auprc', self.train_auprc, on_step=False, on_epoch=True)
-        self.log('train_accuracy', self.train_accuracy, on_step=False, on_epoch=True)
+        self.log(
+            "train_auroc", self.train_auroc, on_step=False, on_epoch=True, prog_bar=True
+        )
+        self.log("train_auprc", self.train_auprc, on_step=False, on_epoch=True)
+        self.log("train_accuracy", self.train_accuracy, on_step=False, on_epoch=True)
 
         return loss
 
-    def validation_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> Dict[str, torch.Tensor]:
+    def validation_step(
+        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
+    ) -> Dict[str, torch.Tensor]:
         """Validation step."""
         sequences, targets = batch
         predictions = self.forward(sequences)
         loss = self._calculate_loss(predictions, targets)
 
         # Log metrics
-        self.log('val_loss', loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
 
         # Calculate and log metrics
         self.val_auroc(predictions, targets.int())
         self.val_auprc(predictions, targets.int())
         self.val_accuracy(predictions, targets.int())
 
-        self.log('val_auroc', self.val_auroc, on_step=False, on_epoch=True, prog_bar=True)
-        self.log('val_auprc', self.val_auprc, on_step=False, on_epoch=True)
-        self.log('val_accuracy', self.val_accuracy, on_step=False, on_epoch=True)
+        self.log(
+            "val_auroc", self.val_auroc, on_step=False, on_epoch=True, prog_bar=True
+        )
+        self.log("val_auprc", self.val_auprc, on_step=False, on_epoch=True)
+        self.log("val_accuracy", self.val_accuracy, on_step=False, on_epoch=True)
 
-        return {'val_loss': loss}
+        return {"val_loss": loss}
 
-    def test_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> Dict[str, torch.Tensor]:
+    def test_step(
+        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
+    ) -> Dict[str, torch.Tensor]:
         """Test step."""
         sequences, targets = batch
         predictions = self.forward(sequences)
         loss = self._calculate_loss(predictions, targets)
 
         # Log metrics
-        self.log('test_loss', loss, on_step=False, on_epoch=True)
+        self.log("test_loss", loss, on_step=False, on_epoch=True)
 
         # Calculate and log metrics
         self.test_auroc(predictions, targets.int())
         self.test_auprc(predictions, targets.int())
         self.test_accuracy(predictions, targets.int())
 
-        self.log('test_auroc', self.test_auroc, on_step=False, on_epoch=True)
-        self.log('test_auprc', self.test_auprc, on_step=False, on_epoch=True)
-        self.log('test_accuracy', self.test_accuracy, on_step=False, on_epoch=True)
+        self.log("test_auroc", self.test_auroc, on_step=False, on_epoch=True)
+        self.log("test_auprc", self.test_auprc, on_step=False, on_epoch=True)
+        self.log("test_accuracy", self.test_accuracy, on_step=False, on_epoch=True)
 
-        return {'test_loss': loss}
+        return {"test_loss": loss}
 
     def configure_optimizers(self) -> Dict[str, Any]:
         """Configure optimizers and schedulers."""
         # Create optimizer
         if self.optimizer_name.lower() == "adam":
             optimizer = torch.optim.Adam(
-                self.parameters(),
-                lr=self.learning_rate,
-                weight_decay=self.weight_decay
+                self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay
             )
         elif self.optimizer_name.lower() == "adamw":
             optimizer = torch.optim.AdamW(
-                self.parameters(),
-                lr=self.learning_rate,
-                weight_decay=self.weight_decay
+                self.parameters(), lr=self.learning_rate, weight_decay=self.weight_decay
             )
         elif self.optimizer_name.lower() == "sgd":
             optimizer = torch.optim.SGD(
                 self.parameters(),
                 lr=self.learning_rate,
                 weight_decay=self.weight_decay,
-                momentum=0.9
+                momentum=0.9,
             )
         else:
             raise ValueError(f"Unsupported optimizer: {self.optimizer_name}")
@@ -191,48 +217,38 @@ class DeepSEALightningModule(pl.LightningModule):
             scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
                 optimizer,
                 T_max=self.trainer.max_epochs,
-                eta_min=self.learning_rate * 0.01
+                eta_min=self.learning_rate * 0.01,
             )
             return {
                 "optimizer": optimizer,
-                "lr_scheduler": {
-                    "scheduler": scheduler,
-                    "interval": "epoch"
-                }
+                "lr_scheduler": {"scheduler": scheduler, "interval": "epoch"},
             }
         elif self.scheduler_name.lower() == "step":
             scheduler = torch.optim.lr_scheduler.StepLR(
-                optimizer,
-                step_size=10,
-                gamma=0.1
+                optimizer, step_size=10, gamma=0.1
             )
             return {
                 "optimizer": optimizer,
-                "lr_scheduler": {
-                    "scheduler": scheduler,
-                    "interval": "epoch"
-                }
+                "lr_scheduler": {"scheduler": scheduler, "interval": "epoch"},
             }
         elif self.scheduler_name.lower() == "plateau":
             scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-                optimizer,
-                mode='min',
-                factor=0.5,
-                patience=5,
-                verbose=True
+                optimizer, mode="min", factor=0.5, patience=5, verbose=True
             )
             return {
                 "optimizer": optimizer,
                 "lr_scheduler": {
                     "scheduler": scheduler,
                     "monitor": "val_loss",
-                    "interval": "epoch"
-                }
+                    "interval": "epoch",
+                },
             }
         else:
             raise ValueError(f"Unsupported scheduler: {self.scheduler_name}")
 
-    def predict_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> torch.Tensor:
+    def predict_step(
+        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
+    ) -> torch.Tensor:
         """Prediction step."""
         sequences, _ = batch
         return self.forward(sequences)

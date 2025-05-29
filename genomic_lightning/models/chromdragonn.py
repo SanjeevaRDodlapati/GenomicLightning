@@ -45,11 +45,11 @@ class ChromDragoNNModel(nn.Module):
         self,
         sequence_length=1000,
         n_genomic_features=4,  # A, C, G, T
-        n_outputs=919,         # Default DeepSEA output shape
+        n_outputs=919,  # Default DeepSEA output shape
         n_filters=300,
         n_residual_blocks=5,
         first_kernel_size=19,
-        dropout_rate=0.2
+        dropout_rate=0.2,
     ):
         """
         Initialize the ChromDragoNN model.
@@ -66,13 +66,15 @@ class ChromDragoNNModel(nn.Module):
         super(ChromDragoNNModel, self).__init__()
 
         # Initial convolutional layer
-        self.conv1 = nn.Conv1d(n_genomic_features, n_filters, kernel_size=first_kernel_size)
+        self.conv1 = nn.Conv1d(
+            n_genomic_features, n_filters, kernel_size=first_kernel_size
+        )
         self.bn1 = nn.BatchNorm1d(n_filters)
 
         # Residual blocks
-        self.residual_blocks = nn.ModuleList([
-            ResidualBlock(n_filters) for _ in range(n_residual_blocks)
-        ])
+        self.residual_blocks = nn.ModuleList(
+            [ResidualBlock(n_filters) for _ in range(n_residual_blocks)]
+        )
 
         # Output layers
         self.dropout = nn.Dropout(dropout_rate)

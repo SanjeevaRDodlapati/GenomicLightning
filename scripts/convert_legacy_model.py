@@ -26,42 +26,35 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--legacy-model-path",
-        required=True,
-        help="Path to legacy model file"
+        "--legacy-model-path", required=True, help="Path to legacy model file"
     )
 
     parser.add_argument(
-        "--legacy-config-path",
-        help="Path to legacy model configuration"
+        "--legacy-config-path", help="Path to legacy model configuration"
     )
 
     parser.add_argument(
-        "--output-path",
-        required=True,
-        help="Output path for converted Lightning model"
+        "--output-path", required=True, help="Output path for converted Lightning model"
     )
 
     parser.add_argument(
-        "--output-config-path",
-        help="Output path for Lightning configuration"
+        "--output-config-path", help="Output path for Lightning configuration"
     )
 
     parser.add_argument(
         "--model-type",
         choices=["uavarprior", "fugep", "deepsea", "danq"],
-        help="Type of legacy model"
+        help="Type of legacy model",
     )
 
     parser.add_argument(
-        "--lightning-config",
-        help="Path to Lightning configuration template"
+        "--lightning-config", help="Path to Lightning configuration template"
     )
 
     parser.add_argument(
         "--test-conversion",
         action="store_true",
-        help="Test the converted model with sample data"
+        help="Test the converted model with sample data",
     )
 
     return parser.parse_args()
@@ -108,30 +101,27 @@ def create_lightning_config(legacy_model, model_type, output_path=None):
         "model": {
             "type": "deepsea",  # Default, will be updated
             "input_length": 1000,
-            "num_classes": 919
+            "num_classes": 919,
         },
-        "data": {
-            "batch_size": 64,
-            "num_workers": 4
-        },
+        "data": {"batch_size": 64, "num_workers": 4},
         "training": {
             "max_epochs": 100,
             "learning_rate": 0.001,
             "weight_decay": 1e-4,
-            "optimizer": "adam"
-        }
+            "optimizer": "adam",
+        },
     }
 
     # Update based on model type and architecture
-    if hasattr(legacy_model, 'config'):
+    if hasattr(legacy_model, "config"):
         legacy_config = legacy_model.config
 
         # Extract relevant parameters
-        if hasattr(legacy_config, 'input_length'):
+        if hasattr(legacy_config, "input_length"):
             config["model"]["input_length"] = legacy_config.input_length
-        if hasattr(legacy_config, 'num_classes'):
+        if hasattr(legacy_config, "num_classes"):
             config["model"]["num_classes"] = legacy_config.num_classes
-        if hasattr(legacy_config, 'learning_rate'):
+        if hasattr(legacy_config, "learning_rate"):
             config["training"]["learning_rate"] = legacy_config.learning_rate
 
     # Model-specific configurations
@@ -158,8 +148,9 @@ def create_lightning_config(legacy_model, model_type, output_path=None):
     return config
 
 
-def convert_model(legacy_model_path, legacy_config_path, model_type,
-                 lightning_config_path=None):
+def convert_model(
+    legacy_model_path, legacy_config_path, model_type, lightning_config_path=None
+):
     """Convert legacy model to Lightning format."""
 
     # Import legacy model
@@ -169,7 +160,7 @@ def convert_model(legacy_model_path, legacy_config_path, model_type,
     legacy_model = importer.import_model(
         model_path=legacy_model_path,
         config_path=legacy_config_path,
-        model_type=model_type
+        model_type=model_type,
     )
 
     # Create Lightning configuration
@@ -183,7 +174,7 @@ def convert_model(legacy_model_path, legacy_config_path, model_type,
     wrapper = LightningWrapper(
         model=legacy_model,
         learning_rate=config["training"]["learning_rate"],
-        optimizer=config["training"]["optimizer"]
+        optimizer=config["training"]["optimizer"],
     )
 
     return wrapper, config
@@ -208,7 +199,9 @@ def test_converted_model(lightning_model, config):
             output = lightning_model(sample_input)
 
         logger.info(f"Test successful! Output shape: {output.shape}")
-        logger.info(f"Expected output shape: ({batch_size}, {config['model']['num_classes']})")
+        logger.info(
+            f"Expected output shape: ({batch_size}, {config['model']['num_classes']})"
+        )
 
         # Check output shape
         expected_classes = config["model"]["num_classes"]
@@ -216,8 +209,10 @@ def test_converted_model(lightning_model, config):
             logger.info("✓ Output shape matches expected")
             return True
         else:
-            logger.warning(f"✗ Output shape mismatch: got {output.shape}, "
-                          f"expected ({batch_size}, {expected_classes})")
+            logger.warning(
+                f"✗ Output shape mismatch: got {output.shape}, "
+                f"expected ({batch_size}, {expected_classes})"
+            )
             return False
 
     except Exception as e:
@@ -233,7 +228,9 @@ def main():
         # Detect model type if not provided
         model_type = args.model_type
         if not model_type:
-            model_type = detect_model_type(args.legacy_model_path, args.legacy_config_path)
+            model_type = detect_model_type(
+                args.legacy_model_path, args.legacy_config_path
+            )
             if not model_type:
                 logger.error("Could not detect model type. Please specify --model-type")
                 sys.exit(1)
@@ -244,7 +241,7 @@ def main():
             args.legacy_model_path,
             args.legacy_config_path,
             model_type,
-            args.lightning_config
+            args.lightning_config,
         )
 
         # Test conversion if requested

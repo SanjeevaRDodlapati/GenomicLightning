@@ -29,46 +29,36 @@ def parse_args():
     )
 
     parser.add_argument(
-        "--model-path",
-        required=True,
-        help="Path to trained model checkpoint"
+        "--model-path", required=True, help="Path to trained model checkpoint"
     )
 
-    parser.add_argument(
-        "--config-path",
-        help="Path to model configuration file"
-    )
+    parser.add_argument("--config-path", help="Path to model configuration file")
 
     parser.add_argument(
         "--variants-file",
         required=True,
-        help="CSV file with variant information (columns: ref_seq, alt_seq, variant_id)"
+        help="CSV file with variant information (columns: ref_seq, alt_seq, variant_id)",
     )
 
     parser.add_argument(
         "--output-file",
         required=True,
-        help="Output CSV file for variant effect predictions"
+        help="Output CSV file for variant effect predictions",
     )
 
     parser.add_argument(
-        "--batch-size",
-        type=int,
-        default=32,
-        help="Batch size for prediction"
+        "--batch-size", type=int, default=32, help="Batch size for prediction"
     )
 
     parser.add_argument(
-        "--device",
-        default="auto",
-        help="Device to use (cpu, cuda, auto)"
+        "--device", default="auto", help="Device to use (cpu, cuda, auto)"
     )
 
     parser.add_argument(
         "--model-type",
         default="lightning",
         choices=["lightning", "legacy"],
-        help="Type of model to load"
+        help="Type of model to load",
     )
 
     return parser.parse_args()
@@ -83,11 +73,12 @@ def load_model(model_path, config_path=None, model_type="lightning", device="cpu
             config = ConfigLoader.load_config(config_path)
             model = ConfigFactory.create_lightning_module(config)
             checkpoint = torch.load(model_path, map_location=device)
-            model.load_state_dict(checkpoint['state_dict'])
+            model.load_state_dict(checkpoint["state_dict"])
         else:
             # Try to load directly from checkpoint
             try:
                 from genomic_lightning.lightning_modules import DeepSEALightningModule
+
                 model = DeepSEALightningModule.load_from_checkpoint(
                     model_path, map_location=device
                 )
@@ -113,18 +104,20 @@ def load_variants(variants_file):
 
     df = pd.read_csv(variants_file)
 
-    required_columns = ['ref_seq', 'alt_seq']
+    required_columns = ["ref_seq", "alt_seq"]
     if not all(col in df.columns for col in required_columns):
         raise ValueError(f"CSV must contain columns: {required_columns}")
 
     # Optional variant ID column
-    if 'variant_id' not in df.columns:
-        df['variant_id'] = [f"variant_{i}" for i in range(len(df))]
+    if "variant_id" not in df.columns:
+        df["variant_id"] = [f"variant_{i}" for i in range(len(df))]
 
     return df
 
 
-def predict_variant_effects(model, ref_sequences, alt_sequences, batch_size=32, device="cpu"):
+def predict_variant_effects(
+    model, ref_sequences, alt_sequences, batch_size=32, device="cpu"
+):
     """Predict effects of variants."""
 
     # Create datasets for reference and alternative sequences
@@ -169,18 +162,18 @@ def save_results(variant_effects, variant_ids, output_file):
 
     # Create DataFrame with results
     results_data = {
-        'variant_id': variant_ids,
-        'mean_effect': np.mean(np.abs(variant_effects), axis=1),
-        'max_effect': np.max(np.abs(variant_effects), axis=1),
-        'sum_positive_effects': np.sum(np.maximum(variant_effects, 0), axis=1),
-        'sum_negative_effects': np.sum(np.minimum(variant_effects, 0), axis=1),
-        'num_significant_effects': np.sum(np.abs(variant_effects) > 0.1, axis=1)
+        "variant_id": variant_ids,
+        "mean_effect": np.mean(np.abs(variant_effects), axis=1),
+        "max_effect": np.max(np.abs(variant_effects), axis=1),
+        "sum_positive_effects": np.sum(np.maximum(variant_effects, 0), axis=1),
+        "sum_negative_effects": np.sum(np.minimum(variant_effects, 0), axis=1),
+        "num_significant_effects": np.sum(np.abs(variant_effects) > 0.1, axis=1),
     }
 
     # Add individual feature effects if not too many features
     if variant_effects.shape[1] <= 100:
         for i in range(variant_effects.shape[1]):
-            results_data[f'feature_{i}_effect'] = variant_effects[:, i]
+            results_data[f"feature_{i}_effect"] = variant_effects[:, i]
 
     results_df = pd.DataFrame(results_data)
 
@@ -209,12 +202,7 @@ def main():
     try:
         # Load model
         logger.info(f"Loading model from {args.model_path}")
-        model = load_model(
-            args.model_path,
-            args.config_path,
-            args.model_type,
-            device
-        )
+        model = load_model(args.model_path, args.config_path, args.model_type, device)
 
         # Load variants
         logger.info(f"Loading variants from {args.variants_file}")
@@ -224,17 +212,15 @@ def main():
         logger.info(f"Predicting effects for {len(variants_df)} variants")
         variant_effects = predict_variant_effects(
             model,
-            variants_df['ref_seq'].tolist(),
-            variants_df['alt_seq'].tolist(),
+            variants_df["ref_seq"].tolist(),
+            variants_df["alt_seq"].tolist(),
             batch_size=args.batch_size,
-            device=device
+            device=device,
         )
 
         # Save results
         save_results(
-            variant_effects,
-            variants_df['variant_id'].tolist(),
-            args.output_file
+            variant_effects, variants_df["variant_id"].tolist(), args.output_file
         )
 
         logger.info("Variant effect prediction completed successfully!")

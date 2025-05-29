@@ -8,6 +8,7 @@ import gc
 import weakref
 from typing import Optional, Dict, Any
 
+
 class GenomicDataProcessor:
     """
     Fixed genomic data processor with proper memory management.
@@ -62,9 +63,9 @@ class GenomicDataProcessor:
 
             # Process data (simplified for example)
             processed = {
-                'variants': temp_data.get('variants', []),
-                'quality_scores': temp_data.get('quality_scores', []),
-                'metadata': temp_data.get('metadata', {})
+                "variants": temp_data.get("variants", []),
+                "quality_scores": temp_data.get("quality_scores", []),
+                "metadata": temp_data.get("metadata", {}),
             }
 
             # Explicit cleanup of large temporary objects
@@ -79,8 +80,10 @@ class GenomicDataProcessor:
         self._callbacks.clear()
         gc.collect()
 
+
 # Global fix for memory leak in module-level cache
 _global_cache = weakref.WeakValueDictionary()
+
 
 def get_cached_processor(processor_id: str) -> GenomicDataProcessor:
     """

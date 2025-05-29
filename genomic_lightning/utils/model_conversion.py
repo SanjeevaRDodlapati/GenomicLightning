@@ -14,6 +14,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 def convert_to_onnx(
     model: nn.Module,
     output_path: str,
@@ -21,7 +22,7 @@ def convert_to_onnx(
     dynamic_axes: Optional[Dict[str, List[int]]] = None,
     opset_version: int = 12,
     input_names: Optional[List[str]] = None,
-    output_names: Optional[List[str]] = None
+    output_names: Optional[List[str]] = None,
 ) -> str:
     """
     Convert a PyTorch model to ONNX format.
@@ -58,20 +59,20 @@ def convert_to_onnx(
     if dynamic_axes is None:
         dynamic_axes = {
             "input": {0: "batch_size", 2: "seq_length"},
-            "output": {0: "batch_size"}
+            "output": {0: "batch_size"},
         }
 
     # Export the model
     torch.onnx.export(
-        model,                     # model being run
-        dummy_input,               # model input
-        output_path,               # where to save the model
-        export_params=True,        # store the trained parameter weights inside the model file
+        model,  # model being run
+        dummy_input,  # model input
+        output_path,  # where to save the model
+        export_params=True,  # store the trained parameter weights inside the model file
         opset_version=opset_version,  # the ONNX version to export the model to
         do_constant_folding=True,  # whether to execute constant folding for optimization
-        input_names=input_names,   # the model's input names
-        output_names=output_names, # the model's output names
-        dynamic_axes=dynamic_axes  # variable length axes
+        input_names=input_names,  # the model's input names
+        output_names=output_names,  # the model's output names
+        dynamic_axes=dynamic_axes,  # variable length axes
     )
 
     logger.info(f"Model exported to ONNX format at: {output_path}")
@@ -83,7 +84,7 @@ def convert_to_torchscript(
     output_path: str,
     method: str = "trace",
     example_input: Optional[torch.Tensor] = None,
-    input_shape: Tuple[int, ...] = (1, 4, 1000)
+    input_shape: Tuple[int, ...] = (1, 4, 1000),
 ) -> str:
     """
     Convert a PyTorch model to TorchScript format.
@@ -128,9 +129,7 @@ def convert_to_torchscript(
 
 
 def optimize_for_mobile(
-    model: nn.Module,
-    output_path: str,
-    input_shape: Tuple[int, ...] = (1, 4, 1000)
+    model: nn.Module, output_path: str, input_shape: Tuple[int, ...] = (1, 4, 1000)
 ) -> str:
     """
     Optimize a PyTorch model for mobile deployment.
@@ -157,6 +156,7 @@ def optimize_for_mobile(
 
     # Optimize for mobile
     from torch.utils.mobile_optimizer import optimize_for_mobile
+
     optimized_model = optimize_for_mobile(traced_model)
 
     # Save the model
@@ -171,7 +171,7 @@ def quantize_model(
     output_path: str,
     quantization_type: str = "static",
     input_shape: Tuple[int, ...] = (1, 4, 1000),
-    calibration_data: Optional[torch.Tensor] = None
+    calibration_data: Optional[torch.Tensor] = None,
 ) -> str:
     """
     Quantize a PyTorch model for improved performance and reduced size.
@@ -195,9 +195,7 @@ def quantize_model(
     if quantization_type.lower() == "dynamic":
         # Apply dynamic quantization
         quantized_model = torch.quantization.quantize_dynamic(
-            model,
-            {nn.Linear, nn.Conv1d},
-            dtype=torch.qint8
+            model, {nn.Linear, nn.Conv1d}, dtype=torch.qint8
         )
 
     elif quantization_type.lower() == "static":
@@ -211,7 +209,7 @@ def quantize_model(
                 m.fuse_model()
 
         # Prepare for static quantization
-        model_fp32.qconfig = torch.quantization.get_default_qconfig('fbgemm')
+        model_fp32.qconfig = torch.quantization.get_default_qconfig("fbgemm")
         model_fp32_prepared = torch.quantization.prepare(model_fp32)
 
         # Calibrate with sample data
@@ -231,7 +229,9 @@ def quantize_model(
     elif quantization_type.lower() == "qat":
         # Quantization-aware training
         # This requires training the model with quantization awareness
-        raise NotImplementedError("Quantization-aware training requires model training and is not implemented in this function")
+        raise NotImplementedError(
+            "Quantization-aware training requires model training and is not implemented in this function"
+        )
 
     else:
         raise ValueError(f"Unknown quantization type: {quantization_type}")
@@ -247,9 +247,7 @@ def quantize_model(
 
 
 def convert_lightning_to_pytorch(
-    lightning_model_path: str,
-    output_path: str,
-    model_only: bool = True
+    lightning_model_path: str, output_path: str, model_only: bool = True
 ) -> str:
     """
     Extract a PyTorch model from a PyTorch Lightning checkpoint.
@@ -271,7 +269,7 @@ def convert_lightning_to_pytorch(
         output_path = output_path + ".pt"
 
     # Load the Lightning model
-    checkpoint = torch.load(lightning_model_path, map_location=torch.device('cpu'))
+    checkpoint = torch.load(lightning_model_path, map_location=torch.device("cpu"))
 
     if model_only:
         # Extract only the model state dict
@@ -295,5 +293,7 @@ def convert_lightning_to_pytorch(
         # Save the entire checkpoint
         torch.save(checkpoint, output_path)
 
-    logger.info(f"Model extracted from Lightning checkpoint and saved at: {output_path}")
+    logger.info(
+        f"Model extracted from Lightning checkpoint and saved at: {output_path}"
+    )
     return output_path

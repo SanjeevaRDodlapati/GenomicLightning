@@ -10,10 +10,12 @@ from abc import ABC, abstractmethod
 class BaseGenomicDataset(Dataset, ABC):
     """Abstract base class for genomic datasets."""
 
-    def __init__(self,
-                 sequence_length: int = 1000,
-                 one_hot_encode: bool = True,
-                 transform: Optional[callable] = None):
+    def __init__(
+        self,
+        sequence_length: int = 1000,
+        one_hot_encode: bool = True,
+        transform: Optional[callable] = None,
+    ):
         """Initialize base genomic dataset.
 
         Args:
@@ -26,7 +28,7 @@ class BaseGenomicDataset(Dataset, ABC):
         self.transform = transform
 
         # DNA nucleotide mapping
-        self.nucleotide_mapping = {'A': 0, 'C': 1, 'G': 2, 'T': 3, 'N': 4}
+        self.nucleotide_mapping = {"A": 0, "C": 1, "G": 2, "T": 3, "N": 4}
         self.reverse_mapping = {v: k for k, v in self.nucleotide_mapping.items()}
 
     @abstractmethod
@@ -55,15 +57,16 @@ class BaseGenomicDataset(Dataset, ABC):
             # One-hot encoding: [A, C, G, T] channels
             encoded = np.zeros((4, len(sequence)), dtype=np.float32)
             for i, nucleotide in enumerate(sequence):
-                if nucleotide in ['A', 'C', 'G', 'T']:
+                if nucleotide in ["A", "C", "G", "T"]:
                     idx = self.nucleotide_mapping[nucleotide]
                     encoded[idx, i] = 1.0
                 # Unknown nucleotides (N) remain as zeros in all channels
         else:
             # Integer encoding
-            encoded = np.array([
-                self.nucleotide_mapping.get(nuc, 4) for nuc in sequence
-            ], dtype=np.int64)
+            encoded = np.array(
+                [self.nucleotide_mapping.get(nuc, 4) for nuc in sequence],
+                dtype=np.int64,
+            )
 
         return torch.tensor(encoded)
 
@@ -85,7 +88,7 @@ class BaseGenomicDataset(Dataset, ABC):
         else:
             indices = encoded_seq
 
-        return ''.join([self.reverse_mapping.get(int(idx), 'N') for idx in indices])
+        return "".join([self.reverse_mapping.get(int(idx), "N") for idx in indices])
 
     def pad_or_truncate(self, sequence: str) -> str:
         """Pad or truncate sequence to target length.
@@ -98,12 +101,12 @@ class BaseGenomicDataset(Dataset, ABC):
         """
         if len(sequence) < self.sequence_length:
             # Pad with N's
-            padding = 'N' * (self.sequence_length - len(sequence))
+            padding = "N" * (self.sequence_length - len(sequence))
             return sequence + padding
         elif len(sequence) > self.sequence_length:
             # Truncate from center
             start = (len(sequence) - self.sequence_length) // 2
-            return sequence[start:start + self.sequence_length]
+            return sequence[start : start + self.sequence_length]
         else:
             return sequence
 
@@ -112,18 +115,15 @@ class BaseGenomicDataset(Dataset, ABC):
         return {
             "sequence_length": self.sequence_length,
             "one_hot_encode": self.one_hot_encode,
-            "num_classes": getattr(self, 'num_classes', None),
-            "dataset_size": len(self)
+            "num_classes": getattr(self, "num_classes", None),
+            "dataset_size": len(self),
         }
 
 
 class MemoryGenomicDataset(BaseGenomicDataset):
     """In-memory genomic dataset for small datasets."""
 
-    def __init__(self,
-                 sequences: list,
-                 labels: Optional[list] = None,
-                 **kwargs):
+    def __init__(self, sequences: list, labels: Optional[list] = None, **kwargs):
         """Initialize memory dataset.
 
         Args:

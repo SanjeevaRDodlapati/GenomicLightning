@@ -8,33 +8,42 @@ import pytest
 import sys
 import os
 
+
 def test_genomic_lightning_import():
     """Test that GenomicLightning can be imported."""
     try:
         import genomic_lightning
+
         print("✅ GenomicLightning imported successfully")
         assert True
     except ImportError as e:
         pytest.skip(f"GenomicLightning import failed: {e}")
+
 
 def test_pytorch_lightning_compatibility():
     """Test PyTorch Lightning compatibility."""
     try:
         import pytorch_lightning as pl
         import torch
-        print(f"✅ PyTorch Lightning {pl.__version__} and PyTorch {torch.__version__} available")
+
+        print(
+            f"✅ PyTorch Lightning {pl.__version__} and PyTorch {torch.__version__} available"
+        )
         assert True
     except ImportError as e:
         pytest.skip(f"PyTorch Lightning compatibility test failed: {e}")
+
 
 def test_genomic_models_import():
     """Test genomic model imports."""
     try:
         import genomic_lightning.models
+
         print("✅ GenomicLightning models accessible")
         assert True
     except ImportError as e:
         pytest.skip(f"GenomicLightning models import failed: {e}")
+
 
 def test_lightning_module_creation():
     """Test Lightning module creation."""
@@ -62,15 +71,18 @@ def test_lightning_module_creation():
     except Exception as e:
         pytest.skip(f"Lightning module creation test failed: {e}")
 
+
 def test_genomic_data_processing():
     """Test genomic data processing capabilities."""
     try:
         # Test if genomic data processing modules are available
         import genomic_lightning.data
+
         print("✅ GenomicLightning data processing available")
         assert True
     except ImportError as e:
         pytest.skip(f"Genomic data processing not available: {e}")
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

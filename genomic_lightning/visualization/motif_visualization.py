@@ -45,7 +45,9 @@ class MotifVisualizer:
                 if name == self.layer_name and isinstance(module, nn.Conv1d):
                     return module
 
-            raise ValueError(f"Could not find convolutional layer named {self.layer_name}")
+            raise ValueError(
+                f"Could not find convolutional layer named {self.layer_name}"
+            )
 
         # If layer_name is None, find the first convolutional layer
         for module in self.model.modules():
@@ -65,11 +67,15 @@ class MotifVisualizer:
 
         # Check if in genomic format (num_filters, 4, filter_length)
         if weights.shape[1] != 4:
-            raise ValueError(f"Expected 4 input channels for genomic data, got {weights.shape[1]}")
+            raise ValueError(
+                f"Expected 4 input channels for genomic data, got {weights.shape[1]}"
+            )
 
         return weights
 
-    def plot_filter(self, filter_idx: int, figsize: Tuple[int, int] = (10, 2)) -> plt.Figure:
+    def plot_filter(
+        self, filter_idx: int, figsize: Tuple[int, int] = (10, 2)
+    ) -> plt.Figure:
         """
         Plot a single filter as a sequence logo.
 
@@ -83,13 +89,15 @@ class MotifVisualizer:
         filters = self.get_filters()
 
         if filter_idx >= filters.shape[0]:
-            raise ValueError(f"Filter index {filter_idx} out of range (0-{filters.shape[0]-1})")
+            raise ValueError(
+                f"Filter index {filter_idx} out of range (0-{filters.shape[0]-1})"
+            )
 
         # Get the single filter and convert to PWM format
         filt = filters[filter_idx].cpu().numpy()
 
         # ACGT to match standard genomic convention
-        bases = ['A', 'C', 'G', 'T']
+        bases = ["A", "C", "G", "T"]
 
         # Create dataframe for logomaker
         pwm_df = self._convert_filter_to_pwm(filt)
@@ -116,7 +124,7 @@ class MotifVisualizer:
             Pandas DataFrame in logomaker format
         """
         # ACGT to match standard genomic convention
-        bases = ['A', 'C', 'G', 'T']
+        bases = ["A", "C", "G", "T"]
 
         # Convert filter values to information content
         # Shift by min value and normalize
@@ -133,10 +141,12 @@ class MotifVisualizer:
 
         return pwm_df
 
-    def plot_all_filters(self,
-                          n_cols: int = 4,
-                          figsize_per_filter: Tuple[int, int] = (5, 2),
-                          max_filters: Optional[int] = None) -> plt.Figure:
+    def plot_all_filters(
+        self,
+        n_cols: int = 4,
+        figsize_per_filter: Tuple[int, int] = (5, 2),
+        max_filters: Optional[int] = None,
+    ) -> plt.Figure:
         """
         Plot all filters as sequence logos in a grid.
 
@@ -197,16 +207,18 @@ class MotifVisualizer:
 
         # Hide empty subplots
         for i in range(n_filters, len(axes_flat)):
-            axes_flat[i].axis('off')
+            axes_flat[i].axis("off")
 
         plt.tight_layout()
         return fig
 
 
-def plot_filter_activations(activations: torch.Tensor,
-                           sequence: Optional[str] = None,
-                           top_k: int = 5,
-                           figsize: Tuple[int, int] = (12, 6)) -> plt.Figure:
+def plot_filter_activations(
+    activations: torch.Tensor,
+    sequence: Optional[str] = None,
+    top_k: int = 5,
+    figsize: Tuple[int, int] = (12, 6),
+) -> plt.Figure:
     """
     Plot the activations of convolutional filters across a sequence.
 
@@ -221,7 +233,9 @@ def plot_filter_activations(activations: torch.Tensor,
     """
     # Ensure activations is the right shape
     if len(activations.shape) != 3:
-        raise ValueError(f"Expected activations of shape [1, n_filters, seq_length], got {activations.shape}")
+        raise ValueError(
+            f"Expected activations of shape [1, n_filters, seq_length], got {activations.shape}"
+        )
 
     # Get the dimensions
     n_filters = activations.shape[1]
@@ -238,18 +252,27 @@ def plot_filter_activations(activations: torch.Tensor,
     fig, ax = plt.subplots(figsize=figsize)
 
     # Plot heatmap of all activations
-    sns.heatmap(act, cmap='viridis', ax=ax)
+    sns.heatmap(act, cmap="viridis", ax=ax)
 
     # Highlight the top-k filters
     for i, filt_idx in enumerate(top_filters):
-        ax.axhline(y=filt_idx + 0.5, color='red', linestyle='-', linewidth=1, alpha=0.7)
-        ax.text(-5, filt_idx + 0.5, f"Filter {filt_idx}",
-                va='center', ha='right', color='red', fontweight='bold')
+        ax.axhline(y=filt_idx + 0.5, color="red", linestyle="-", linewidth=1, alpha=0.7)
+        ax.text(
+            -5,
+            filt_idx + 0.5,
+            f"Filter {filt_idx}",
+            va="center",
+            ha="right",
+            color="red",
+            fontweight="bold",
+        )
 
     # If sequence provided, show it on x-axis
     if sequence is not None:
         if len(sequence) != seq_length:
-            print(f"Warning: Sequence length ({len(sequence)}) does not match activation length ({seq_length})")
+            print(
+                f"Warning: Sequence length ({len(sequence)}) does not match activation length ({seq_length})"
+            )
             sequence = sequence[:seq_length]
 
         # Replace x-tick labels with sequence
@@ -264,11 +287,13 @@ def plot_filter_activations(activations: torch.Tensor,
     return fig
 
 
-def get_activated_motifs(model: nn.Module,
-                        sequences: torch.Tensor,
-                        layer_name: Optional[str] = None,
-                        threshold: float = 0.5,
-                        return_scores: bool = False) -> Union[List[List[str]], Tuple[List[List[str]], List[List[float]]]]:
+def get_activated_motifs(
+    model: nn.Module,
+    sequences: torch.Tensor,
+    layer_name: Optional[str] = None,
+    threshold: float = 0.5,
+    return_scores: bool = False,
+) -> Union[List[List[str]], Tuple[List[List[str]], List[List[float]]]]:
     """
     Extract DNA subsequences that activate specific filters in the model.
 
@@ -289,19 +314,20 @@ def get_activated_motifs(model: nn.Module,
     def get_activation(name):
         def hook(model, input, output):
             activations[name] = output.detach()
+
         return hook
 
     # Register the hook
     visualizer = MotifVisualizer(model, layer_name)
     conv_layer = visualizer._conv_layer
-    handle = conv_layer.register_forward_hook(get_activation('conv'))
+    handle = conv_layer.register_forward_hook(get_activation("conv"))
 
     # Run the model to get activations
     with torch.no_grad():
         _ = model(sequences)
 
     # Get the activations and remove hook
-    act = activations['conv']  # Shape: [batch, n_filters, seq_length]
+    act = activations["conv"]  # Shape: [batch, n_filters, seq_length]
     handle.remove()
 
     # Get filter details
@@ -310,7 +336,7 @@ def get_activated_motifs(model: nn.Module,
     filter_length = filters.shape[2]
 
     # Convert one-hot sequences back to ACGT
-    bases = ['A', 'C', 'G', 'T']
+    bases = ["A", "C", "G", "T"]
     sequence_strings = []
 
     for seq in sequences:

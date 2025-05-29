@@ -26,13 +26,13 @@ class DanQ(nn.Module):
         self,
         sequence_length=1000,
         n_genomic_features=4,  # A, C, G, T
-        n_outputs=919,         # Default DeepSEA output shape
+        n_outputs=919,  # Default DeepSEA output shape
         conv_kernel_size=26,
         conv_filters=320,
         pool_size=13,
         pool_stride=13,
         lstm_hidden=320,
-        dropout_rate=0.2
+        dropout_rate=0.2,
     ):
         """
         Initialize the DanQ model.
@@ -55,9 +55,7 @@ class DanQ(nn.Module):
 
         # Convolutional layer
         self.conv = nn.Conv1d(
-            n_genomic_features,
-            conv_filters,
-            kernel_size=conv_kernel_size
+            n_genomic_features, conv_filters, kernel_size=conv_kernel_size
         )
 
         # Bidirectional LSTM layer
@@ -65,7 +63,7 @@ class DanQ(nn.Module):
             input_size=conv_filters,
             hidden_size=lstm_hidden,
             bidirectional=True,
-            batch_first=True
+            batch_first=True,
         )
 
         # Dense layers

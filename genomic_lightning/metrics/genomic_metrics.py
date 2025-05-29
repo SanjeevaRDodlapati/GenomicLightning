@@ -56,7 +56,9 @@ class GenomicAUPRC(Metric):
             preds: Model predictions [batch_size, num_classes]
             targets: Ground truth [batch_size, num_classes]
         """
-        assert preds.shape == targets.shape, "Predictions and targets must have the same shape"
+        assert (
+            preds.shape == targets.shape
+        ), "Predictions and targets must have the same shape"
         # Convert targets to int for torchmetrics compatibility
         targets = targets.int()
         self.preds.append(preds)
@@ -107,7 +109,9 @@ class GenomicAUPRC(Metric):
             all_preds = preds.view(-1)
             all_targets = targets.view(-1)
             pr_curve = create_precision_recall_curve(num_classes=1)
-            precision, recall, _ = pr_curve(all_preds.unsqueeze(1), all_targets.unsqueeze(1))
+            precision, recall, _ = pr_curve(
+                all_preds.unsqueeze(1), all_targets.unsqueeze(1)
+            )
 
             # Calculate micro-average AUPRC
             if isinstance(precision, list):
@@ -183,7 +187,9 @@ class TopKAccuracy(Metric):
             preds: Model predictions [batch_size, num_classes]
             targets: Ground truth [batch_size, num_classes]
         """
-        assert preds.shape == targets.shape, "Predictions and targets must have the same shape"
+        assert (
+            preds.shape == targets.shape
+        ), "Predictions and targets must have the same shape"
 
         # Find top-k indices for each sample
         _, top_k_indices = torch.topk(preds, self.k, dim=1)
@@ -193,8 +199,9 @@ class TopKAccuracy(Metric):
 
         # Group by sample index
         sample_to_positive = {}
-        for sample_idx, class_idx in zip(positive_indices[0].tolist(),
-                                          positive_indices[1].tolist()):
+        for sample_idx, class_idx in zip(
+            positive_indices[0].tolist(), positive_indices[1].tolist()
+        ):
             if sample_idx not in sample_to_positive:
                 sample_to_positive[sample_idx] = []
             sample_to_positive[sample_idx].append(class_idx)
@@ -221,7 +228,11 @@ class TopKAccuracy(Metric):
         Returns:
             Top-K accuracy value
         """
-        return self.correct.float() / self.total.float() if self.total > 0 else torch.tensor(0.0)
+        return (
+            self.correct.float() / self.total.float()
+            if self.total > 0
+            else torch.tensor(0.0)
+        )
 
 
 class PositionalAUROC(Metric):
@@ -259,17 +270,18 @@ class PositionalAUROC(Metric):
         self.bin_size = sequence_length // num_bins
 
         # Create AUROC metrics for each position bin - use compatibility layer
-        self.auroc_metrics = torch.nn.ModuleList([
-            create_auroc() for _ in range(num_bins)
-        ])
+        self.auroc_metrics = torch.nn.ModuleList(
+            [create_auroc() for _ in range(num_bins)]
+        )
 
         # Use regular Python lists instead of metric states for nested data
         # These will be managed manually since torchmetrics doesn't support nested states
         self.bin_preds = [[] for _ in range(num_bins)]
         self.bin_targets = [[] for _ in range(num_bins)]
 
-    def update(self, preds: torch.Tensor, targets: torch.Tensor,
-               positions: torch.Tensor) -> None:
+    def update(
+        self, preds: torch.Tensor, targets: torch.Tensor, positions: torch.Tensor
+    ) -> None:
         """
         Update the metric state with predictions, targets, and positions.
 
@@ -284,8 +296,8 @@ class PositionalAUROC(Metric):
             bin_idx = min(pos // self.bin_size, self.num_bins - 1)
 
             # Add to appropriate bin
-            self.bin_preds[bin_idx].append(preds[i:i+1])
-            self.bin_targets[bin_idx].append(targets[i:i+1])
+            self.bin_preds[bin_idx].append(preds[i : i + 1])
+            self.bin_targets[bin_idx].append(targets[i : i + 1])
 
     def compute(self) -> Dict[str, torch.Tensor]:
         """
@@ -312,6 +324,8 @@ class PositionalAUROC(Metric):
 
         # Also compute overall average
         valid_bins = [v for v in results.values() if v > 0]
-        results["average"] = torch.mean(torch.stack(valid_bins)) if valid_bins else torch.tensor(0.0)
+        results["average"] = (
+            torch.mean(torch.stack(valid_bins)) if valid_bins else torch.tensor(0.0)
+        )
 
         return results

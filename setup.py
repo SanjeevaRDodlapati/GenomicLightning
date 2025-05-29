@@ -3,6 +3,7 @@
 from setuptools import setup, find_packages
 from pathlib import Path
 
+
 # Read the version from the package
 def get_version():
     """Get version from VERSION file or pyproject.toml."""
@@ -16,6 +17,7 @@ def get_version():
     # Fall back to pyproject.toml using regex (no external deps needed)
     try:
         import re
+
         with open("pyproject.toml", "r") as f:
             content = f.read()
             # Try modern [project] section first
@@ -23,7 +25,9 @@ def get_version():
             if match:
                 return match.group(1)
             # Try legacy [tool.poetry] section
-            match = re.search(r'\[tool\.poetry\].*?version\s*=\s*"([^"]+)"', content, re.DOTALL)
+            match = re.search(
+                r'\[tool\.poetry\].*?version\s*=\s*"([^"]+)"', content, re.DOTALL
+            )
             if match:
                 return match.group(1)
     except (FileNotFoundError, ImportError):
@@ -32,12 +36,14 @@ def get_version():
     # Try importing from package if already installed
     try:
         import genomic_lightning
-        return getattr(genomic_lightning, '__version__', "0.1.0")
+
+        return getattr(genomic_lightning, "__version__", "0.1.0")
     except ImportError:
         pass
 
     # Final fallback
     return "0.1.0"
+
 
 # Read the README file
 this_directory = Path(__file__).parent
@@ -47,7 +53,9 @@ long_description = (this_directory / "README.md").read_text(encoding="utf-8")
 requirements = []
 try:
     with open("requirements.txt", "r") as f:
-        requirements = [line.strip() for line in f if line.strip() and not line.startswith("#")]
+        requirements = [
+            line.strip() for line in f if line.strip() and not line.startswith("#")
+        ]
 except FileNotFoundError:
     # Fallback requirements if requirements.txt doesn't exist
     requirements = [

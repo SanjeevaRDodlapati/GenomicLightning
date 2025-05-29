@@ -12,7 +12,7 @@ from .data import (
     DeepSEADataset,
     GenomicSequenceDataset,
     GenomicDataModule,
-    ShardedGenomicDataModule
+    ShardedGenomicDataModule,
 )
 from .config import ConfigFactory, ConfigLoader
 from .utils import (
@@ -21,7 +21,7 @@ from .utils import (
     import_model_from_path,
     GenericLightningWrapper,
     LegacySamplerWrapper,
-    H5Dataset
+    H5Dataset,
 )
 
 __all__ = [
@@ -44,5 +44,5 @@ __all__ = [
     # Utils
     "import_uavarprior_model",
     "import_fugep_model",
-    "import_model_from_path"
+    "import_model_from_path",
 ]

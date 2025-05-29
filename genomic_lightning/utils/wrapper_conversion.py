@@ -14,6 +14,7 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+
 class GenericLightningWrapper(pl.LightningModule):
     """
     Generic PyTorch Lightning wrapper for genomic deep learning models.
@@ -29,7 +30,7 @@ class GenericLightningWrapper(pl.LightningModule):
         optimizer_kwargs: Optional[Dict] = None,
         scheduler: Optional[str] = None,
         scheduler_kwargs: Optional[Dict] = None,
-        class_weights: Optional[torch.Tensor] = None
+        class_weights: Optional[torch.Tensor] = None,
     ):
         """
         Initialize the lightning wrapper.
@@ -56,10 +57,10 @@ class GenericLightningWrapper(pl.LightningModule):
         self.class_weights = class_weights
 
         # Save hyperparameters for checkpointing
-        self.save_hyperparameters(ignore=['model'])
+        self.save_hyperparameters(ignore=["model"])
 
         # Set up metrics
-        self.setup_metrics(metrics or ['auroc'])
+        self.setup_metrics(metrics or ["auroc"])
 
         # Set up loss function
         self.loss_function = self._get_loss_function(loss_function)
@@ -140,34 +141,70 @@ class GenericLightningWrapper(pl.LightningModule):
         # Create metrics
         for name in metric_names:
             if name.lower() == "auroc":
-                self.train_metrics[name] = torchmetrics.AUROC(task="binary", num_classes=num_classes)
-                self.val_metrics[name] = torchmetrics.AUROC(task="binary", num_classes=num_classes)
-                self.test_metrics[name] = torchmetrics.AUROC(task="binary", num_classes=num_classes)
+                self.train_metrics[name] = torchmetrics.AUROC(
+                    task="binary", num_classes=num_classes
+                )
+                self.val_metrics[name] = torchmetrics.AUROC(
+                    task="binary", num_classes=num_classes
+                )
+                self.test_metrics[name] = torchmetrics.AUROC(
+                    task="binary", num_classes=num_classes
+                )
 
             elif name.lower() == "auprc" or name.lower() == "auc":
-                self.train_metrics[name] = torchmetrics.AveragePrecision(task="binary", num_classes=num_classes)
-                self.val_metrics[name] = torchmetrics.AveragePrecision(task="binary", num_classes=num_classes)
-                self.test_metrics[name] = torchmetrics.AveragePrecision(task="binary", num_classes=num_classes)
+                self.train_metrics[name] = torchmetrics.AveragePrecision(
+                    task="binary", num_classes=num_classes
+                )
+                self.val_metrics[name] = torchmetrics.AveragePrecision(
+                    task="binary", num_classes=num_classes
+                )
+                self.test_metrics[name] = torchmetrics.AveragePrecision(
+                    task="binary", num_classes=num_classes
+                )
 
             elif name.lower() == "accuracy":
-                self.train_metrics[name] = torchmetrics.Accuracy(task="binary", num_classes=num_classes)
-                self.val_metrics[name] = torchmetrics.Accuracy(task="binary", num_classes=num_classes)
-                self.test_metrics[name] = torchmetrics.Accuracy(task="binary", num_classes=num_classes)
+                self.train_metrics[name] = torchmetrics.Accuracy(
+                    task="binary", num_classes=num_classes
+                )
+                self.val_metrics[name] = torchmetrics.Accuracy(
+                    task="binary", num_classes=num_classes
+                )
+                self.test_metrics[name] = torchmetrics.Accuracy(
+                    task="binary", num_classes=num_classes
+                )
 
             elif name.lower() == "f1":
-                self.train_metrics[name] = torchmetrics.F1Score(task="binary", num_classes=num_classes)
-                self.val_metrics[name] = torchmetrics.F1Score(task="binary", num_classes=num_classes)
-                self.test_metrics[name] = torchmetrics.F1Score(task="binary", num_classes=num_classes)
+                self.train_metrics[name] = torchmetrics.F1Score(
+                    task="binary", num_classes=num_classes
+                )
+                self.val_metrics[name] = torchmetrics.F1Score(
+                    task="binary", num_classes=num_classes
+                )
+                self.test_metrics[name] = torchmetrics.F1Score(
+                    task="binary", num_classes=num_classes
+                )
 
             elif name.lower() == "precision":
-                self.train_metrics[name] = torchmetrics.Precision(task="binary", num_classes=num_classes)
-                self.val_metrics[name] = torchmetrics.Precision(task="binary", num_classes=num_classes)
-                self.test_metrics[name] = torchmetrics.Precision(task="binary", num_classes=num_classes)
+                self.train_metrics[name] = torchmetrics.Precision(
+                    task="binary", num_classes=num_classes
+                )
+                self.val_metrics[name] = torchmetrics.Precision(
+                    task="binary", num_classes=num_classes
+                )
+                self.test_metrics[name] = torchmetrics.Precision(
+                    task="binary", num_classes=num_classes
+                )
 
             elif name.lower() == "recall":
-                self.train_metrics[name] = torchmetrics.Recall(task="binary", num_classes=num_classes)
-                self.val_metrics[name] = torchmetrics.Recall(task="binary", num_classes=num_classes)
-                self.test_metrics[name] = torchmetrics.Recall(task="binary", num_classes=num_classes)
+                self.train_metrics[name] = torchmetrics.Recall(
+                    task="binary", num_classes=num_classes
+                )
+                self.val_metrics[name] = torchmetrics.Recall(
+                    task="binary", num_classes=num_classes
+                )
+                self.test_metrics[name] = torchmetrics.Recall(
+                    task="binary", num_classes=num_classes
+                )
 
             elif name.lower() == "mse":
                 self.train_metrics[name] = torchmetrics.MeanSquaredError()
@@ -182,7 +219,9 @@ class GenericLightningWrapper(pl.LightningModule):
             else:
                 logger.warning(f"Unknown metric: {name}")
 
-    def training_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> torch.Tensor:
+    def training_step(
+        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
+    ) -> torch.Tensor:
         """
         Training step.
 
@@ -200,16 +239,20 @@ class GenericLightningWrapper(pl.LightningModule):
         loss = self.loss_function(predictions, targets)
 
         # Log loss
-        self.log('train_loss', loss, on_step=True, on_epoch=True, prog_bar=True)
+        self.log("train_loss", loss, on_step=True, on_epoch=True, prog_bar=True)
 
         # Calculate and log metrics
         for name, metric in self.train_metrics.items():
             value = metric(predictions, targets)
-            self.log(f'train_{name}', value, on_step=False, on_epoch=True, prog_bar=True)
+            self.log(
+                f"train_{name}", value, on_step=False, on_epoch=True, prog_bar=True
+            )
 
         return loss
 
-    def validation_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> Dict[str, torch.Tensor]:
+    def validation_step(
+        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
+    ) -> Dict[str, torch.Tensor]:
         """
         Validation step.
 
@@ -227,16 +270,18 @@ class GenericLightningWrapper(pl.LightningModule):
         loss = self.loss_function(predictions, targets)
 
         # Log loss
-        self.log('val_loss', loss, on_step=False, on_epoch=True, prog_bar=True)
+        self.log("val_loss", loss, on_step=False, on_epoch=True, prog_bar=True)
 
         # Calculate and log metrics
         for name, metric in self.val_metrics.items():
             value = metric(predictions, targets)
-            self.log(f'val_{name}', value, on_step=False, on_epoch=True, prog_bar=True)
+            self.log(f"val_{name}", value, on_step=False, on_epoch=True, prog_bar=True)
 
-        return {'val_loss': loss}
+        return {"val_loss": loss}
 
-    def test_step(self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int) -> Dict[str, torch.Tensor]:
+    def test_step(
+        self, batch: Tuple[torch.Tensor, torch.Tensor], batch_idx: int
+    ) -> Dict[str, torch.Tensor]:
         """
         Test step.
 
@@ -254,14 +299,14 @@ class GenericLightningWrapper(pl.LightningModule):
         loss = self.loss_function(predictions, targets)
 
         # Log loss
-        self.log('test_loss', loss, on_step=False, on_epoch=True)
+        self.log("test_loss", loss, on_step=False, on_epoch=True)
 
         # Calculate and log metrics
         for name, metric in self.test_metrics.items():
             value = metric(predictions, targets)
-            self.log(f'test_{name}', value, on_step=False, on_epoch=True)
+            self.log(f"test_{name}", value, on_step=False, on_epoch=True)
 
-        return {'test_loss': loss}
+        return {"test_loss": loss}
 
     def configure_optimizers(self) -> Dict:
         """
@@ -273,27 +318,19 @@ class GenericLightningWrapper(pl.LightningModule):
         # Create optimizer
         if self.optimizer_name.lower() == "adam":
             optimizer = torch.optim.Adam(
-                self.parameters(),
-                lr=self.learning_rate,
-                **self.optimizer_kwargs
+                self.parameters(), lr=self.learning_rate, **self.optimizer_kwargs
             )
         elif self.optimizer_name.lower() == "sgd":
             optimizer = torch.optim.SGD(
-                self.parameters(),
-                lr=self.learning_rate,
-                **self.optimizer_kwargs
+                self.parameters(), lr=self.learning_rate, **self.optimizer_kwargs
             )
         elif self.optimizer_name.lower() == "rmsprop":
             optimizer = torch.optim.RMSprop(
-                self.parameters(),
-                lr=self.learning_rate,
-                **self.optimizer_kwargs
+                self.parameters(), lr=self.learning_rate, **self.optimizer_kwargs
             )
         elif self.optimizer_name.lower() == "adamw":
             optimizer = torch.optim.AdamW(
-                self.parameters(),
-                lr=self.learning_rate,
-                **self.optimizer_kwargs
+                self.parameters(), lr=self.learning_rate, **self.optimizer_kwargs
             )
         else:
             raise ValueError(f"Unsupported optimizer: {self.optimizer_name}")
@@ -304,23 +341,19 @@ class GenericLightningWrapper(pl.LightningModule):
 
         if self.scheduler_name.lower() == "cosine":
             scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
-                optimizer,
-                **self.scheduler_kwargs
+                optimizer, **self.scheduler_kwargs
             )
         elif self.scheduler_name.lower() == "step":
             scheduler = torch.optim.lr_scheduler.StepLR(
-                optimizer,
-                **self.scheduler_kwargs
+                optimizer, **self.scheduler_kwargs
             )
         elif self.scheduler_name.lower() == "plateau":
             scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-                optimizer,
-                **self.scheduler_kwargs
+                optimizer, **self.scheduler_kwargs
             )
         elif self.scheduler_name.lower() == "exponential":
             scheduler = torch.optim.lr_scheduler.ExponentialLR(
-                optimizer,
-                **self.scheduler_kwargs
+                optimizer, **self.scheduler_kwargs
             )
         else:
             raise ValueError(f"Unsupported scheduler: {self.scheduler_name}")
@@ -333,8 +366,8 @@ class GenericLightningWrapper(pl.LightningModule):
                     "scheduler": scheduler,
                     "monitor": "val_loss",
                     "interval": "epoch",
-                    "frequency": 1
-                }
+                    "frequency": 1,
+                },
             }
         else:
             return {
@@ -342,8 +375,8 @@ class GenericLightningWrapper(pl.LightningModule):
                 "lr_scheduler": {
                     "scheduler": scheduler,
                     "interval": "epoch",
-                    "frequency": 1
-                }
+                    "frequency": 1,
+                },
             }
 
 
@@ -356,7 +389,7 @@ def wrap_model_with_lightning(
     optimizer_kwargs: Optional[Dict] = None,
     scheduler: Optional[str] = None,
     scheduler_kwargs: Optional[Dict] = None,
-    class_weights: Optional[torch.Tensor] = None
+    class_weights: Optional[torch.Tensor] = None,
 ) -> pl.LightningModule:
     """
     Wrap a PyTorch model with a PyTorch Lightning module for easy training.
@@ -384,5 +417,5 @@ def wrap_model_with_lightning(
         optimizer_kwargs=optimizer_kwargs,
         scheduler=scheduler,
         scheduler_kwargs=scheduler_kwargs,
-        class_weights=class_weights
+        class_weights=class_weights,
     )

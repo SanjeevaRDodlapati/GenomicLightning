@@ -49,16 +49,14 @@ def main():
 
     # Parameters
     seq_length = 1000  # Length of input DNA sequences
-    num_targets = 5    # Number of binary prediction targets
-    batch_size = 32    # Batch size for training
-    max_epochs = 10    # Maximum number of training epochs
+    num_targets = 5  # Number of binary prediction targets
+    batch_size = 32  # Batch size for training
+    max_epochs = 10  # Maximum number of training epochs
 
     # Generate synthetic data
     print("Generating synthetic data...")
     sequences, targets = generate_synthetic_data(
-        num_samples=1000,
-        seq_length=seq_length,
-        num_targets=num_targets
+        num_samples=1000, seq_length=seq_length, num_targets=num_targets
     )
 
     # Create dataset and split into train/validation/test
@@ -80,12 +78,12 @@ def main():
     print("Creating model...")
     model = DanQ(
         num_targets=num_targets,
-        num_filters=32,      # Reduced for demo
+        num_filters=32,  # Reduced for demo
         filter_size=26,
         pool_size=13,
-        lstm_hidden=32,      # Reduced for demo
+        lstm_hidden=32,  # Reduced for demo
         lstm_layers=1,
-        dropout_rate=0.2
+        dropout_rate=0.2,
     )
 
     # Create Lightning module
@@ -94,30 +92,26 @@ def main():
         learning_rate=1e-3,
         optimizer="adam",
         loss_function="binary_cross_entropy",
-        metrics=["auroc", "auprc"]
+        metrics=["auroc", "auprc"],
     )
 
     # Set up callbacks
     checkpoint_callback = ModelCheckpoint(
-        dirpath='checkpoints',
-        filename='danq-{epoch:02d}-{val_loss:.4f}',
-        monitor='val_loss',
-        mode='min'
+        dirpath="checkpoints",
+        filename="danq-{epoch:02d}-{val_loss:.4f}",
+        monitor="val_loss",
+        mode="min",
     )
 
-    early_stopping = EarlyStopping(
-        monitor='val_loss',
-        patience=3,
-        mode='min'
-    )
+    early_stopping = EarlyStopping(monitor="val_loss", patience=3, mode="min")
 
     # Create trainer
     trainer = pl.Trainer(
         max_epochs=max_epochs,
         callbacks=[checkpoint_callback, early_stopping],
-        accelerator='auto',  # Use GPU if available
+        accelerator="auto",  # Use GPU if available
         precision=32,
-        default_root_dir='outputs'
+        default_root_dir="outputs",
     )
 
     # Train model
@@ -130,14 +124,14 @@ def main():
     print(f"Test results: {test_results}")
 
     # Save model
-    output_dir = 'outputs'
+    output_dir = "outputs"
     os.makedirs(output_dir, exist_ok=True)
 
     # Save in PyTorch Lightning format
-    trainer.save_checkpoint(os.path.join(output_dir, 'danq_model.ckpt'))
+    trainer.save_checkpoint(os.path.join(output_dir, "danq_model.ckpt"))
 
     # Optionally, save in PyTorch format
-    torch.save(model.state_dict(), os.path.join(output_dir, 'danq_model.pt'))
+    torch.save(model.state_dict(), os.path.join(output_dir, "danq_model.pt"))
 
     print(f"Model saved in {output_dir}")
     print("Done!")

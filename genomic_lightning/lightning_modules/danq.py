@@ -63,7 +63,7 @@ class DanQLightningModule(BaseGenomicLightning):
             pool_size=pool_size,
             pool_stride=pool_stride,
             lstm_hidden=lstm_hidden,
-            dropout_rate=dropout_rate
+            dropout_rate=dropout_rate,
         )
 
         super().__init__(
@@ -73,7 +73,7 @@ class DanQLightningModule(BaseGenomicLightning):
             loss_function=loss_function,
             metrics=metrics,
             prediction_output_dir=prediction_output_dir,
-            output_format=output_format
+            output_format=output_format,
         )
 
         self.save_hyperparameters()
@@ -91,31 +91,32 @@ class DanQLightningModule(BaseGenomicLightning):
         dense_params = []
 
         for name, param in self.model.named_parameters():
-            if 'conv' in name:
+            if "conv" in name:
                 conv_params.append(param)
-            elif 'lstm' in name:
+            elif "lstm" in name:
                 lstm_params.append(param)
             else:
                 dense_params.append(param)
 
         # Create parameter groups with different learning rates
         param_groups = [
-            {'params': conv_params, 'lr': self.hparams.learning_rate},
-            {'params': lstm_params, 'lr': self.hparams.learning_rate * 0.5},  # Lower LR for LSTM
-            {'params': dense_params, 'lr': self.hparams.learning_rate * 1.5}   # Higher LR for dense
+            {"params": conv_params, "lr": self.hparams.learning_rate},
+            {
+                "params": lstm_params,
+                "lr": self.hparams.learning_rate * 0.5,
+            },  # Lower LR for LSTM
+            {
+                "params": dense_params,
+                "lr": self.hparams.learning_rate * 1.5,
+            },  # Higher LR for dense
         ]
 
         optimizer = torch.optim.Adam(
-            param_groups,
-            weight_decay=self.hparams.weight_decay
+            param_groups, weight_decay=self.hparams.weight_decay
         )
 
         scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
-            optimizer,
-            mode='min',
-            factor=0.5,
-            patience=5,
-            verbose=True
+            optimizer, mode="min", factor=0.5, patience=5, verbose=True
         )
 
         return {
@@ -123,6 +124,6 @@ class DanQLightningModule(BaseGenomicLightning):
             "lr_scheduler": {
                 "scheduler": scheduler,
                 "monitor": "val_loss",
-                "frequency": 1
-            }
+                "frequency": 1,
+            },
         }

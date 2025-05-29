@@ -15,17 +15,19 @@ logger = logging.getLogger(__name__)
 class GenomicDataModule(pl.LightningDataModule):
     """Lightning data module for genomic datasets."""
 
-    def __init__(self,
-                 train_data_path: Optional[str] = None,
-                 val_data_path: Optional[str] = None,
-                 test_data_path: Optional[str] = None,
-                 batch_size: int = 64,
-                 num_workers: int = 4,
-                 sequence_length: int = 1000,
-                 num_classes: int = 919,
-                 dataset_type: str = "deepsea",
-                 train_val_split: float = 0.8,
-                 **dataset_kwargs):
+    def __init__(
+        self,
+        train_data_path: Optional[str] = None,
+        val_data_path: Optional[str] = None,
+        test_data_path: Optional[str] = None,
+        batch_size: int = 64,
+        num_workers: int = 4,
+        sequence_length: int = 1000,
+        num_classes: int = 919,
+        dataset_type: str = "deepsea",
+        train_val_split: float = 0.8,
+        **dataset_kwargs,
+    ):
         """Initialize genomic data module.
 
         Args:
@@ -70,15 +72,15 @@ class GenomicDataModule(pl.LightningDataModule):
                 if self.val_data_path:
                     # Separate train and val files
                     self.train_dataset = self._create_dataset(
-                        self.train_data_path, split='train'
+                        self.train_data_path, split="train"
                     )
                     self.val_dataset = self._create_dataset(
-                        self.val_data_path, split='val'
+                        self.val_data_path, split="val"
                     )
                 else:
                     # Split single training file
                     full_dataset = self._create_dataset(
-                        self.train_data_path, split='train'
+                        self.train_data_path, split="train"
                     )
 
                     # Calculate split sizes
@@ -97,7 +99,7 @@ class GenomicDataModule(pl.LightningDataModule):
             # Setup test dataset
             if self.test_data_path:
                 self.test_dataset = self._create_dataset(
-                    self.test_data_path, split='test'
+                    self.test_data_path, split="test"
                 )
                 logger.info(f"Test samples: {len(self.test_dataset)}")
 
@@ -105,11 +107,11 @@ class GenomicDataModule(pl.LightningDataModule):
             # For prediction, use test dataset or training dataset
             if self.test_data_path:
                 self.test_dataset = self._create_dataset(
-                    self.test_data_path, split='test'
+                    self.test_data_path, split="test"
                 )
             elif self.train_data_path:
                 self.test_dataset = self._create_dataset(
-                    self.train_data_path, split='train'
+                    self.train_data_path, split="train"
                 )
 
     def _create_dataset(self, data_path: str, split: str) -> BaseGenomicDataset:
@@ -121,14 +123,14 @@ class GenomicDataModule(pl.LightningDataModule):
                 sequence_length=self.sequence_length,
                 num_classes=self.num_classes,
                 split=split,
-                **self.dataset_kwargs
+                **self.dataset_kwargs,
             )
         elif self.dataset_type == "sequence":
             # For sequence datasets, assume data_path is a FASTA file
             return GenomicSequenceDataset.from_fasta(
                 fasta_path=data_path,
                 sequence_length=self.sequence_length,
-                **self.dataset_kwargs
+                **self.dataset_kwargs,
             )
         else:
             raise ValueError(f"Unknown dataset type: {self.dataset_type}")
@@ -141,7 +143,7 @@ class GenomicDataModule(pl.LightningDataModule):
             shuffle=True,
             num_workers=self.num_workers,
             pin_memory=True,
-            drop_last=True
+            drop_last=True,
         )
 
     def val_dataloader(self) -> DataLoader:
@@ -151,7 +153,7 @@ class GenomicDataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
-            pin_memory=True
+            pin_memory=True,
         )
 
     def test_dataloader(self) -> DataLoader:
@@ -161,7 +163,7 @@ class GenomicDataModule(pl.LightningDataModule):
             batch_size=self.batch_size,
             shuffle=False,
             num_workers=self.num_workers,
-            pin_memory=True
+            pin_memory=True,
         )
 
     def predict_dataloader(self) -> DataLoader:
@@ -174,7 +176,7 @@ class GenomicDataModule(pl.LightningDataModule):
             "batch_size": self.batch_size,
             "sequence_length": self.sequence_length,
             "num_classes": self.num_classes,
-            "dataset_type": self.dataset_type
+            "dataset_type": self.dataset_type,
         }
 
         if self.train_dataset:
@@ -190,10 +192,12 @@ class GenomicDataModule(pl.LightningDataModule):
 class MultiModalGenomicDataModule(GenomicDataModule):
     """Data module for multi-modal genomic data (e.g., sequence + epigenomics)."""
 
-    def __init__(self,
-                 sequence_data_path: str,
-                 epigenomic_data_path: Optional[str] = None,
-                 **kwargs):
+    def __init__(
+        self,
+        sequence_data_path: str,
+        epigenomic_data_path: Optional[str] = None,
+        **kwargs,
+    ):
         """Initialize multi-modal data module.
 
         Args:
@@ -217,8 +221,10 @@ class MultiModalGenomicDataModule(GenomicDataModule):
         super().setup(stage)
 
         if self.epigenomic_data_path:
-            logger.info(f"Epigenomic data path provided but not yet supported: "
-                       f"{self.epigenomic_data_path}")
+            logger.info(
+                f"Epigenomic data path provided but not yet supported: "
+                f"{self.epigenomic_data_path}"
+            )
 
 
 def create_data_module_from_config(config: Dict[str, Any]) -> GenomicDataModule:
@@ -239,22 +245,24 @@ def create_data_module_from_config(config: Dict[str, Any]) -> GenomicDataModule:
         "test_data_path": data_config.get("test_path"),
         "batch_size": data_config.get("batch_size", 64),
         "num_workers": data_config.get("num_workers", 4),
-        "dataset_type": data_config.get("dataset_type", "deepsea")
+        "dataset_type": data_config.get("dataset_type", "deepsea"),
     }
 
     # Add model-specific parameters
     model_config = config.get("model", {})
-    dm_params.update({
-        "sequence_length": model_config.get("input_length", 1000),
-        "num_classes": model_config.get("num_classes", 919)
-    })
+    dm_params.update(
+        {
+            "sequence_length": model_config.get("input_length", 1000),
+            "num_classes": model_config.get("num_classes", 919),
+        }
+    )
 
     # Check for multi-modal data
     if data_config.get("epigenomic_path"):
         return MultiModalGenomicDataModule(
             sequence_data_path=dm_params["train_data_path"],
             epigenomic_data_path=data_config["epigenomic_path"],
-            **{k: v for k, v in dm_params.items() if k != "train_data_path"}
+            **{k: v for k, v in dm_params.items() if k != "train_data_path"},
         )
     else:
         return GenomicDataModule(**dm_params)

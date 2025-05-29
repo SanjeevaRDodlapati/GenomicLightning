@@ -54,7 +54,7 @@ class GenomicLightningVersionManager:
 
     def parse_version(self, version: str) -> Tuple[int, int, int]:
         """Parse semantic version string into components."""
-        match = re.match(r'(\d+)\.(\d+)\.(\d+)', version)
+        match = re.match(r"(\d+)\.(\d+)\.(\d+)", version)
         if not match:
             raise ValueError(f"Invalid version format: {version}")
         return tuple(map(int, match.groups()))
@@ -88,7 +88,7 @@ class GenomicLightningVersionManager:
             content = re.sub(
                 r'version\s*=\s*["\'][^"\']+["\']',
                 f'version = "{new_version}"',
-                content
+                content,
             )
             self.pyproject_toml.write_text(content)
 
@@ -96,20 +96,18 @@ class GenomicLightningVersionManager:
         if self.setup_py.exists():
             content = self.setup_py.read_text()
             content = re.sub(
-                r'version\s*=\s*["\'][^"\']+["\']',
-                f'version="{new_version}"',
-                content
+                r'version\s*=\s*["\'][^"\']+["\']', f'version="{new_version}"', content
             )
             self.setup_py.write_text(content)
 
         # Update __init__.py
         if self.init_file.exists():
             content = self.init_file.read_text()
-            if '__version__' in content:
+            if "__version__" in content:
                 content = re.sub(
                     r'__version__\s*=\s*["\'][^"\']+["\']',
                     f'__version__ = "{new_version}"',
-                    content
+                    content,
                 )
             else:
                 # Add version if it doesn't exist
@@ -124,9 +122,9 @@ class GenomicLightningVersionManager:
                 ["git", "log", "--oneline", "--since=1 week ago"],
                 capture_output=True,
                 text=True,
-                cwd=self.root_dir
+                cwd=self.root_dir,
             )
-            commits = result.stdout.strip().split('\n') if result.stdout.strip() else []
+            commits = result.stdout.strip().split("\n") if result.stdout.strip() else []
 
             date_str = datetime.now().strftime("%Y-%m-%d")
             changelog = f"\n## [{version}] - {date_str}\n\n"
@@ -154,15 +152,15 @@ class GenomicLightningVersionManager:
         if changelog_file.exists():
             content = changelog_file.read_text()
             # Insert new entry after the header
-            lines = content.split('\n')
+            lines = content.split("\n")
             header_end = 0
             for i, line in enumerate(lines):
-                if line.startswith('## [') or line.startswith('### '):
+                if line.startswith("## [") or line.startswith("### "):
                     header_end = i
                     break
 
             lines.insert(header_end, entry.rstrip())
-            changelog_file.write_text('\n'.join(lines))
+            changelog_file.write_text("\n".join(lines))
         else:
             # Create new changelog
             header = "# Changelog\n\nAll notable changes to this project will be documented in this file.\n"
@@ -174,7 +172,7 @@ class GenomicLightningVersionManager:
             subprocess.run(
                 ["git", "tag", "-a", f"v{version}", "-m", f"Release version {version}"],
                 check=True,
-                cwd=self.root_dir
+                cwd=self.root_dir,
             )
             print(f"Created git tag: v{version}")
 
@@ -182,7 +180,7 @@ class GenomicLightningVersionManager:
                 subprocess.run(
                     ["git", "push", "origin", f"v{version}"],
                     check=True,
-                    cwd=self.root_dir
+                    cwd=self.root_dir,
                 )
                 print(f"Pushed git tag: v{version}")
 
@@ -211,12 +209,18 @@ class GenomicLightningVersionManager:
 def main():
     """CLI interface for version management."""
     parser = argparse.ArgumentParser(description="GenomicLightning Version Manager")
-    parser.add_argument("action", choices=["get", "bump", "release"],
-                       help="Action to perform")
-    parser.add_argument("--type", choices=["major", "minor", "patch"],
-                       default="patch", help="Type of version bump")
-    parser.add_argument("--push-tag", action="store_true",
-                       help="Push git tag to remote")
+    parser.add_argument(
+        "action", choices=["get", "bump", "release"], help="Action to perform"
+    )
+    parser.add_argument(
+        "--type",
+        choices=["major", "minor", "patch"],
+        default="patch",
+        help="Type of version bump",
+    )
+    parser.add_argument(
+        "--push-tag", action="store_true", help="Push git tag to remote"
+    )
 
     args = parser.parse_args()
 

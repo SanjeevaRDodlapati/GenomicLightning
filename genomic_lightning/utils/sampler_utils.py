@@ -16,6 +16,7 @@ import h5py
 
 logger = logging.getLogger(__name__)
 
+
 class LegacySamplerWrapper(Dataset):
     """
     Wrapper for legacy genomic data samplers to make them compatible with PyTorch DataLoaders.
@@ -25,7 +26,7 @@ class LegacySamplerWrapper(Dataset):
         self,
         sampler: Any,
         transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None
+        target_transform: Optional[Callable] = None,
     ):
         """
         Initialize the wrapper for a legacy sampler.
@@ -40,9 +41,9 @@ class LegacySamplerWrapper(Dataset):
         self.target_transform = target_transform
 
         # Check if sampler has required methods
-        if not hasattr(self.sampler, '__getitem__'):
+        if not hasattr(self.sampler, "__getitem__"):
             raise ValueError("Sampler must implement __getitem__")
-        if not hasattr(self.sampler, '__len__'):
+        if not hasattr(self.sampler, "__len__"):
             raise ValueError("Sampler must implement __len__")
 
     def __len__(self) -> int:
@@ -68,10 +69,12 @@ class LegacySamplerWrapper(Dataset):
             sequence, target = sample
         elif isinstance(sample, dict):
             # Dictionary format
-            if 'sequence' in sample and 'target' in sample:
-                sequence, target = sample['sequence'], sample['target']
+            if "sequence" in sample and "target" in sample:
+                sequence, target = sample["sequence"], sample["target"]
             else:
-                raise ValueError(f"Unknown dictionary keys in sampler: {list(sample.keys())}")
+                raise ValueError(
+                    f"Unknown dictionary keys in sampler: {list(sample.keys())}"
+                )
         else:
             raise ValueError(f"Unknown sample format from sampler: {type(sample)}")
 
@@ -99,7 +102,7 @@ class LegacyIterableSamplerWrapper(IterableDataset):
         self,
         sampler: Any,
         transform: Optional[Callable] = None,
-        target_transform: Optional[Callable] = None
+        target_transform: Optional[Callable] = None,
     ):
         """
         Initialize the wrapper for a legacy iterable sampler.
@@ -114,7 +117,7 @@ class LegacyIterableSamplerWrapper(IterableDataset):
         self.target_transform = target_transform
 
         # Check if sampler has required methods
-        if not hasattr(self.sampler, '__iter__'):
+        if not hasattr(self.sampler, "__iter__"):
             raise ValueError("Sampler must implement __iter__")
 
     def __iter__(self) -> Iterator[Tuple[torch.Tensor, torch.Tensor]]:
@@ -131,10 +134,12 @@ class LegacyIterableSamplerWrapper(IterableDataset):
             if isinstance(sample, tuple) and len(sample) == 2:
                 sequence, target = sample
             elif isinstance(sample, dict):
-                if 'sequence' in sample and 'target' in sample:
-                    sequence, target = sample['sequence'], sample['target']
+                if "sequence" in sample and "target" in sample:
+                    sequence, target = sample["sequence"], sample["target"]
                 else:
-                    raise ValueError(f"Unknown dictionary keys in sampler: {list(sample.keys())}")
+                    raise ValueError(
+                        f"Unknown dictionary keys in sampler: {list(sample.keys())}"
+                    )
             else:
                 raise ValueError(f"Unknown sample format from sampler: {type(sample)}")
 
@@ -161,7 +166,7 @@ def create_dataloader_from_legacy_sampler(
     transform: Optional[Callable] = None,
     target_transform: Optional[Callable] = None,
     is_iterable: bool = False,
-    **dataloader_kwargs
+    **dataloader_kwargs,
 ) -> DataLoader:
     """
     Create a PyTorch DataLoader from a legacy genomic data sampler.
@@ -181,9 +186,7 @@ def create_dataloader_from_legacy_sampler(
     """
     if is_iterable:
         dataset = LegacyIterableSamplerWrapper(
-            sampler=sampler,
-            transform=transform,
-            target_transform=target_transform
+            sampler=sampler, transform=transform, target_transform=target_transform
         )
 
         # Iterable datasets ignore the shuffle parameter
@@ -191,13 +194,11 @@ def create_dataloader_from_legacy_sampler(
             dataset=dataset,
             batch_size=batch_size,
             num_workers=num_workers,
-            **dataloader_kwargs
+            **dataloader_kwargs,
         )
     else:
         dataset = LegacySamplerWrapper(
-            sampler=sampler,
-            transform=transform,
-            target_transform=target_transform
+            sampler=sampler, transform=transform, target_transform=target_transform
         )
 
         return DataLoader(
@@ -205,7 +206,7 @@ def create_dataloader_from_legacy_sampler(
             batch_size=batch_size,
             shuffle=shuffle,
             num_workers=num_workers,
-            **dataloader_kwargs
+            **dataloader_kwargs,
         )
 
 
@@ -217,11 +218,11 @@ class H5Dataset(Dataset):
     def __init__(
         self,
         h5_path: str,
-        sequence_dataset: str = 'sequences',
-        target_dataset: str = 'targets',
+        sequence_dataset: str = "sequences",
+        target_dataset: str = "targets",
         transform: Optional[Callable] = None,
         target_transform: Optional[Callable] = None,
-        memory_map: bool = False
+        memory_map: bool = False,
     ):
         """
         Initialize the HDF5 dataset.
@@ -244,11 +245,15 @@ class H5Dataset(Dataset):
         self.target_transform = target_transform
 
         # Open the file and get dataset shapes
-        with h5py.File(self.h5_path, 'r') as f:
+        with h5py.File(self.h5_path, "r") as f:
             if self.sequence_dataset not in f:
-                raise KeyError(f"Sequence dataset '{self.sequence_dataset}' not found in HDF5 file")
+                raise KeyError(
+                    f"Sequence dataset '{self.sequence_dataset}' not found in HDF5 file"
+                )
             if self.target_dataset not in f:
-                raise KeyError(f"Target dataset '{self.target_dataset}' not found in HDF5 file")
+                raise KeyError(
+                    f"Target dataset '{self.target_dataset}' not found in HDF5 file"
+                )
 
             self.num_samples = f[self.sequence_dataset].shape[0]
 
@@ -280,7 +285,7 @@ class H5Dataset(Dataset):
             sequence = self.sequences[idx]
             target = self.targets[idx]
         else:
-            with h5py.File(self.h5_path, 'r') as f:
+            with h5py.File(self.h5_path, "r") as f:
                 sequence = f[self.sequence_dataset][idx]
                 target = f[self.target_dataset][idx]
 
@@ -301,10 +306,10 @@ def create_sharded_dataset(
     input_files: List[str],
     output_dir: str,
     shard_size: int = 10000,
-    compression: Optional[str] = 'gzip',
-    sequence_dataset: str = 'sequences',
-    target_dataset: str = 'targets',
-    shuffle: bool = True
+    compression: Optional[str] = "gzip",
+    sequence_dataset: str = "sequences",
+    target_dataset: str = "targets",
+    shuffle: bool = True,
 ) -> List[str]:
     """
     Create sharded datasets from large genomic data files.
@@ -329,11 +334,15 @@ def create_sharded_dataset(
     sample_counts = []
 
     for input_file in input_files:
-        with h5py.File(input_file, 'r') as f:
+        with h5py.File(input_file, "r") as f:
             if sequence_dataset not in f:
-                raise KeyError(f"Sequence dataset '{sequence_dataset}' not found in {input_file}")
+                raise KeyError(
+                    f"Sequence dataset '{sequence_dataset}' not found in {input_file}"
+                )
             if target_dataset not in f:
-                raise KeyError(f"Target dataset '{target_dataset}' not found in {input_file}")
+                raise KeyError(
+                    f"Target dataset '{target_dataset}' not found in {input_file}"
+                )
 
             count = f[sequence_dataset].shape[0]
             total_samples += count
@@ -373,14 +382,14 @@ def create_sharded_dataset(
         start = shard_idx * shard_size
         end = min((shard_idx + 1) * shard_size, total_samples)
 
-        with h5py.File(shard_path, 'w') as out_file:
+        with h5py.File(shard_path, "w") as out_file:
             # Get indices for this shard
             shard_global_indices = all_indices[start:end]
             shard_file_indices = file_indices[shard_global_indices]
             shard_local_indices = local_indices[shard_global_indices]
 
             # Create datasets - determine shapes first
-            with h5py.File(input_files[0], 'r') as f:
+            with h5py.File(input_files[0], "r") as f:
                 seq_shape = f[sequence_dataset].shape[1:]
                 target_shape = f[target_dataset].shape[1:]
                 seq_dtype = f[sequence_dataset].dtype
@@ -389,16 +398,16 @@ def create_sharded_dataset(
             # Create output datasets
             seq_dataset = out_file.create_dataset(
                 sequence_dataset,
-                shape=(end-start,) + seq_shape,
+                shape=(end - start,) + seq_shape,
                 dtype=seq_dtype,
-                compression=compression
+                compression=compression,
             )
 
             target_dataset = out_file.create_dataset(
                 target_dataset,
-                shape=(end-start,) + target_shape,
+                shape=(end - start,) + target_shape,
                 dtype=target_dtype,
-                compression=compression
+                compression=compression,
             )
 
             # Copy data to shard
@@ -406,24 +415,27 @@ def create_sharded_dataset(
 
             for file_idx in unique_files:
                 # Get indices for this file
-                mask = (shard_file_indices == file_idx)
+                mask = shard_file_indices == file_idx
                 shard_indices = np.arange(start, end)[mask]
                 file_local_indices = shard_local_indices[mask]
 
                 # Copy data from this file
-                with h5py.File(input_files[file_idx], 'r') as f:
-                    for i, (shard_idx, file_idx) in enumerate(zip(np.where(mask)[0], file_local_indices)):
+                with h5py.File(input_files[file_idx], "r") as f:
+                    for i, (shard_idx, file_idx) in enumerate(
+                        zip(np.where(mask)[0], file_local_indices)
+                    ):
                         seq_dataset[shard_idx] = f[sequence_dataset][file_idx]
                         target_dataset[shard_idx] = f[target_dataset][file_idx]
 
             # Add metadata
-            out_file.attrs['shard_index'] = shard_idx
-            out_file.attrs['num_shards'] = num_shards
-            out_file.attrs['shard_size'] = shard_size
-            out_file.attrs['actual_size'] = end - start
+            out_file.attrs["shard_index"] = shard_idx
+            out_file.attrs["num_shards"] = num_shards
+            out_file.attrs["shard_size"] = shard_size
+            out_file.attrs["actual_size"] = end - start
 
     logger.info(f"Created {num_shards} shards in {output_dir}")
     return shard_paths
+
 
 class SamplerUtils:
     """
@@ -434,9 +446,12 @@ class SamplerUtils:
     def __init__(self):
         self.logger = logging.getLogger(__name__)
 
-    def create_uavarprior_sampler(self, config_path: Optional[str] = None,
-                                  data_path: Optional[str] = None,
-                                  split: str = "train") -> Any:
+    def create_uavarprior_sampler(
+        self,
+        config_path: Optional[str] = None,
+        data_path: Optional[str] = None,
+        split: str = "train",
+    ) -> Any:
         """
         Create a UAVarPrior sampler.
 
@@ -463,9 +478,12 @@ class SamplerUtils:
         # Create a simple mock sampler that returns dummy data
         return MockUAVarPriorSampler(split=split)
 
-    def create_fugep_sampler(self, config_path: Optional[str] = None,
-                            data_path: Optional[str] = None,
-                            split: str = "train") -> Any:
+    def create_fugep_sampler(
+        self,
+        config_path: Optional[str] = None,
+        data_path: Optional[str] = None,
+        split: str = "train",
+    ) -> Any:
         """
         Create a FuGEP sampler.
 
@@ -545,7 +563,7 @@ class MockFuGEPSampler:
         """Return dummy expression data."""
         # Create dummy gene expression data
         sequence = np.random.randn(1000).astype(np.float32)  # 1000 genes
-        labels = np.random.randn(100).astype(np.float32)     # 100 conditions
+        labels = np.random.randn(100).astype(np.float32)  # 100 conditions
 
         return sequence, labels
 

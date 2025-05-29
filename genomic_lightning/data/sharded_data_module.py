@@ -10,6 +10,7 @@ import pytorch_lightning as pl
 from typing import Dict, Any, Optional, List, Union, Tuple
 from torch.utils.data import DataLoader, IterableDataset
 
+
 class ShardedGenomicDataset(IterableDataset):
     """
     Iterable dataset for streaming large genomic data from sharded files.
@@ -27,7 +28,7 @@ class ShardedGenomicDataset(IterableDataset):
         shuffle: bool = True,
         seed: int = 42,
         cache_size: int = 1000,
-        transform=None
+        transform=None,
     ):
         """
         Initialize the sharded dataset.
@@ -59,7 +60,7 @@ class ShardedGenomicDataset(IterableDataset):
         self.y_shape = None
 
         for shard in self.shard_paths:
-            with h5py.File(shard, 'r') as f:
+            with h5py.File(shard, "r") as f:
                 shard_size = f[self.x_dset].shape[0]
                 self.shard_sizes.append(shard_size)
                 self.total_samples += shard_size
@@ -89,7 +90,7 @@ class ShardedGenomicDataset(IterableDataset):
         Returns:
             Tuple of (shard_idx, local_idx)
         """
-        shard_idx = np.searchsorted(self.cumulative_sizes, idx, side='right') - 1
+        shard_idx = np.searchsorted(self.cumulative_sizes, idx, side="right") - 1
         local_idx = idx - self.cumulative_sizes[shard_idx]
         return shard_idx, local_idx
 
@@ -120,7 +121,7 @@ class ShardedGenomicDataset(IterableDataset):
             if shard_idx != prev_shard_idx:
                 if file_handle is not None:
                     file_handle.close()
-                file_handle = h5py.File(self.shard_paths[shard_idx], 'r')
+                file_handle = h5py.File(self.shard_paths[shard_idx], "r")
                 prev_shard_idx = shard_idx
 
             # Read data into cache
@@ -161,7 +162,7 @@ class ShardedGenomicDataset(IterableDataset):
 
         # Process batches
         for i in range(0, len(indices), self.cache_size):
-            cache_indices = indices[i:i + self.cache_size]
+            cache_indices = indices[i : i + self.cache_size]
             if not cache_indices:
                 break
 
@@ -195,7 +196,7 @@ class ShardedGenomicDataModule(pl.LightningDataModule):
         batch_size: int = 32,
         num_workers: int = 4,
         cache_size: int = 1000,
-        transform=None
+        transform=None,
     ):
         """
         Initialize the sharded genomic data module.
@@ -229,7 +230,7 @@ class ShardedGenomicDataModule(pl.LightningDataModule):
         Args:
             stage: Current stage ('fit', 'validate', 'test')
         """
-        if stage == 'fit' or stage is None:
+        if stage == "fit" or stage is None:
             self.train_dataset = ShardedGenomicDataset(
                 shard_paths=self.train_shards,
                 x_dset=self.x_dset,
@@ -237,7 +238,7 @@ class ShardedGenomicDataModule(pl.LightningDataModule):
                 batch_size=self.batch_size,
                 shuffle=True,
                 cache_size=self.cache_size,
-                transform=self.transform
+                transform=self.transform,
             )
 
             self.val_dataset = ShardedGenomicDataset(
@@ -247,10 +248,10 @@ class ShardedGenomicDataModule(pl.LightningDataModule):
                 batch_size=self.batch_size,
                 shuffle=False,
                 cache_size=self.cache_size,
-                transform=self.transform
+                transform=self.transform,
             )
 
-        if stage == 'test' or stage is None:
+        if stage == "test" or stage is None:
             if self.test_shards:
                 self.test_dataset = ShardedGenomicDataset(
                     shard_paths=self.test_shards,
@@ -259,7 +260,7 @@ class ShardedGenomicDataModule(pl.LightningDataModule):
                     batch_size=self.batch_size,
                     shuffle=False,
                     cache_size=self.cache_size,
-                    transform=self.transform
+                    transform=self.transform,
                 )
 
     def train_dataloader(self):

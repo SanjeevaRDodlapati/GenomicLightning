@@ -14,12 +14,14 @@ logger = logging.getLogger(__name__)
 class SamplerDataModule(pl.LightningDataModule):
     """Lightning data module that wraps legacy samplers."""
 
-    def __init__(self,
-                 sampler_config: Dict[str, Any],
-                 batch_size: int = 64,
-                 num_workers: int = 4,
-                 use_legacy_sampler: bool = True,
-                 **kwargs):
+    def __init__(
+        self,
+        sampler_config: Dict[str, Any],
+        batch_size: int = 64,
+        num_workers: int = 4,
+        use_legacy_sampler: bool = True,
+        **kwargs,
+    ):
         """Initialize sampler data module.
 
         Args:
@@ -57,9 +59,11 @@ class SamplerDataModule(pl.LightningDataModule):
                 self.train_dataset = SamplerAdapter(
                     sampler_config=train_sampler_config,
                     sampler_utils=self.sampler_utils,
-                    split="train"
+                    split="train",
                 )
-                logger.info(f"Setup training dataset with {len(self.train_dataset)} samples")
+                logger.info(
+                    f"Setup training dataset with {len(self.train_dataset)} samples"
+                )
 
             # Setup validation dataset
             val_sampler_config = self.sampler_config.get("val", {})
@@ -67,9 +71,11 @@ class SamplerDataModule(pl.LightningDataModule):
                 self.val_dataset = SamplerAdapter(
                     sampler_config=val_sampler_config,
                     sampler_utils=self.sampler_utils,
-                    split="val"
+                    split="val",
                 )
-                logger.info(f"Setup validation dataset with {len(self.val_dataset)} samples")
+                logger.info(
+                    f"Setup validation dataset with {len(self.val_dataset)} samples"
+                )
 
         if stage == "test" or stage is None:
             # Setup test dataset
@@ -78,7 +84,7 @@ class SamplerDataModule(pl.LightningDataModule):
                 self.test_dataset = SamplerAdapter(
                     sampler_config=test_sampler_config,
                     sampler_utils=self.sampler_utils,
-                    split="test"
+                    split="test",
                 )
                 logger.info(f"Setup test dataset with {len(self.test_dataset)} samples")
 
@@ -95,7 +101,7 @@ class SamplerDataModule(pl.LightningDataModule):
             pin_memory=True,
             drop_last=True,
             # Use custom collate function if available
-            collate_fn=getattr(self.train_dataset, 'collate_fn', None)
+            collate_fn=getattr(self.train_dataset, "collate_fn", None),
         )
 
     def val_dataloader(self) -> DataLoader:
@@ -109,7 +115,7 @@ class SamplerDataModule(pl.LightningDataModule):
             shuffle=False,
             num_workers=self.num_workers,
             pin_memory=True,
-            collate_fn=getattr(self.val_dataset, 'collate_fn', None)
+            collate_fn=getattr(self.val_dataset, "collate_fn", None),
         )
 
     def test_dataloader(self) -> DataLoader:
@@ -123,7 +129,7 @@ class SamplerDataModule(pl.LightningDataModule):
             shuffle=False,
             num_workers=self.num_workers,
             pin_memory=True,
-            collate_fn=getattr(self.test_dataset, 'collate_fn', None)
+            collate_fn=getattr(self.test_dataset, "collate_fn", None),
         )
 
     def predict_dataloader(self) -> DataLoader:
@@ -145,9 +151,7 @@ class SamplerDataModule(pl.LightningDataModule):
 class UAVarPriorDataModule(SamplerDataModule):
     """Data module specifically for UAVarPrior samplers."""
 
-    def __init__(self,
-                 uavarprior_config_path: str,
-                 **kwargs):
+    def __init__(self, uavarprior_config_path: str, **kwargs):
         """Initialize UAVarPrior data module.
 
         Args:
@@ -159,9 +163,7 @@ class UAVarPriorDataModule(SamplerDataModule):
         sampler_config = self._load_uavarprior_config(uavarprior_config_path)
 
         super().__init__(
-            sampler_config=sampler_config,
-            use_legacy_sampler=True,
-            **kwargs
+            sampler_config=sampler_config, use_legacy_sampler=True, **kwargs
         )
 
         self.uavarprior_config_path = uavarprior_config_path
@@ -171,7 +173,7 @@ class UAVarPriorDataModule(SamplerDataModule):
 
         import yaml
 
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             uav_config = yaml.safe_load(f)
 
         # Convert UAVarPrior config to sampler config format
@@ -180,20 +182,20 @@ class UAVarPriorDataModule(SamplerDataModule):
                 "type": "uavarprior",
                 "config_path": config_path,
                 "data_path": uav_config.get("train_data_path"),
-                "split": "train"
+                "split": "train",
             },
             "val": {
                 "type": "uavarprior",
                 "config_path": config_path,
                 "data_path": uav_config.get("val_data_path"),
-                "split": "val"
+                "split": "val",
             },
             "test": {
                 "type": "uavarprior",
                 "config_path": config_path,
                 "data_path": uav_config.get("test_data_path"),
-                "split": "test"
-            }
+                "split": "test",
+            },
         }
 
         return sampler_config
@@ -202,9 +204,7 @@ class UAVarPriorDataModule(SamplerDataModule):
 class FuGEPDataModule(SamplerDataModule):
     """Data module specifically for FuGEP samplers."""
 
-    def __init__(self,
-                 fugep_config_path: str,
-                 **kwargs):
+    def __init__(self, fugep_config_path: str, **kwargs):
         """Initialize FuGEP data module.
 
         Args:
@@ -216,9 +216,7 @@ class FuGEPDataModule(SamplerDataModule):
         sampler_config = self._load_fugep_config(fugep_config_path)
 
         super().__init__(
-            sampler_config=sampler_config,
-            use_legacy_sampler=True,
-            **kwargs
+            sampler_config=sampler_config, use_legacy_sampler=True, **kwargs
         )
 
         self.fugep_config_path = fugep_config_path
@@ -228,7 +226,7 @@ class FuGEPDataModule(SamplerDataModule):
 
         import yaml
 
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             fugep_config = yaml.safe_load(f)
 
         # Convert FuGEP config to sampler config format
@@ -237,20 +235,20 @@ class FuGEPDataModule(SamplerDataModule):
                 "type": "fugep",
                 "config_path": config_path,
                 "data_path": fugep_config.get("train_data"),
-                "split": "train"
+                "split": "train",
             },
             "val": {
                 "type": "fugep",
                 "config_path": config_path,
                 "data_path": fugep_config.get("valid_data"),
-                "split": "val"
+                "split": "val",
             },
             "test": {
                 "type": "fugep",
                 "config_path": config_path,
                 "data_path": fugep_config.get("test_data"),
-                "split": "test"
-            }
+                "split": "test",
+            },
         }
 
         return sampler_config
@@ -273,14 +271,14 @@ def create_sampler_data_module(config: Dict[str, Any]) -> SamplerDataModule:
         return UAVarPriorDataModule(
             uavarprior_config_path=data_config["config_path"],
             batch_size=data_config.get("batch_size", 64),
-            num_workers=data_config.get("num_workers", 4)
+            num_workers=data_config.get("num_workers", 4),
         )
 
     elif sampler_type == "fugep":
         return FuGEPDataModule(
             fugep_config_path=data_config["config_path"],
             batch_size=data_config.get("batch_size", 64),
-            num_workers=data_config.get("num_workers", 4)
+            num_workers=data_config.get("num_workers", 4),
         )
 
     else:
@@ -288,5 +286,5 @@ def create_sampler_data_module(config: Dict[str, Any]) -> SamplerDataModule:
         return SamplerDataModule(
             sampler_config=data_config.get("sampler_config", {}),
             batch_size=data_config.get("batch_size", 64),
-            num_workers=data_config.get("num_workers", 4)
+            num_workers=data_config.get("num_workers", 4),
         )

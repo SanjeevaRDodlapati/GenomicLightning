@@ -14,14 +14,11 @@ from ..lightning_modules.danq import DanQLightningModule
 class ConfigFactory:
     """Factory for creating models and Lightning modules from configuration."""
 
-    MODEL_REGISTRY = {
-        "deepsea": DeepSEA,
-        "danq": DanQ
-    }
+    MODEL_REGISTRY = {"deepsea": DeepSEA, "danq": DanQ}
 
     LIGHTNING_REGISTRY = {
         "deepsea": DeepSEALightningModule,
-        "danq": DanQLightningModule
+        "danq": DanQLightningModule,
     }
 
     @classmethod
@@ -38,8 +35,10 @@ class ConfigFactory:
         model_type = model_config.get("type", "deepsea")
 
         if model_type not in cls.MODEL_REGISTRY:
-            raise ValueError(f"Unknown model type: {model_type}. "
-                           f"Available: {list(cls.MODEL_REGISTRY.keys())}")
+            raise ValueError(
+                f"Unknown model type: {model_type}. "
+                f"Available: {list(cls.MODEL_REGISTRY.keys())}"
+            )
 
         model_class = cls.MODEL_REGISTRY[model_type]
 
@@ -49,8 +48,9 @@ class ConfigFactory:
         return model_class(**model_params)
 
     @classmethod
-    def create_lightning_module(cls, config: Dict[str, Any],
-                              model: Optional[nn.Module] = None) -> nn.Module:
+    def create_lightning_module(
+        cls, config: Dict[str, Any], model: Optional[nn.Module] = None
+    ) -> nn.Module:
         """Create a Lightning module from configuration.
 
         Args:
@@ -64,8 +64,10 @@ class ConfigFactory:
         model_type = model_config.get("type", "deepsea")
 
         if model_type not in cls.LIGHTNING_REGISTRY:
-            raise ValueError(f"Unknown Lightning module type: {model_type}. "
-                           f"Available: {list(cls.LIGHTNING_REGISTRY.keys())}")
+            raise ValueError(
+                f"Unknown Lightning module type: {model_type}. "
+                f"Available: {list(cls.LIGHTNING_REGISTRY.keys())}"
+            )
 
         lightning_class = cls.LIGHTNING_REGISTRY[model_type]
 
@@ -81,7 +83,7 @@ class ConfigFactory:
             learning_rate=training_config.get("learning_rate", 0.001),
             weight_decay=training_config.get("weight_decay", 1e-4),
             optimizer=training_config.get("optimizer", "adam"),
-            scheduler=training_config.get("scheduler", "cosine")
+            scheduler=training_config.get("scheduler", "cosine"),
         )
 
     @classmethod
@@ -108,8 +110,9 @@ class ConfigFactory:
         return list(cls.MODEL_REGISTRY.keys())
 
     @classmethod
-    def register_model(cls, name: str, model_class: type,
-                      lightning_class: Optional[type] = None):
+    def register_model(
+        cls, name: str, model_class: type, lightning_class: Optional[type] = None
+    ):
         """Register a new model type.
 
         Args:

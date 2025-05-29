@@ -10,5 +10,5 @@ __all__ = [
     "DeepSEADataset",
     "GenomicSequenceDataset",
     "GenomicDataModule",
-    "ShardedGenomicDataModule"
+    "ShardedGenomicDataModule",
 ]
