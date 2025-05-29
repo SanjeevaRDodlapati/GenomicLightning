@@ -7,6 +7,7 @@ including convolutional filters that may correspond to transcription factor bind
 
 import numpy as np
 import matplotlib.pyplot as plt
+import pandas as pd
 import torch
 import torch.nn as nn
 import seaborn as sns
