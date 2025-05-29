@@ -5,7 +5,6 @@ Simple script to check flake8 errors that are causing CI failures.
 
 import subprocess
 import sys
-import os
 
 
 def run_flake8_check():

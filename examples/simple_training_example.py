@@ -12,7 +12,6 @@ This example demonstrates how to:
 import os
 import sys
 import torch
-import torch.nn as nn
 import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping
 import numpy as np

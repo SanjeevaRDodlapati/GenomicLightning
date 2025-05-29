@@ -6,7 +6,7 @@ import os
 import torch
 import numpy as np
 import pytorch_lightning as pl
-from typing import Dict, Any, Optional, List, Union, Tuple
+from typing import Optional, List
 
 from torchmetrics import AUROC, Accuracy, Precision, Recall, F1Score
 

@@ -3,7 +3,7 @@
 import torch
 from torch.utils.data import Dataset
 import numpy as np
-from typing import Dict, Any, Optional, Tuple, Union
+from typing import Dict, Any, Optional, Tuple
 import logging
 
 from ..utils.sampler_utils import SamplerUtils

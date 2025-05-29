@@ -4,9 +4,6 @@ Main CLI for GenomicLightning.
 
 import click
 import yaml
-import os
-import sys
-from pathlib import Path
 
 from genomic_lightning.config.loader import load_config
 from genomic_lightning.utils.training import train_model

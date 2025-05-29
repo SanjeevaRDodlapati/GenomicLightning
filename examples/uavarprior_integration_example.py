@@ -106,8 +106,6 @@ def main(args):
         print("No sampler config provided. Using synthetic data for demonstration...")
 
         # Create synthetic data
-        from genomic_lightning.models.danq import DanQ  # For getting default shapes
-
         # Try to infer input shape from the model
         if hasattr(model, "conv_layer"):
             in_channels = model.conv_layer.in_channels

@@ -1,12 +1,9 @@
 """Custom callbacks for genomic deep learning training."""
 
-import os
 import torch
-import pytorch_lightning as pl
 from pytorch_lightning.callbacks import ModelCheckpoint, EarlyStopping, ProgressBar
 from pytorch_lightning.callbacks.base import Callback
 import matplotlib.pyplot as plt
-import seaborn as sns
 import numpy as np
 from typing import Optional, Dict, Any, List
 import logging

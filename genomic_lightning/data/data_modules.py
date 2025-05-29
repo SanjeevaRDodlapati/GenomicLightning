@@ -2,8 +2,7 @@
 
 import pytorch_lightning as pl
 from torch.utils.data import DataLoader, random_split
-from typing import Optional, Dict, Any, Union
-from pathlib import Path
+from typing import Optional, Dict, Any
 import logging
 
 from .genomic_datasets import DeepSEADataset, GenomicSequenceDataset

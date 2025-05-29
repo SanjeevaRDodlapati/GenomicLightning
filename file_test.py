@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Test script that writes results to file"""
-import sys
 import torch
 
 

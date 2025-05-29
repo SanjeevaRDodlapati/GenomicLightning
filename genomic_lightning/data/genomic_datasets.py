@@ -4,7 +4,7 @@ import h5py
 import torch
 import numpy as np
 from pathlib import Path
-from typing import Tuple, Optional, List, Dict, Any
+from typing import Tuple, Optional, List, Dict
 import logging
 
 from .base import BaseGenomicDataset

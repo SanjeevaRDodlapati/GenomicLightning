@@ -2,7 +2,6 @@
 
 from typing import Dict, Any, Optional
 import torch.nn as nn
-from pathlib import Path
 
 from .loader import ConfigLoader
 from ..models.deepsea import DeepSEA

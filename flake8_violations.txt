@@ -1,0 +1,467 @@
+./check_flake8.py:8:1: F401 'os' imported but unused
+./check_latest_status.py:11:80: E501 line too long (80 > 79 characters)
+./check_latest_status.py:59:80: E501 line too long (94 > 79 characters)
+./debug_syntax.py:17:80: E501 line too long (88 > 79 characters)
+./debug_syntax.py:41:80: E501 line too long (80 > 79 characters)
+./debug_syntax.py:52:11: F541 f-string is missing placeholders
+./debug_syntax.py:63:11: F541 f-string is missing placeholders
+./examples/large_data_training_example.py:3:80: E501 line too long (89 > 79 characters)
+./examples/large_data_training_example.py:20:1: F401 'pathlib.Path' imported but unused
+./examples/large_data_training_example.py:25:1: E402 module level import not at top of file
+./examples/large_data_training_example.py:26:1: E402 module level import not at top of file
+./examples/large_data_training_example.py:26:80: E501 line too long (88 > 79 characters)
+./examples/large_data_training_example.py:27:1: E402 module level import not at top of file
+./examples/large_data_training_example.py:31:80: E501 line too long (87 > 79 characters)
+./examples/large_data_training_example.py:41:80: E501 line too long (82 > 79 characters)
+./examples/large_data_training_example.py:51:80: E501 line too long (83 > 79 characters)
+./examples/large_data_training_example.py:187:80: E501 line too long (84 > 79 characters)
+./examples/large_data_training_example.py:200:80: E501 line too long (86 > 79 characters)
+./examples/large_data_training_example.py:214:80: E501 line too long (81 > 79 characters)
+./examples/large_data_training_example.py:223:80: E501 line too long (80 > 79 characters)
+./examples/large_data_training_example.py:226:80: E501 line too long (83 > 79 characters)
+./examples/large_data_training_example.py:231:80: E501 line too long (86 > 79 characters)
+./examples/large_data_training_example.py:240:80: E501 line too long (82 > 79 characters)
+./examples/large_data_training_example.py:248:80: E501 line too long (87 > 79 characters)
+./examples/large_data_training_example.py:285:80: E501 line too long (80 > 79 characters)
+./examples/large_data_training_example.py:339:80: E501 line too long (85 > 79 characters)
+./examples/large_data_training_example.py:341:80: E501 line too long (89 > 79 characters)
+./examples/simple_training_example.py:15:1: F401 'torch.nn' imported but unused
+./examples/simple_training_example.py:24:1: E402 module level import not at top of file
+./examples/simple_training_example.py:25:1: E402 module level import not at top of file
+./examples/simple_training_example.py:41:80: E501 line too long (84 > 79 characters)
+./examples/simple_training_example.py:73:80: E501 line too long (81 > 79 characters)
+./examples/uavarprior_integration_example.py:3:80: E501 line too long (81 > 79 characters)
+./examples/uavarprior_integration_example.py:27:1: E402 module level import not at top of file
+./examples/uavarprior_integration_example.py:28:1: E402 module level import not at top of file
+./examples/uavarprior_integration_example.py:28:80: E501 line too long (80 > 79 characters)
+./examples/uavarprior_integration_example.py:62:80: E501 line too long (81 > 79 characters)
+./examples/uavarprior_integration_example.py:94:15: F541 f-string is missing placeholders
+./examples/uavarprior_integration_example.py:100:80: E501 line too long (95 > 79 characters)
+./examples/uavarprior_integration_example.py:102:80: E501 line too long (84 > 79 characters)
+./examples/uavarprior_integration_example.py:106:80: E501 line too long (86 > 79 characters)
+./examples/uavarprior_integration_example.py:109:9: F401 'genomic_lightning.models.danq.DanQ' imported but unused
+./examples/uavarprior_integration_example.py:109:80: E501 line too long (84 > 79 characters)
+./examples/uavarprior_integration_example.py:120:80: E501 line too long (86 > 79 characters)
+./examples/uavarprior_integration_example.py:137:80: E501 line too long (81 > 79 characters)
+./examples/uavarprior_integration_example.py:224:80: E501 line too long (86 > 79 characters)
+./examples/uavarprior_integration_example.py:268:80: E501 line too long (106 > 79 characters)
+./examples/uavarprior_integration_example.py:279:80: E501 line too long (86 > 79 characters)
+./examples/uavarprior_integration_example.py:310:80: E501 line too long (80 > 79 characters)
+./file_test.py:3:1: F401 'sys' imported but unused
+./file_test.py:47:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/__init__.py:18:1: F401 '.utils.GenericLightningWrapper' imported but unused
+./genomic_lightning/__init__.py:18:1: F401 '.utils.LegacySamplerWrapper' imported but unused
+./genomic_lightning/__init__.py:18:1: F401 '.utils.H5Dataset' imported but unused
+./genomic_lightning/callbacks/genomic_callbacks.py:3:1: F401 'os' imported but unused
+./genomic_lightning/callbacks/genomic_callbacks.py:5:1: F401 'pytorch_lightning as pl' imported but unused
+./genomic_lightning/callbacks/genomic_callbacks.py:6:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/callbacks/genomic_callbacks.py:9:1: F401 'seaborn as sns' imported but unused
+./genomic_lightning/callbacks/genomic_callbacks.py:91:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/callbacks/genomic_callbacks.py:100:80: E501 line too long (86 > 79 characters)
+./genomic_lightning/callbacks/genomic_callbacks.py:126:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/callbacks/genomic_callbacks.py:148:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/callbacks/genomic_callbacks.py:151:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/callbacks/genomic_callbacks.py:156:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/callbacks/genomic_callbacks.py:162:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/callbacks/genomic_callbacks.py:163:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/callbacks/genomic_callbacks.py:208:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/callbacks/genomic_callbacks.py:249:80: E501 line too long (86 > 79 characters)
+./genomic_lightning/callbacks/genomic_callbacks.py:265:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/callbacks/genomic_callbacks.py:267:17: E722 do not use bare 'except'
+./genomic_lightning/callbacks/genomic_callbacks.py:274:80: E501 line too long (85 > 79 characters)
+./genomic_lightning/callbacks/genomic_callbacks.py:279:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/callbacks/genomic_callbacks.py:396:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/cli/main.py:7:1: F401 'os' imported but unused
+./genomic_lightning/cli/main.py:8:1: F401 'sys' imported but unused
+./genomic_lightning/cli/main.py:9:1: F401 'pathlib.Path' imported but unused
+./genomic_lightning/cli/main.py:20:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/cli/main.py:33:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/cli/main.py:37:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/cli/main.py:83:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/cli/main.py:84:80: E501 line too long (85 > 79 characters)
+./genomic_lightning/cli/main.py:90:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/cli/main.py:122:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/cli/main.py:147:80: E501 line too long (86 > 79 characters)
+./genomic_lightning/cli/main.py:186:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/cli/main.py:216:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/cli/main.py:244:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/cli/main.py:269:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/cli/main.py:279:16: F541 f-string is missing placeholders
+./genomic_lightning/cli/main.py:279:80: E501 line too long (86 > 79 characters)
+./genomic_lightning/config/factory.py:5:1: F401 'pathlib.Path' imported but unused
+./genomic_lightning/config/factory.py:114:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/config/loader.py:16:80: E501 line too long (85 > 79 characters)
+./genomic_lightning/config/loader.py:61:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/data/base.py:32:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/data/base.py:91:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/data/base.py:109:34: E203 whitespace before ':'
+./genomic_lightning/data/base.py:126:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/data/data_modules.py:5:1: F401 'typing.Union' imported but unused
+./genomic_lightning/data/data_modules.py:6:1: F401 'pathlib.Path' imported but unused
+./genomic_lightning/data/data_modules.py:42:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/data/data_modules.py:117:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/data/data_modules.py:193:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/data/data_modules.py:213:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/data/data_modules.py:230:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/data/genomic_datasets.py:7:1: F401 'typing.Any' imported but unused
+./genomic_lightning/data/genomic_datasets.py:54:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/data/genomic_datasets.py:65:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/data/genomic_datasets.py:67:80: E501 line too long (86 > 79 characters)
+./genomic_lightning/data/genomic_datasets.py:102:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/data/genomic_datasets.py:108:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/data/genomic_datasets.py:244:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/data/sampler_adapter.py:6:1: F401 'typing.Union' imported but unused
+./genomic_lightning/data/sampler_adapter.py:51:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/data/sampler_adapter.py:66:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/data/sampler_adapter.py:79:17: E722 do not use bare 'except'
+./genomic_lightning/data/sampler_adapter.py:80:80: E501 line too long (85 > 79 characters)
+./genomic_lightning/data/sampler_adapter.py:95:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/data/sampler_adapter.py:263:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/data/sampler_adapter.py:321:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/data/sampler_adapter.py:323:80: E501 line too long (85 > 79 characters)
+./genomic_lightning/data/sampler_adapter.py:337:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/data/sampler_data_module.py:5:1: F401 'typing.Union' imported but unused
+./genomic_lightning/data/sampler_data_module.py:65:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/data/sampler_data_module.py:77:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/data/sampler_data_module.py:89:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/data/sampler_data_module.py:94:80: E501 line too long (86 > 79 characters)
+./genomic_lightning/data/sampler_data_module.py:110:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/data/sampler_data_module.py:124:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/data/sharded_data_module.py:5:1: F401 'os' imported but unused
+./genomic_lightning/data/sharded_data_module.py:10:1: F401 'typing.Dict' imported but unused
+./genomic_lightning/data/sharded_data_module.py:10:1: F401 'typing.Any' imported but unused
+./genomic_lightning/data/sharded_data_module.py:10:1: F401 'typing.Union' imported but unused
+./genomic_lightning/data/sharded_data_module.py:93:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/data/sharded_data_module.py:109:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/data/sharded_data_module.py:110:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/data/sharded_data_module.py:165:38: E203 whitespace before ':'
+./genomic_lightning/lightning_modules/__init__.py:7:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/lightning_modules/base.py:9:1: F401 'typing.Dict' imported but unused
+./genomic_lightning/lightning_modules/base.py:9:1: F401 'typing.Any' imported but unused
+./genomic_lightning/lightning_modules/base.py:9:1: F401 'typing.Union' imported but unused
+./genomic_lightning/lightning_modules/base.py:9:1: F401 'typing.Tuple' imported but unused
+./genomic_lightning/lightning_modules/base.py:146:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/lightning_modules/base.py:148:80: E501 line too long (85 > 79 characters)
+./genomic_lightning/lightning_modules/base.py:170:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/lightning_modules/base.py:197:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/lightning_modules/base.py:205:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/lightning_modules/base.py:223:13: E722 do not use bare 'except'
+./genomic_lightning/lightning_modules/base.py:239:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/lightning_modules/base.py:281:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/lightning_modules/chromdragonn.py:6:1: F401 'pytorch_lightning as pl' imported but unused
+./genomic_lightning/lightning_modules/chromdragonn.py:7:1: F401 'typing.Dict' imported but unused
+./genomic_lightning/lightning_modules/chromdragonn.py:7:1: F401 'typing.Any' imported but unused
+./genomic_lightning/lightning_modules/chromdragonn.py:7:1: F401 'typing.Union' imported but unused
+./genomic_lightning/lightning_modules/chromdragonn.py:7:1: F401 'typing.Tuple' imported but unused
+./genomic_lightning/lightning_modules/danq.py:6:1: F401 'pytorch_lightning as pl' imported but unused
+./genomic_lightning/lightning_modules/danq.py:7:1: F401 'typing.Dict' imported but unused
+./genomic_lightning/lightning_modules/danq.py:7:1: F401 'typing.Any' imported but unused
+./genomic_lightning/lightning_modules/danq.py:7:1: F401 'typing.Union' imported but unused
+./genomic_lightning/lightning_modules/danq.py:7:1: F401 'typing.Tuple' imported but unused
+./genomic_lightning/lightning_modules/deepsea.py:130:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/lightning_modules/deepsea.py:138:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/lightning_modules/deepsea.py:141:80: E501 line too long (85 > 79 characters)
+./genomic_lightning/lightning_modules/deepsea.py:162:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/lightning_modules/deepsea.py:165:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/lightning_modules/deepsea.py:187:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/lightning_modules/deepsea.py:196:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/lightning_modules/deepsea.py:200:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/metrics/genomic_metrics.py:7:1: F401 'typing.List' imported but unused
+./genomic_lightning/metrics/genomic_metrics.py:16:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/metrics/genomic_metrics.py:99:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/metrics/genomic_metrics.py:179:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/metrics/genomic_metrics.py:278:80: E501 line too long (89 > 79 characters)
+./genomic_lightning/metrics/genomic_metrics.py:283:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/metrics/genomic_metrics.py:299:51: E203 whitespace before ':'
+./genomic_lightning/metrics/genomic_metrics.py:300:55: E203 whitespace before ':'
+./genomic_lightning/metrics/genomic_metrics.py:328:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/metrics/torchmetrics_compat.py:5:1: F401 'torch' imported but unused
+./genomic_lightning/metrics/torchmetrics_compat.py:6:1: F401 'typing.Optional' imported but unused
+./genomic_lightning/metrics/torchmetrics_compat.py:6:1: F401 'typing.Any' imported but unused
+./genomic_lightning/metrics/torchmetrics_compat.py:55:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/models/base.py:19:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/models/base.py:25:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/models/base.py:37:80: E501 line too long (86 > 79 characters)
+./genomic_lightning/models/base.py:52:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/models/base.py:60:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/models/base.py:63:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/models/base.py:71:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/models/base.py:96:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/models/base.py:113:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/models/base.py:142:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/models/chromdragonn.py:4:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/models/chromdragonn.py:5:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/models/chromdragonn.py:93:80: E501 line too long (86 > 79 characters)
+./genomic_lightning/models/danq.py:54:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/models/danq.py:80:80: E501 line too long (86 > 79 characters)
+./genomic_lightning/models/danq.py:89:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/models/deepsea.py:4:80: E501 line too long (85 > 79 characters)
+./genomic_lightning/models/deepsea.py:11:1: F401 'typing.Optional' imported but unused
+./genomic_lightning/models/deepsea.py:11:1: F401 'typing.Tuple' imported but unused
+./genomic_lightning/models/deepsea.py:18:80: E501 line too long (91 > 79 characters)
+./genomic_lightning/models/deepsea.py:41:80: E501 line too long (94 > 79 characters)
+./genomic_lightning/models/deepsea.py:102:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/models/deepsea.py:121:80: E501 line too long (86 > 79 characters)
+./genomic_lightning/models/deepsea.py:122:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/models/deepsea.py:256:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:10:1: F401 'sys' imported but unused
+./genomic_lightning/utils/legacy_import.py:13:1: F401 'importlib.util' imported but unused
+./genomic_lightning/utils/legacy_import.py:14:1: F401 'typing.Dict' imported but unused
+./genomic_lightning/utils/legacy_import.py:14:1: F401 'typing.Any' imported but unused
+./genomic_lightning/utils/legacy_import.py:14:1: F401 'typing.Union' imported but unused
+./genomic_lightning/utils/legacy_import.py:14:1: F401 'typing.Tuple' imported but unused
+./genomic_lightning/utils/legacy_import.py:32:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:127:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:142:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:156:50: E203 whitespace before ':'
+./genomic_lightning/utils/legacy_import.py:186:80: E501 line too long (85 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:199:80: E501 line too long (117 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:208:80: E501 line too long (86 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:211:80: E501 line too long (123 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:306:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:327:50: E203 whitespace before ':'
+./genomic_lightning/utils/legacy_import.py:346:80: E501 line too long (117 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:355:80: E501 line too long (86 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:358:80: E501 line too long (123 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:368:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:384:9: F401 'pytorch_lightning.LightningModule' imported but unused
+./genomic_lightning/utils/legacy_import.py:395:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:403:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:406:80: E501 line too long (85 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:413:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/utils/legacy_import.py:426:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/utils/model_conversion.py:11:1: F401 'numpy as np' imported but unused
+./genomic_lightning/utils/model_conversion.py:12:1: F401 'typing.Any' imported but unused
+./genomic_lightning/utils/model_conversion.py:12:1: F401 'typing.Union' imported but unused
+./genomic_lightning/utils/model_conversion.py:33:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/utils/model_conversion.py:70:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/utils/model_conversion.py:72:80: E501 line too long (89 > 79 characters)
+./genomic_lightning/utils/model_conversion.py:122:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/utils/model_conversion.py:132:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/utils/model_conversion.py:233:80: E501 line too long (105 > 79 characters)
+./genomic_lightning/utils/model_conversion.py:258:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/utils/model_conversion.py:263:5: F401 'pytorch_lightning.LightningModule' imported but unused
+./genomic_lightning/utils/model_conversion.py:266:80: E501 line too long (85 > 79 characters)
+./genomic_lightning/utils/model_conversion.py:272:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/utils/model_conversion.py:291:80: E501 line too long (85 > 79 characters)
+./genomic_lightning/utils/model_conversion.py:297:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/utils/prediction_utils.py:13:1: F401 'typing.Any' imported but unused
+./genomic_lightning/utils/prediction_utils.py:13:1: F401 'typing.Tuple' imported but unused
+./genomic_lightning/utils/prediction_utils.py:30:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/utils/prediction_utils.py:31:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/utils/prediction_utils.py:56:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/utils/prediction_utils.py:94:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/utils/prediction_utils.py:116:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/utils/prediction_utils.py:144:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/utils/prediction_utils.py:181:80: E501 line too long (85 > 79 characters)
+./genomic_lightning/utils/prediction_utils.py:223:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/utils/prediction_utils.py:267:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/utils/prediction_utils.py:280:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/utils/prediction_utils.py:300:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/utils/prediction_utils.py:410:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/utils/prediction_utils.py:419:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/utils/sampler_utils.py:12:1: F401 'typing.Dict' imported but unused
+./genomic_lightning/utils/sampler_utils.py:12:1: F401 'typing.Union' imported but unused
+./genomic_lightning/utils/sampler_utils.py:22:80: E501 line too long (94 > 79 characters)
+./genomic_lightning/utils/sampler_utils.py:35:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/utils/sampler_utils.py:76:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/utils/sampler_utils.py:79:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/utils/sampler_utils.py:98:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/utils/sampler_utils.py:141:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/utils/sampler_utils.py:144:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/utils/sampler_utils.py:189:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/utils/sampler_utils.py:201:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/utils/sampler_utils.py:251:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/utils/sampler_utils.py:255:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/utils/sampler_utils.py:340:80: E501 line too long (86 > 79 characters)
+./genomic_lightning/utils/sampler_utils.py:344:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/utils/sampler_utils.py:419:17: F841 local variable 'shard_indices' is assigned to but never used
+./genomic_lightning/utils/sampler_utils.py:471:80: E501 line too long (91 > 79 characters)
+./genomic_lightning/utils/sampler_utils.py:473:80: E501 line too long (99 > 79 characters)
+./genomic_lightning/utils/wrapper_conversion.py:10:1: F401 'typing.Any' imported but unused
+./genomic_lightning/utils/wrapper_conversion.py:10:1: F401 'typing.Union' imported but unused
+./genomic_lightning/utils/wrapper_conversion.py:42:80: E501 line too long (85 > 79 characters)
+./genomic_lightning/utils/wrapper_conversion.py:92:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/utils/wrapper_conversion.py:100:80: E501 line too long (99 > 79 characters)
+./genomic_lightning/utils/wrapper_conversion.py:242:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/utils/wrapper_conversion.py:248:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/utils/wrapper_conversion.py:278:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/utils/wrapper_conversion.py:321:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/utils/wrapper_conversion.py:325:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/utils/wrapper_conversion.py:329:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/utils/wrapper_conversion.py:333:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/utils/wrapper_conversion.py:401:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:15:1: F401 'typing.Dict' imported but unused
+./genomic_lightning/variant_analysis/variant_effect.py:15:1: F401 'typing.Any' imported but unused
+./genomic_lightning/variant_analysis/variant_effect.py:15:1: F401 'typing.Callable' imported but unused
+./genomic_lightning/variant_analysis/variant_effect.py:15:1: F401 'typing.Iterator' imported but unused
+./genomic_lightning/variant_analysis/variant_effect.py:17:1: F401 'pathlib.Path' imported but unused
+./genomic_lightning/variant_analysis/variant_effect.py:19:1: F401 'tqdm.tqdm' imported but unused
+./genomic_lightning/variant_analysis/variant_effect.py:68:80: E501 line too long (86 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:88:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:100:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:111:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:123:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:156:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:159:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:160:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:173:80: E501 line too long (85 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:174:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:276:80: E501 line too long (86 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:280:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:280:85: E203 whitespace before ':'
+./genomic_lightning/variant_analysis/variant_effect.py:288:80: E501 line too long (80 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:402:80: E501 line too long (96 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:410:80: E501 line too long (87 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:459:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/variant_analysis/variant_effect.py:481:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/visualization/motif_visualization.py:4:80: E501 line too long (90 > 79 characters)
+./genomic_lightning/visualization/motif_visualization.py:5:80: E501 line too long (90 > 79 characters)
+./genomic_lightning/visualization/motif_visualization.py:14:1: F401 'typing.Dict' imported but unused
+./genomic_lightning/visualization/motif_visualization.py:30:80: E501 line too long (84 > 79 characters)
+./genomic_lightning/visualization/motif_visualization.py:71:80: E501 line too long (85 > 79 characters)
+./genomic_lightning/visualization/motif_visualization.py:93:80: E501 line too long (82 > 79 characters)
+./genomic_lightning/visualization/motif_visualization.py:100:9: F841 local variable 'bases' is assigned to but never used
+./genomic_lightning/visualization/motif_visualization.py:107:9: F841 local variable 'logo' is assigned to but never used
+./genomic_lightning/visualization/motif_visualization.py:118:80: E501 line too long (86 > 79 characters)
+./genomic_lightning/visualization/motif_visualization.py:155:80: E501 line too long (83 > 79 characters)
+./genomic_lightning/visualization/motif_visualization.py:172:80: E501 line too long (81 > 79 characters)
+./genomic_lightning/visualization/motif_visualization.py:191:13: F841 local variable 'logo' is assigned to but never used
+./genomic_lightning/visualization/motif_visualization.py:237:80: E501 line too long (96 > 79 characters)
+./genomic_lightning/visualization/motif_visualization.py:241:5: F841 local variable 'n_filters' is assigned to but never used
+./genomic_lightning/visualization/motif_visualization.py:259:80: E501 line too long (88 > 79 characters)
+./genomic_lightning/visualization/motif_visualization.py:274:80: E501 line too long (109 > 79 characters)
+./genomic_lightning/visualization/motif_visualization.py:302:80: E501 line too long (81 > 79 characters)
+./memory_leak_fix.py:28:80: E501 line too long (84 > 79 characters)
+./quick_test.py:10:9: F401 'genomic_lightning' imported but unused
+./quick_test.py:20:9: F841 local variable 'metric' is assigned to but never used
+./scripts/bump_version.py:13:80: E501 line too long (81 > 79 characters)
+./scripts/convert_legacy_model.py:15:1: F401 'genomic_lightning.ConfigFactory' imported but unused
+./scripts/convert_legacy_model.py:15:1: E402 module level import not at top of file
+./scripts/convert_legacy_model.py:16:1: E402 module level import not at top of file
+./scripts/convert_legacy_model.py:37:80: E501 line too long (88 > 79 characters)
+./scripts/convert_legacy_model.py:152:80: E501 line too long (81 > 79 characters)
+./scripts/convert_legacy_model.py:203:80: E501 line too long (86 > 79 characters)
+./scripts/convert_legacy_model.py:235:80: E501 line too long (88 > 79 characters)
+./scripts/generate_sample_data.py:12:1: F401 'typing.Tuple' imported but unused
+./scripts/generate_sample_data.py:12:1: F401 'typing.List' imported but unused
+./scripts/generate_sample_data.py:24:80: E501 line too long (80 > 79 characters)
+./scripts/generate_sample_data.py:54:80: E501 line too long (87 > 79 characters)
+./scripts/generate_sample_data.py:154:80: E501 line too long (82 > 79 characters)
+./scripts/generate_sample_data.py:157:80: E501 line too long (81 > 79 characters)
+./scripts/predict_variant_effects.py:17:1: E402 module level import not at top of file
+./scripts/predict_variant_effects.py:18:1: E402 module level import not at top of file
+./scripts/predict_variant_effects.py:19:1: E402 module level import not at top of file
+./scripts/predict_variant_effects.py:35:80: E501 line too long (81 > 79 characters)
+./scripts/predict_variant_effects.py:40:80: E501 line too long (89 > 79 characters)
+./scripts/predict_variant_effects.py:67:80: E501 line too long (83 > 79 characters)
+./scripts/predict_variant_effects.py:80:80: E501 line too long (86 > 79 characters)
+./scripts/predict_variant_effects.py:170:80: E501 line too long (81 > 79 characters)
+./scripts/predict_variant_effects.py:186:80: E501 line too long (84 > 79 characters)
+./scripts/predict_variant_effects.py:187:80: E501 line too long (81 > 79 characters)
+./scripts/predict_variant_effects.py:205:80: E501 line too long (86 > 79 characters)
+./scripts/predict_variant_effects.py:223:80: E501 line too long (81 > 79 characters)
+./scripts/train_genomic_model.py:134:80: E501 line too long (87 > 79 characters)
+./scripts/train_genomic_model.py:140:80: E501 line too long (87 > 79 characters)
+./scripts/train_genomic_model.py:165:80: E501 line too long (83 > 79 characters)
+./scripts/train_genomic_model.py:182:80: E501 line too long (86 > 79 characters)
+./scripts/train_genomic_model.py:190:80: E501 line too long (83 > 79 characters)
+./scripts/version_manager.py:13:1: F401 'json' imported but unused
+./scripts/version_manager.py:24:80: E501 line too long (85 > 79 characters)
+./scripts/version_manager.py:48:80: E501 line too long (80 > 79 characters)
+./scripts/version_manager.py:99:80: E501 line too long (87 > 79 characters)
+./scripts/version_manager.py:127:80: E501 line too long (88 > 79 characters)
+./scripts/version_manager.py:138:80: E501 line too long (114 > 79 characters)
+./scripts/version_manager.py:145:80: E501 line too long (138 > 79 characters)
+./scripts/version_manager.py:166:80: E501 line too long (108 > 79 characters)
+./scripts/version_manager.py:173:80: E501 line too long (88 > 79 characters)
+./scripts/version_manager.py:190:80: E501 line too long (87 > 79 characters)
+./scripts/version_manager.py:192:80: E501 line too long (85 > 79 characters)
+./scripts/version_manager.py:211:80: E501 line too long (84 > 79 characters)
+./setup.py:29:80: E501 line too long (81 > 79 characters)
+./setup.py:57:80: E501 line too long (83 > 79 characters)
+./test_import_debug.py:3:1: F401 'os' imported but unused
+./test_imports.py:49:13: F841 local variable 'model' is assigned to but never used
+./test_imports.py:58:13: F841 local variable 'metric' is assigned to but never used
+./test_infrastructure.py:8:1: F401 'os' imported but unused
+./test_infrastructure.py:24:80: E501 line too long (80 > 79 characters)
+./test_infrastructure.py:63:80: E501 line too long (84 > 79 characters)
+./test_infrastructure.py:66:80: E501 line too long (82 > 79 characters)
+./test_infrastructure.py:72:80: E501 line too long (80 > 79 characters)
+./test_infrastructure.py:108:80: E501 line too long (84 > 79 characters)
+./test_infrastructure.py:109:80: E501 line too long (86 > 79 characters)
+./test_infrastructure.py:110:80: E501 line too long (84 > 79 characters)
+./test_infrastructure.py:125:80: E501 line too long (97 > 79 characters)
+./test_infrastructure.py:128:80: E501 line too long (80 > 79 characters)
+./test_infrastructure.py:141:80: E501 line too long (89 > 79 characters)
+./test_uavarprior_integration_fix.py:7:1: F401 'os' imported but unused
+./test_uavarprior_integration_fix.py:19:9: F841 local variable 'sampler_utils' is assigned to but never used
+./test_uavarprior_integration_fix.py:28:80: E501 line too long (80 > 79 characters)
+./test_uavarprior_integration_fix.py:41:80: E501 line too long (80 > 79 characters)
+./test_uavarprior_integration_fix.py:44:80: E501 line too long (80 > 79 characters)
+./test_uavarprior_integration_fix.py:57:9: F401 'genomic_lightning.data.sampler_adapter.SamplerAdapter' imported but unused
+./test_uavarprior_integration_fix.py:77:9: F841 local variable 'result' is assigned to but never used
+./test_uavarprior_integration_fix.py:79:80: E501 line too long (84 > 79 characters)
+./test_uavarprior_integration_fix.py:116:80: E501 line too long (87 > 79 characters)
+./tests/__init__.py:4:1: F401 'os' imported but unused
+./tests/integration/test_end_to_end.py:9:1: F401 'pathlib.Path' imported but unused
+./tests/integration/test_end_to_end.py:19:1: F401 'genomic_lightning.data.data_modules.GenomicDataModule' imported but unused
+./tests/integration/test_end_to_end.py:20:1: F401 'pytorch_lightning as pl' imported but unused
+./tests/integration/test_end_to_end.py:30:80: E501 line too long (83 > 79 characters)
+./tests/integration/test_end_to_end.py:31:80: E501 line too long (82 > 79 characters)
+./tests/integration/test_end_to_end.py:32:80: E501 line too long (87 > 79 characters)
+./tests/integration/test_end_to_end.py:43:80: E501 line too long (81 > 79 characters)
+./tests/integration/test_end_to_end.py:134:80: E501 line too long (80 > 79 characters)
+./tests/integration/test_end_to_end.py:142:80: E501 line too long (85 > 79 characters)
+./tests/integration/test_end_to_end.py:189:80: E501 line too long (86 > 79 characters)
+./tests/integration/test_end_to_end.py:246:1: W293 blank line contains whitespace
+./tests/integration/test_end_to_end.py:350:80: E501 line too long (80 > 79 characters)
+./tests/metrics/test_genomic_metrics.py:7:1: F401 'numpy as np' imported but unused
+./tests/metrics/test_genomic_metrics.py:117:80: E501 line too long (80 > 79 characters)
+./tests/smoke/test_basic_functionality.py:4:80: E501 line too long (86 > 79 characters)
+./tests/smoke/test_basic_functionality.py:8:1: F401 'sys' imported but unused
+./tests/smoke/test_basic_functionality.py:9:1: F401 'os' imported but unused
+./tests/smoke/test_basic_functionality.py:15:9: F401 'genomic_lightning' imported but unused
+./tests/smoke/test_basic_functionality.py:30:80: E501 line too long (93 > 79 characters)
+./tests/smoke/test_basic_functionality.py:40:9: F401 'genomic_lightning.models' imported but unused
+./tests/smoke/test_basic_functionality.py:79:9: F401 'genomic_lightning.data' imported but unused
+./tests/test_functionality.py:7:1: F401 'sys' imported but unused
+./tests/test_functionality.py:34:15: F541 f-string is missing placeholders
+./tests/test_functionality.py:42:9: F401 'genomic_lightning.models' imported but unused
+./tests/test_functionality.py:42:9: F401 'genomic_lightning.data' imported but unused
+./tests/test_functionality.py:42:9: F401 'genomic_lightning.config' imported but unused
+./tests/test_functionality.py:42:9: F401 'genomic_lightning.utils' imported but unused
+./tests/test_import.py:12:9: F401 'genomic_lightning.models.DeepSEA' imported but unused
+./tests/test_import.py:12:9: F401 'genomic_lightning.models.DanQ' imported but unused
+./tests/test_import.py:22:9: F401 'genomic_lightning.data.GenomicDataModule' imported but unused
+./tests/test_import.py:22:9: F401 'genomic_lightning.data.BaseGenomicDataset' imported but unused
+./tests/test_import.py:22:80: E501 line too long (80 > 79 characters)
+./tests/test_import.py:32:9: F401 'genomic_lightning.lightning_modules.DeepSEALightningModule' imported but unused
+./tests/test_import.py:42:9: F401 'genomic_lightning.utils.import_uavarprior_model' imported but unused
+./tests/test_infrastructure.py:7:1: F401 'os' imported but unused
+./tests/test_infrastructure.py:22:80: E501 line too long (80 > 79 characters)
+./tests/test_infrastructure.py:59:80: E501 line too long (84 > 79 characters)
+./tests/test_infrastructure.py:62:80: E501 line too long (82 > 79 characters)
+./tests/test_infrastructure.py:68:80: E501 line too long (80 > 79 characters)
+./tests/test_infrastructure.py:102:80: E501 line too long (84 > 79 characters)
+./tests/test_infrastructure.py:103:80: E501 line too long (86 > 79 characters)
+./tests/test_infrastructure.py:104:80: E501 line too long (84 > 79 characters)
+./verify_deployment_readiness.py:7:1: F401 'os' imported but unused
+./verify_deployment_readiness.py:9:1: F401 'subprocess' imported but unused
+./verify_deployment_readiness.py:12:1: F401 'json' imported but unused
+./verify_deployment_readiness.py:59:9: F401 'genomic_lightning' imported but unused
+./verify_deployment_readiness.py:60:9: F401 'genomic_lightning.metrics.genomic_metrics' imported but unused
+./verify_deployment_readiness.py:61:9: F401 'genomic_lightning.models.danq' imported but unused
+./verify_deployment_readiness.py:61:9: F401 'genomic_lightning.models.chromdragonn' imported but unused
+./verify_deployment_readiness.py:103:9: F841 local variable 'has_performance_test' is assigned to but never used
+./verify_deployment_readiness.py:107:80: E501 line too long (87 > 79 characters)
+./verify_deployment_readiness.py:125:80: E501 line too long (82 > 79 characters)
+./verify_deployment_readiness.py:147:80: E501 line too long (85 > 79 characters)
+./verify_deployment_readiness.py:166:80: E501 line too long (86 > 79 characters)
+./workflow_monitor.py:15:80: E501 line too long (100 > 79 characters)
+./workflow_monitor.py:32:5: F841 local variable 'created' is assigned to but never used
+./workflow_monitor.py:54:80: E501 line too long (121 > 79 characters)
+./workflow_monitor.py:100:80: E501 line too long (83 > 79 characters)
+./workflow_monitor.py:102:80: E501 line too long (82 > 79 characters)
+./workflow_monitor.py:127:80: E501 line too long (95 > 79 characters)
+./workflow_monitor.py:133:80: E501 line too long (104 > 79 characters)
